@@ -7,7 +7,9 @@ Proposta de módulos derivada do `CONTEXT.md` e das ADRs 0001 a 0024. Usa o voca
 ### 1. Panorama da noite
 
 - **Responsabilidade:** responder "como está cada rua coberta nesta faixa horária". É o módulo de leitura das telas Início, Mapa, Detalhe da rua e Visão geral desktop.
-- **Interface:** `panorama(faixaHorária, agora) → { ruas: [{ rua, estimativa, saídasPrevistas, distânciaAoDestino }], melhorChance, demonstração: boolean }`
+- **Interface:**
+  - `panorama(faixaHorária, agora) → { ruas: [{ rua, estimativa, saídasPrevistas, distânciaAoDestino }], melhorChance, demonstração: boolean }`
+  - `ruaAoLongoDaNoite(rua, agora) → { rua, distânciaAoDestino, meioDoTrecho, faixasHorárias: [{ faixaHorária, estimativa }], melhorFaixaHorária, demonstração }`, para o Detalhe da rua
 - **Esconde:**
   - a regra da melhor chance: desempate pela distância até o destino e ruas Sem dado fora da disputa;
   - a junção de Chance, Registros de vaga e Área coberta;
