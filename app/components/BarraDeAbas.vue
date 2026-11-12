@@ -27,7 +27,8 @@ const abas = [
   z-index: 10;
   display: flex;
   gap: var(--paro-esp-1);
-  max-width: 600px;
+  /* Alinhada às bordas do conteúdo das telas. */
+  max-width: calc(var(--paro-largura-conteudo) - 2 * var(--paro-margem));
   height: var(--paro-esp-16);
   margin: 0 auto;
   padding: var(--paro-esp-1);

@@ -114,7 +114,7 @@ function subtitulo(estimativa: Estimativa) {
 
 <style scoped>
 .inicio {
-  max-width: 640px;
+  max-width: var(--paro-largura-conteudo);
   margin: 0 auto;
   padding: var(--paro-esp-8) var(--paro-margem);
 }
