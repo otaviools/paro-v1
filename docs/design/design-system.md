@@ -296,7 +296,6 @@ O logotipo e o símbolo continuam os mesmos, usados a partir dos arquivos origin
 
 | # | Assunto | Situação |
 |---|---|---|
-| 1 | Arquivos do logotipo e do ícone do app | Precisam ser copiados para este repositório, porque o repositório de marca deixou de ser referência |
+| 1 | Arquivos do logotipo e do ícone do app | Precisam ser copiados para este repositório, porque o repositório de marca deixou de ser referência. Até lá, o PWA usa um ícone provisório (`public/icone.svg`) |
 | 2 | Conjunto de ícones | Ainda não escolhido. A tabela de ícones acima usa nomes genéricos |
-| 3 | Algarismos tabulares da Figtree | Conferir no app se a Figtree aplica `tabular-nums` em horários e distâncias. Se não aplicar, usar JetBrains Mono só nesses números |
-| 4 | Protótipo no Figma | Precisa ser atualizado para a paleta Papel e a fonte Figtree |
+| 3 | Protótipo no Figma | Precisa ser atualizado para a paleta Papel e a fonte Figtree |
