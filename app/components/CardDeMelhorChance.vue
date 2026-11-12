@@ -5,10 +5,13 @@
   que ainda não há dados para a faixa horária.
 -->
 <script setup lang="ts">
+import type { EstadoDaChance } from '~/components/AmostraDeFaixaDeChance.vue'
+
 export interface MelhorChance {
   rua: { nome: string }
   estimativa: {
-    faixaDeChance: 'Tranquilo' | 'Apertado' | 'Difícil'
+    /** A melhor chance nunca é Sem dado. */
+    faixaDeChance: Exclude<EstadoDaChance, 'Sem dado'>
     base: { observações: number, última: string }
   }
   distânciaAoDestino: number
