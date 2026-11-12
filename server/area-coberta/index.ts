@@ -101,11 +101,11 @@ export function criarAreaCoberta(configuracao: ConfiguracaoDaAreaCoberta) {
 
     /** Todas as faixas horárias da área coberta, em ordem. */
     faixasHorárias(): FaixaHorária[] {
-      const faixas: FaixaHorária[] = []
-      for (let m = INICIO_EM_MINUTOS; m < FIM_EM_MINUTOS; m += DURACAO_DA_FAIXA) {
-        faixas.push(formatarMinutos(m))
+      const faixasHorárias: FaixaHorária[] = []
+      for (let minutos = INICIO_EM_MINUTOS; minutos < FIM_EM_MINUTOS; minutos += DURACAO_DA_FAIXA) {
+        faixasHorárias.push(formatarMinutos(minutos))
       }
-      return faixas
+      return faixasHorárias
     },
 
     /** Faixa horária do instante, ou null fora da área coberta. */
