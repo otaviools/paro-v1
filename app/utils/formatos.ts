@@ -28,11 +28,6 @@ export function intervaloDaFaixaHoraria(inicio: string) {
   return `${rotuloDaFaixaHoraria(inicio)}–${rotuloDaFaixaHoraria(hhmm(fim))}`
 }
 
-/** Chance em número, só no detalhe da rua (ADR 0006): 70 → "70%". */
-export function textoDaChance(chance: number) {
-  return `${Math.round(chance)}%`
-}
-
 /**
  * Chance em número com a base (ADR 0006): "7 de 10 noites · última em 04/11".
  * As noites não cheias voltam da chance, que é exatamente não cheias / base.
