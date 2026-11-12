@@ -54,6 +54,18 @@ export const configuracaoDaAreaCoberta: ConfiguracaoDaAreaCoberta = {
 
   // PROVISÓRIO: datas estimadas até a publicação do calendário oficial (ADRs 0008 e 0011).
   calendarioLetivo: [
+    // PROVISÓRIO, SÓ PARA DEMONSTRAÇÃO: semestre que cobre novembro de 2026,
+    // para que as observações fictícias apareçam antes de 2027 (ADRs 0011 e 0012).
+    // Não é o calendário real da ESAMC. Remover quando as observações reais começarem.
+    {
+      id: '2026-2-demonstracao',
+      de: '2026-08-03',
+      ate: '2026-12-11',
+      diasDeAula: [1, 2, 3, 4, 5],
+      provas: [],
+      feriados: ['2026-09-07', '2026-10-12', '2026-11-02', '2026-11-20'],
+      ferias: [],
+    },
     {
       id: '2027-1',
       de: '2027-02-15',
