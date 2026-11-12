@@ -249,16 +249,20 @@ O aviso "Dados de demonstração" (ADR 0012) usa o card Aviso com o sinal `--par
 
 Um único conjunto, em traço uniforme, sempre acompanhado de rótulo na barra de abas e nas linhas de ação. Sem emoji.
 
-| Uso | Ícone (nome genérico) |
-|---|---|
-| Início | casa |
-| Mapa | mapa dobrado |
-| Minha vaga | carro |
-| Ajustes | engrenagem |
-| Distância a pé | pessoa andando |
-| Como chegar | seta de direção |
-| Apagar histórico | lixeira |
-| Aviso | círculo com "i" |
+O conjunto é o **Lucide**, usado pelo Nuxt UI com o prefixo `i-lucide-` e servido pelo próprio app (pacote `@iconify-json/lucide`), para funcionar offline no PWA.
+
+| Uso | Ícone (nome genérico) | Lucide |
+|---|---|---|
+| Início | casa | `house` |
+| Mapa | mapa dobrado | `map` |
+| Minha vaga | carro | `car` |
+| Ajustes | engrenagem | `settings` |
+| Distância a pé | pessoa andando | `footprints` |
+| Como chegar | seta de direção | `navigation` |
+| Apagar histórico | lixeira | `trash-2` |
+| Aviso | círculo com "i" | `info` |
+
+O Lucide não tem uma pessoa andando; `footprints` (pegadas) é o ícone mais próximo.
 
 ## Padrões de navegação
 
@@ -297,5 +301,4 @@ O logotipo e o símbolo continuam os mesmos, usados a partir dos arquivos origin
 | # | Assunto | Situação |
 |---|---|---|
 | 1 | Arquivos do logotipo e do ícone do app | Precisam ser copiados para este repositório, porque o repositório de marca deixou de ser referência. Até lá, o PWA usa um ícone provisório (`public/icone.svg`) |
-| 2 | Conjunto de ícones | Ainda não escolhido. A tabela de ícones acima usa nomes genéricos |
-| 3 | Protótipo no Figma | Precisa ser atualizado para a paleta Papel e a fonte Figtree |
+| 2 | Protótipo no Figma | Precisa ser atualizado para a paleta Papel e a fonte Figtree |
