@@ -3,19 +3,19 @@ import type { EstadoDaChance } from '~/components/AmostraDeFaixaDeChance.vue'
 import { dadosDoCelularDoAparelho } from '~/dados-do-celular'
 
 /** Faixas horárias fixas das abas do Início, além de Agora. */
-const HORARIOS_DAS_ABAS = ['19:00', '21:00', '22:00']
+const FAIXAS_HORARIAS_DAS_ABAS = ['19:00', '21:00', '22:00']
 
 /** Rotina do celular; lida só no navegador, depois de montar. */
 const rotina = ref<string | null>(null)
 
 /** Agora, 19h, 21h e 22h; a rotina ganha a sua aba quando não é uma delas. */
 const abas = computed(() => {
-  const horarios = rotina.value && !HORARIOS_DAS_ABAS.includes(rotina.value)
-    ? [...HORARIOS_DAS_ABAS, rotina.value].sort()
-    : HORARIOS_DAS_ABAS
+  const faixasHorarias = rotina.value && !FAIXAS_HORARIAS_DAS_ABAS.includes(rotina.value)
+    ? [...FAIXAS_HORARIAS_DAS_ABAS, rotina.value].sort()
+    : FAIXAS_HORARIAS_DAS_ABAS
   return [
     { valor: 'agora', rotulo: 'Agora' },
-    ...horarios.map((h) => ({ valor: h, rotulo: rotuloDaFaixaHoraria(h) })),
+    ...faixasHorarias.map((f) => ({ valor: f, rotulo: rotuloDaFaixaHoraria(f) })),
   ]
 })
 
@@ -34,6 +34,15 @@ onMounted(() => {
   rotina.value = dadosDoCelularDoAparelho().rotina()
   faixaHoraria.value = rotina.value ?? 'agora'
   execute()
+})
+
+// Uma rotina guardada que deixou de ser faixa horária da área coberta (o
+// servidor recusa com 400) vale como sem rotina: o Início volta para Agora.
+watch(error, (erro) => {
+  if (erro?.statusCode === 400 && rotina.value !== null && faixaHoraria.value === rotina.value) {
+    rotina.value = null
+    faixaHoraria.value = 'agora'
+  }
 })
 
 const carregando = computed(() => status.value === 'idle' || status.value === 'pending')
