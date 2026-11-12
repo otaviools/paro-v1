@@ -5,4 +5,4 @@ O plano dizia que a saída prevista "entra na previsão de quem está chegando" 
 ## Consequences
 
 - Sem a localização ligada, a pessoa escolhe a rua coberta numa lista. Nesse caso, "Voltar até o carro" não fica disponível.
-- Com a localização ligada, o celular usa a posição para sugerir a rua coberta mais próxima e guarda o ponto exato só no aparelho.
+- Com a localização ligada, o celular usa a posição para propor a rua coberta mais próxima e guarda o ponto exato só no aparelho.
