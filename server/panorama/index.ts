@@ -1,5 +1,5 @@
 import { areaCoberta as areaCobertaDoApp } from '../area-coberta'
-import type { AreaCoberta, FaixaHorária } from '../area-coberta'
+import type { AreaCoberta, FaixaHorária, Ponto } from '../area-coberta'
 import { estimar, estimativaDe } from '../chance'
 import type { ConfiguracaoDaChance, Estimativa } from '../chance'
 import { configuracaoDaChance } from '../chance/configuracao'
@@ -32,6 +32,27 @@ export interface Panorama {
   demonstração: boolean
 }
 
+/** Estimativa de uma rua coberta numa faixa horária da noite. */
+export interface FaixaHoráriaDaRua {
+  faixaHorária: FaixaHorária
+  estimativa: Estimativa
+}
+
+/** Uma rua coberta em todas as faixas horárias da noite (Detalhe da rua). */
+export interface RuaAoLongoDaNoite {
+  rua: { id: string, nome: string }
+  /** Distância a pé do meio do trecho até o destino, em metros. */
+  distânciaAoDestino: number
+  /** Ponto da rua coberta: o meio do trecho, destino de "Como chegar" (ADRs 0020 e 0024). */
+  meioDoTrecho: Ponto
+  /** Estimativa de cada faixa horária das 17h às 23h, em ordem. */
+  faixasHorárias: FaixaHoráriaDaRua[]
+  /** Faixa horária de maior chance da rua; faixas Sem dado não concorrem. */
+  melhorFaixa: FaixaHorária | null
+  /** Verdadeiro enquanto a chance vier de observações fictícias (ADR 0012). */
+  demonstração: boolean
+}
+
 export interface DependênciasDoPanorama {
   areaCoberta: AreaCoberta
   observações: Observações
@@ -45,6 +66,12 @@ export type FaixaHoráriaPedida = FaixaHorária | 'agora'
 export class FaixaHoráriaInválida extends Error {
   constructor(faixaHorária: string) {
     super(`"${faixaHorária}" não é uma faixa horária da área coberta`)
+  }
+}
+
+export class RuaNãoCoberta extends Error {
+  constructor(idDaRua: string) {
+    super(`"${idDaRua}" não é uma rua coberta`)
   }
 }
 
@@ -64,6 +91,14 @@ function temChance(rua: RuaNoPanorama): rua is MelhorChance {
 }
 
 export function criarPanorama({ areaCoberta, observações, chance = configuracaoDaChance }: DependênciasDoPanorama) {
+  /** Estimativas do semestre da noite de `agora`; vazias fora de qualquer semestre. */
+  async function estimativasDaNoite(agora: Date): Promise<Map<string, Estimativa>> {
+    const semestre = areaCoberta.semestreDe(areaCoberta.noiteDe(agora))
+    return semestre
+      ? estimar(await observações.doSemestre(semestre), semestre, areaCoberta, chance)
+      : new Map()
+  }
+
   return {
     /**
      * Como está cada rua coberta na faixa horária, na noite de `agora`.
@@ -76,10 +111,7 @@ export function criarPanorama({ areaCoberta, observações, chance = configuraca
       if (faixaHorária === null) return { faixaHorária, ruas: [], melhorChance: null, demonstração }
       if (!areaCoberta.faixasHorárias().includes(faixaHorária)) throw new FaixaHoráriaInválida(faixaHorária)
 
-      const semestre = areaCoberta.semestreDe(areaCoberta.noiteDe(agora))
-      const estimativas = semestre
-        ? estimar(await observações.doSemestre(semestre), semestre, areaCoberta, chance)
-        : new Map()
+      const estimativas = await estimativasDaNoite(agora)
 
       const ruas: RuaNoPanorama[] = areaCoberta.ruasCobertas().map((rua) => ({
         rua: { id: rua.id, nome: rua.nome },
@@ -89,6 +121,29 @@ export function criarPanorama({ areaCoberta, observações, chance = configuraca
 
       // As ruas já estão na ordem da melhor chance; Sem dado fica no fim e não concorre.
       return { faixaHorária, ruas, melhorChance: ruas.find(temChance) ?? null, demonstração }
+    },
+
+    /** Como está uma rua coberta em cada faixa horária da noite de `agora`. */
+    async ruaAoLongoDaNoite(idDaRua: string, agora: Date): Promise<RuaAoLongoDaNoite> {
+      const rua = areaCoberta.ruasCobertas().find((r) => r.id === idDaRua)
+      if (!rua) throw new RuaNãoCoberta(idDaRua)
+      const estimativas = await estimativasDaNoite(agora)
+      const faixasHorárias = areaCoberta.faixasHorárias().map((faixaHorária) => ({
+        faixaHorária,
+        estimativa: estimativaDe(estimativas, idDaRua, faixaHorária),
+      }))
+      const melhor = faixasHorárias.reduce<FaixaHoráriaDaRua | null>((atual, faixa) =>
+        faixa.estimativa.tipo === 'chance' && (atual === null || chanceParaOrdenar(faixa.estimativa) > chanceParaOrdenar(atual.estimativa))
+          ? faixa
+          : atual, null)
+      return {
+        rua: { id: rua.id, nome: rua.nome },
+        distânciaAoDestino: areaCoberta.distânciaAoDestino(rua.id),
+        meioDoTrecho: rua.trecho.meio,
+        faixasHorárias,
+        melhorFaixa: melhor?.faixaHorária ?? null,
+        demonstração: observações.éDemonstração(),
+      }
     },
   }
 }
