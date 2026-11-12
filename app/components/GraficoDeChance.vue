@@ -16,7 +16,7 @@ export interface FaixaHorariaDoGrafico {
 const props = defineProps<{
   faixasHorarias: FaixaHorariaDoGrafico[]
   /** Faixa horária de maior chance; null quando a rua está Sem dado a noite toda. */
-  melhorFaixa: string | null
+  melhorFaixaHoraria: string | null
 }>()
 
 const selecionada = defineModel<string | null>({ required: true })
@@ -52,7 +52,7 @@ const horasDoEixo = computed(() =>
     <header class="cabecalho">
       <h2 :id="`${id}-titulo`" class="etiqueta">Chance ao longo da noite</h2>
       <p class="resumo">
-        <template v-if="melhorFaixa">Melhor faixa: {{ intervaloDaFaixaHoraria(melhorFaixa) }}</template>
+        <template v-if="melhorFaixaHoraria">Melhor faixa: {{ intervaloDaFaixaHoraria(melhorFaixaHoraria) }}</template>
         <template v-else>Sem dado a noite toda</template>
       </p>
     </header>

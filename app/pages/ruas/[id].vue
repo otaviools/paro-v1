@@ -14,18 +14,18 @@ const router = useRouter()
 
 const { data: rua, error } = await useFetch(() => `/api/ruas/${route.params.id}`)
 
-/** Faixa horária vinda do Início; sem ela, a melhor faixa. */
+/** Faixa horária vinda do Início; sem ela, a melhor faixa horária. */
 const escolhida = ref<string | null>(typeof route.query.faixaHoraria === 'string' ? route.query.faixaHoraria : null)
 
 const selecionada = computed(() => {
-  const faixas = rua.value?.faixasHorárias ?? []
-  return faixas.find((f) => f.faixaHorária === escolhida.value)
-    ?? faixas.find((f) => f.faixaHorária === rua.value?.melhorFaixa)
-    ?? faixas[0]
+  const faixasHorarias = rua.value?.faixasHorárias ?? []
+  return faixasHorarias.find((f) => f.faixaHorária === escolhida.value)
+    ?? faixasHorarias.find((f) => f.faixaHorária === rua.value?.melhorFaixaHorária)
+    ?? faixasHorarias[0]
     ?? null
 })
 
-const faixaSelecionada = computed({
+const faixaHorariaSelecionada = computed({
   get: () => selecionada.value?.faixaHorária ?? null,
   set: (faixaHoraria) => { escolhida.value = faixaHoraria },
 })
@@ -80,10 +80,10 @@ function fecharAviso() {
       </p>
 
       <GraficoDeChance
-        v-model="faixaSelecionada"
+        v-model="faixaHorariaSelecionada"
         class="grafico"
         :faixas-horarias="rua.faixasHorárias"
-        :melhor-faixa="rua.melhorFaixa"
+        :melhor-faixa-horaria="rua.melhorFaixaHorária"
       />
 
       <section v-if="selecionada" class="bloco" aria-labelledby="titulo-bloco" aria-live="polite">
@@ -100,16 +100,10 @@ function fecharAviso() {
               {{ estadoDe(selecionada.estimativa) }}
             </dd>
           </div>
-          <template v-if="selecionada.estimativa.tipo === 'chance'">
-            <div class="dado">
-              <dt>Chance</dt>
-              <dd>{{ textoDaChance(selecionada.estimativa.chance) }}</dd>
-            </div>
-            <div class="dado">
-              <dt>Base</dt>
-              <dd>{{ textoDaChanceComBase(selecionada.estimativa.chance, selecionada.estimativa.base) }}</dd>
-            </div>
-          </template>
+          <div v-if="selecionada.estimativa.tipo === 'chance'" class="dado">
+            <dt>Chance</dt>
+            <dd>{{ textoDaChanceComBase(selecionada.estimativa.chance, selecionada.estimativa.base) }}</dd>
+          </div>
         </dl>
 
         <p v-if="selecionada.estimativa.tipo === 'sem-dado'" class="sem-dado">
@@ -157,6 +151,13 @@ function fecharAviso() {
   border: 1px solid var(--paro-borda);
   border-radius: var(--paro-raio-botao);
   cursor: pointer;
+}
+
+@media (min-width: 1024px) {
+  .voltar {
+    width: calc(var(--paro-esp-8) + var(--paro-esp-1));
+    height: calc(var(--paro-esp-8) + var(--paro-esp-1));
+  }
 }
 
 .icone-voltar {
