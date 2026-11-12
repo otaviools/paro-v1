@@ -1,0 +1,3 @@
+# Dados mockados são observações fictícias, sempre identificadas e separadas
+
+Até o semestre de 2027, tudo que o app mostra é inventado (ADR 0011), e um dado mockado pode ser lido como real numa demonstração ou num print. Decidimos que os dados mockados são **observações fictícias** no mesmo formato das reais, e não chances prontas. Assim, o cálculo da chance (ADRs 0005 a 0008) já é exercitado e, em 2027, basta trocar a fonte. Enquanto houver dados mockados, toda tela com chance mostra o aviso "Dados de demonstração". Dados mockados nunca ficam na mesma base dos reais e são removidos por completo quando as observações reais começam. Registros de vaga mockados seguem as mesmas regras.
