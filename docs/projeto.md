@@ -9,6 +9,8 @@ Relatório final consolidado: da pesquisa de campo ao Parô, com protótipo, pla
 - **Grupo:** Equipe Brasil
 - Uberlândia, 4º Semestre de 2026
 
+> **Revisão de novembro de 2026.** As partes de produto, lançamento e próximos passos foram ajustadas às decisões registradas em `docs/adr/` (ADRs 0001 a 0023). Os resultados da pesquisa (seções 1 a 8) não mudaram. O vocabulário segue o `CONTEXT.md`.
+
 ---
 
 ## Sumário
@@ -64,7 +66,7 @@ Uberlândia tem cerca de 713 mil habitantes e mais de 500 mil veículos, uma das
 
 O estudo recorta o entorno da ESAMC Uberlândia, onde estudantes e professores chegam às mesmas ruas quase ao mesmo tempo. A pesquisa confirmou que esse pico existe e é estreito: 75% dos respondentes chegam entre 18h30 e 19h59. É nesse descompasso entre procura concentrada e oferta incerta que o Parô atua.
 
-A contribuição do trabalho é juntar pesquisa de mercado, mobilidade urbana e dados: entender quem procura vaga, medir a disposição para usar e alimentar uma previsão, e transformar isso num produto que mostra a chance de vaga por rua e horário. O Parô não promete vaga. Ele estima a chance e mostra sempre o horário da medição.
+A contribuição do trabalho é juntar pesquisa de mercado, mobilidade urbana e dados: entender quem procura vaga, medir a disposição para usar e alimentar uma previsão, e transformar isso num produto que mostra a chance de vaga por rua e horário. O Parô não promete vaga. Ele estima a chance e mostra sempre a base da estimativa: quantas noites foram observadas e quando foi a última.
 
 > **O problema em uma frase**
 >
@@ -84,7 +86,7 @@ Estimar a probabilidade de encontrar vaga de estacionamento por rua e horário n
 | OE2 | Identificar ruas e horários de maior demanda | Horários de chegada e saída e ruas onde se consegue vaga | Atingido, com base na demanda declarada |
 | OE3 | Medir a ocupação real de vagas em campo | Observação de campo prevista no método | Pendente: próxima etapa |
 | OE4 | Cruzar demanda percebida com ocupação observada | Cruzamentos de perfil, rotina e horário | Parcial: só a percepção foi cruzada |
-| OE5 | Transformar o padrão medido em previsão por faixa | Regra de ocupação e faixas de chance definidas no protótipo | Modelo pronto; aguarda dados de campo |
+| OE5 | Transformar o padrão medido em previsão por faixa horária | Chance = percentual de observações abaixo de 85% de ocupação, mostrada em faixas de chance com rótulo | Modelo pronto; aguarda dados de campo |
 | OE6 | Validar a utilidade da previsão com o público | Interesse no site e formas aceitas de compartilhar dados | Validado no conceito; teste de usabilidade a fazer |
 
 *Tabela 1 — Objetivos específicos, como cada um foi tratado e situação ao fim da pesquisa.*
@@ -102,10 +104,10 @@ Oito fontes sustentam o estudo, do custo do estacionamento gratuito à previsão
 | Fonte | O que a literatura aponta | O que nossos dados mostram | No Parô |
 |---|---|---|---|
 | Shoup (2005) | A busca por vaga gera tráfego de cruzeiro e custo social. | 23% levam mais de 20 minutos entre chegar à região e chegar ao destino. | "Melhor chance agora" encurta a busca. |
-| Arnott & Inci (2006) | O cruzeiro cresce com a ocupação das vagas. | 75% chegam na mesma janela de 90 minutos. | Previsão por faixa de 30 minutos, com foco no pico. |
-| Caicedo et al. (2012) | Prever a disponibilidade reduz o tempo de procura. | 89% usariam ou talvez usariam uma estimativa por rua e horário. | Chance em faixa (ex.: 60–70%) para cada rua. |
+| Arnott & Inci (2006) | O cruzeiro cresce com a ocupação das vagas. | 75% chegam na mesma janela de 90 minutos. | Previsão por faixa horária de 30 minutos, com foco no pico. |
+| Caicedo et al. (2012) | Prever a disponibilidade reduz o tempo de procura. | 89% usariam ou talvez usariam uma estimativa por rua e horário. | Faixa de chance com rótulo (Tranquilo, Apertado, Difícil) para cada rua. |
 | Van der Waerden et al. (2015) | Custo, distância a pé e tempo de busca pesam na escolha da vaga. | 42% avaliam mal o trecho a pé; entre motoristas, 46%. | Distância até a ESAMC em cada rua e rota a pé até o carro. |
-| Litman (2021) | Informação é ferramenta de gestão da demanda por estacionamento. | 54% veem a chance de vaga como pouco previsível. | Horário da medição sempre visível ao lado da chance. |
+| Litman (2021) | Informação é ferramenta de gestão da demanda por estacionamento. | 54% veem a chance de vaga como pouco previsível. | Base da chance (noites observadas e data da última) sempre visível. |
 | SFMTA (2014) | Exibir a ocupação ao usuário reduziu o cruzeiro em San Francisco. | 55% aceitam compartilhar a localização sob demanda. | Registro de chegada e saída só com consentimento. |
 | ANTP (2020) | A mobilidade urbana pressiona as áreas centrais. | 57% dirigem e 17% usam ônibus para chegar à região. | Público principal: quem dirige. |
 | IBGE (2022) | Uberlândia tem alta taxa de motorização. | 75% chegam motorizados: carro, moto, carona ou aplicativo. | Recorte inicial: cinco ruas do entorno. |
@@ -114,7 +116,7 @@ Oito fontes sustentam o estudo, do custo do estacionamento gratuito à previsão
 
 ### 3.1 — O que a literatura deixa em aberto
 
-As experiências internacionais usam sensores e preço dinâmico, com alto custo de infraestrutura (SFMTA, 2014; Caicedo et al., 2012). Nenhuma das fontes trata de uma região universitária de cidade média brasileira, com pico noturno de 90 minutos. O Parô ocupa esse espaço com uma solução de baixo custo: medição de campo somada a registros voluntários de chegada e saída.
+As experiências internacionais usam sensores e preço dinâmico, com alto custo de infraestrutura (SFMTA, 2014; Caicedo et al., 2012). Nenhuma das fontes trata de uma região universitária de cidade média brasileira, com pico noturno de 90 minutos. O Parô ocupa esse espaço com uma solução de baixo custo: a chance vem de observações de campo feitas pela equipe, e os registros voluntários de chegada e saída mostram as saídas previstas da noite.
 
 ## 4. Execução da pesquisa
 
@@ -334,7 +336,7 @@ Da dor medida na pesquisa ao Parô: como a ideia nasceu, como foi avaliada com o
 
 | Dor · dado | ➔ Insight | ➔ Pergunta | ➔ Ideia |
 |---|---|---|---|
-| 54% acham a vaga pouco previsível e 23% levam mais de 20 minutos até o destino. | O horário de quem chega é previsível: 96% têm rotina fixa. A vaga é que não é. | Como mostrar ao motorista, antes de sair, a chance de vaga em cada rua no horário em que ele vai chegar? | Parô: app web que estima a chance de vaga por rua e horário, com medições de campo e registros voluntários. |
+| 54% acham a vaga pouco previsível e 23% levam mais de 20 minutos até o destino. | O horário de quem chega é previsível: 96% têm rotina fixa. A vaga é que não é. | Como mostrar ao motorista, antes de sair, a chance de vaga em cada rua no horário em que ele vai chegar? | Parô: app web que estima a chance de vaga por rua e horário a partir de observações de campo, e mostra as saídas previstas a partir de registros voluntários. |
 
 ### 9.1 — Ideias avaliadas pela equipe
 
@@ -353,10 +355,10 @@ A primeira avaliação do Parô foi uma validação de conceito com o próprio p
 
 | Critério | Evidência | Resultado | Decisão no produto |
 |---|---|---|---|
-| Desejo de uso | P11 · n=99 | 66% sim, 23% talvez, 4% não | Seguir com o conceito |
+| Desejo de uso | P11 · n=99 | 66% sim, 23% talvez, 4% não (e 7% não sei ou não se aplica) | Seguir com o conceito |
 | Público principal | P1 × P11 | 94% dos motoristas responderam sim ou talvez, contra 81% dos não motoristas | Fluxo principal pensado para quem dirige |
-| Problema percebido | P9 · n=85 | 54% acham a vaga pouco previsível | Chance em faixa, com o horário da medição |
-| Disposição a gerar dados | P12 · n=99 | 55% localização sob demanda, 42% anônima e contínua, 34% registro manual, 1% nenhuma | Três formas de colaborar, todas opcionais e desligadas por padrão |
+| Problema percebido | P9 · n=85 | 54% acham a vaga pouco previsível | Faixa de chance com rótulo, sempre com a base |
+| Disposição a gerar dados | P12 · n=99 | 55% localização sob demanda, 42% anônima e contínua, 34% registro manual, 1% nenhuma | Duas formas de colaborar (registro com localização ligada e registro manual), opcionais e desligadas por padrão; sem localização contínua |
 | Ressalva | P11 | A pergunta trata do próprio produto e tende a superestimar o interesse | Tratar os 89% como teto, a confirmar no uso |
 
 *Tabela 5 — Validação de conceito com os dados da pesquisa.*
@@ -371,14 +373,14 @@ A primeira avaliação do Parô foi uma validação de conceito com o próprio p
 
 *Gráfico 10 — Interesse no Parô por perfil de deslocamento.*
 
-### 10.1 — Roteiro do teste de usabilidade (próxima etapa)
+### 10.1 — Roteiro do teste de usabilidade (novembro e dezembro de 2026)
 
-Cinco a oito motoristas do turno noturno usam o protótipo do Figma no próprio celular. Cada sessão dura cerca de 15 minutos e termina com a pergunta "A previsão ajudaria você hoje?". Mede-se a taxa de sucesso, o tempo por tarefa, os erros e uma nota de facilidade de 1 a 7.
+Cinco a oito motoristas do turno noturno usam o protótipo do Figma, já atualizado com as decisões das ADRs e com dados de demonstração, no próprio celular. O teste acontece antes de construir o app. Cada sessão dura cerca de 15 minutos e termina com a pergunta "A previsão ajudaria você hoje?". Mede-se a taxa de sucesso, o tempo por tarefa, os erros e uma nota de facilidade de 1 a 7.
 
 | # | Tarefa | O que observa | Sucesso |
 |---|---|---|---|
 | 1 | Descobrir a rua com maior chance às 19h | Abas de horário e lista de ruas | Encontra em até 30 segundos |
-| 2 | Explicar o que significa "Apertado" | Leitura do rótulo e do padrão | Explica sem ajuda |
+| 2 | Explicar a diferença entre "Apertado" e "Difícil" | Leitura dos rótulos e dos padrões | Explica sem ajuda |
 | 3 | Registrar a vaga e mudar a saída prevista | Fluxo Minha vaga | Conclui sem erro |
 | 4 | Desligar o uso da localização | Ajustes e privacidade | Encontra em até 30 segundos |
 
@@ -386,16 +388,15 @@ Cinco a oito motoristas do turno noturno usam o protótipo do Figma no próprio 
 
 ## 11. Protótipo visual: fluxo mobile
 
-O protótipo navegável está no Figma, nas páginas Produto Mobile e Produto Desktop: 20 telas mobile e as telas do painel desktop, nos temas claro e escuro, ligadas no modo de apresentação. Abaixo, oito telas na ordem dos três fluxos: Home, Mapa e Minha vaga.
+O protótipo navegável está no Figma, nas páginas Produto Mobile e Produto Desktop: 20 telas mobile e as telas do painel desktop, nos temas claro e escuro, ligadas no modo de apresentação. Abaixo, as telas na ordem dos três fluxos: Home, Mapa e Minha vaga. A tela "Busca por destino" saiu do fluxo, porque o destino é sempre a ESAMC (ADR 0013).
 
 1. **Primeira visita:** escolhe como ajudar a previsão
-2. **Início:** melhor chance agora e atalhos
-3. **Busca por destino**
-4. **Sem dado:** rua ainda não medida
-5. **Mapa:** chance por rua e legenda dos padrões
-6. **Detalhe da rua:** chance ao longo da noite
-7. **Registrar vaga**
-8. **Vaga ativa:** saída prevista e rota a pé
+2. **Início:** melhor chance na faixa horária da rotina e atalhos
+3. **Sem dado:** rua com menos de 4 observações na faixa horária
+4. **Mapa:** mapa de ruas real (MapLibre) com a faixa de chance de cada rua coberta e a legenda dos padrões
+5. **Detalhe da rua:** faixa de chance ao longo da noite, com a base e as saídas previstas
+6. **Registrar vaga**
+7. **Vaga ativa:** saída prevista, "Saí" e "Voltar até o carro"
 
 *Figura 1 — Oito telas do protótipo mobile, tema claro. Arquivo no Figma: figma.com/design/bJ0BYMZVBRFfli4roAu0oq*
 
@@ -409,10 +410,11 @@ Telas adicionais na página: **Início no tema escuro** e **Ajustes: formas de a
 
 ### 11.1 — Decisões de design que vêm da pesquisa
 
-- Ocupação por rótulo e padrão (sólido, hachura, tracejado), nunca por cor: legível para quem tem daltonismo.
-- Chance em faixa (ex.: 60–70%) e horário da medição em toda tela com dado.
+- Faixa de chance por rótulo e padrão, nunca por cor: Tranquilo (sólido), Apertado (hachura), Difícil (pontilhado) e Sem dado (tracejado). Legível para quem tem daltonismo.
+- O rótulo é a informação principal; o número aparece só no detalhe da rua, junto com a base (ex.: "7 de 10 noites · última em 04/11").
+- Enquanto houver dados de demonstração, toda tela com chance mostra o aviso "Dados de demonstração".
 - "Previsão, não garantia." escrito no card principal.
-- Sem cadastro: nenhum campo de nome, CPF, telefone ou placa; a localização só é lida quando a pessoa liga a opção.
+- Sem cadastro: nenhum campo de nome, CPF, telefone ou placa; a localização só é lida quando a pessoa liga a opção, e o ponto exato do carro fica só no celular.
 - Tema escuro para o uso à noite, quando 75% chegam.
 - Mobile first: o desktop reúne o mesmo conteúdo num painel.
 
@@ -420,7 +422,7 @@ Telas adicionais na página: **Início no tema escuro** e **Ajustes: formas de a
 
 ### 12.1 — Posicionamento
 
-Para quem vai de carro à ESAMC no turno da noite, o Parô é o app que mostra a chance de vaga em cada rua antes de sair de casa. Diferente de procurar no lugar ou perguntar em grupo, ele se apoia em medições e registros anônimos e sempre mostra o horário da medição. Previsão, não garantia.
+Para quem vai de carro à ESAMC no turno da noite, o Parô é o app que mostra a chance de vaga em cada rua antes de sair de casa. Diferente de procurar no lugar ou perguntar em grupo, ele se apoia em observações de campo e sempre mostra a base da estimativa. Previsão, não garantia.
 
 > **Menos volta, mais vaga. Chegue sabendo.**
 
@@ -447,25 +449,25 @@ Para quem vai de carro à ESAMC no turno da noite, o Parô é o app que mostra a
 
 ### 12.4 — Fases do lançamento
 
-**Pré-lançamento (2 semanas antes)**
+**Pré-lançamento (semanas 1 a 4 do semestre de 2027, durante a etapa "Medir")**
 
-- Medir a ocupação real das três ruas mais citadas, das 18h30 às 19h59.
+- Ter pelo menos 4 observações, em dias letivos normais, em cada uma das cinco ruas cobertas e faixas horárias das 18h às 23h.
 - Recrutar colaboradores que aceitam registrar chegada e saída.
-- Testar o protótipo com 5 a 8 motoristas.
 - Teaser "Chegue sabendo." nos quadros de aviso.
 
-**Lançamento (semana 1)**
+**Lançamento (semana 5 do semestre)**
 
 - Ação na entrada da ESAMC das 18h30 às 19h59, com QR code e demonstração no celular.
 - Mensagem nos grupos de turma.
 - Post: "75% chegam no mesmo horário. Veja a chance antes de sair."
 
-**Pós-lançamento (semanas 2 a 8)**
+**Pós-lançamento (semanas 6 até o fim do semestre)**
 
 - Resumo diário nos stories: as três ruas com mais chance hoje.
 - Pergunta "A previsão ajudou hoje?" no app.
 - Abrir para quem trabalha na região.
-- Revisar as faixas de chance com os novos registros.
+- Manter 1 noite de observação por semana nas cinco ruas cobertas, em revezamento da equipe.
+- Revisar os cortes das faixas de chance com as novas observações.
 
 ### 12.5 — Mensagens por canal
 
@@ -474,14 +476,14 @@ Para quem vai de carro à ESAMC no turno da noite, o Parô é o app que mostra a
 | Cartaz com QR code | "Chegue sabendo. Veja a chance de vaga antes de sair." | Cartazes com QR code levaram respondentes ao formulário online. |
 | Ação presencial no pico | Demonstração de 30 segundos: a rua com mais chance agora. | A abordagem no laboratório rendeu 60 respostas presenciais. |
 | Grupos de turma no WhatsApp | "Rotina igual, vaga diferente? O Parô mostra a chance por rua e horário." | O link no WhatsApp rendeu 40 respostas online. |
-| Instagram | Resumo diário das ruas com mais chance, sempre com o horário da medição. | 78% vão à região todos os dias úteis: há hábito de consulta diária. |
+| Instagram | Resumo diário das ruas com mais chance, sempre com a base. | 78% vão à região todos os dias úteis: há hábito de consulta diária. |
 
 ### 12.6 — Metas e indicadores
 
 | Indicador | Meta inicial | Como medir |
 |---|---|---|
 | Alcance na semana de lançamento | 100 pessoas | Acessos únicos ao link e ao QR code |
-| Uso recorrente | 30% voltam na semana seguinte | Sessões por dispositivo anônimo |
+| Uso recorrente | 30% voltam na semana seguinte | Sessões com identificador aleatório que muda todo mês (ADR 0004) |
 | Utilidade percebida | 70% de "sim" em "A previsão ajudou hoje?" | Resposta dentro do app |
 | Dados para a previsão | 20 registros de chegada e saída por noite | Registros em Minha vaga |
 
@@ -497,16 +499,16 @@ Cada funcionalidade do Parô parte de um dado de campo. A tabela liga o número 
 
 | # | Dado de campo | ➔ Funcionalidade | Tela no protótipo |
 |---|---|---|---|
-| 1 | 75% chegam entre 18h30 e 19h59 (P4) | Abas de horário (Agora, 19h, 21h e 22h) e previsão por faixa de 30 minutos | Mapa · Visão geral e Início |
-| 2 | 85% saem entre 21h e 22h59 (P5) | "Avisar quando eu sair": a saída prevista entra na previsão de quem chega | Minha vaga · Vaga ativa |
-| 3 | 54% acham a vaga pouco previsível (P9, n=85) | Chance em faixa (ex.: 60–70%), sempre com o horário da medição | Início · Melhor chance agora |
-| 4 | 96% têm horários sempre ou quase sempre iguais (P6) | "Sua rotina na região" e local padrão salvo | Minha vaga e Ajustes |
+| 1 | 75% chegam entre 18h30 e 19h59 (P4) | Abas de horário (Agora, 19h, 21h e 22h) como atalhos para as faixas horárias de 30 minutos | Mapa · Visão geral e Início |
+| 2 | 85% saem entre 21h e 22h59 (P5) | Saída prevista e botão "Saí": quem chega vê as saídas previstas da noite, à parte da chance | Minha vaga · Vaga ativa |
+| 3 | 54% acham a vaga pouco previsível (P9, n=85) | Faixa de chance com rótulo (Tranquilo, Apertado, Difícil), sempre com a base | Início · Melhor chance agora |
+| 4 | 96% têm horários sempre ou quase sempre iguais (P6) | Rotina: horário de chegada habitual, guardado só no celular, que define a faixa horária inicial | Minha vaga e Ajustes |
 | 5 | 47% citam a Av. Vasconcelos Costa; 31% e 30% citam as duas seguintes (P8, n=81) | O mapa começa nas cinco ruas citadas, com a lista ordenada por chance | Mapa · Ruas por perto |
-| 6 | 23% levam mais de 20 minutos até o destino (P7) | "Melhor chance agora" e botão "Como chegar" | Início e Detalhe da rua |
-| 7 | 42% avaliam mal o trecho a pé (P10) | Distância até a ESAMC em cada rua e rota a pé "Voltar até o carro" | Ruas por perto e Minha vaga |
-| 8 | 55% aceitam a localização só quando ligarem (P12); 1% recusa todas as formas | Localização desligada por padrão, três formas opcionais de colaborar e nenhum cadastro | Primeira visita e Ajustes |
+| 6 | 23% levam mais de 20 minutos até o destino (P7) | "Melhor chance" e botão "Como chegar", que abre o app de navegação do celular | Início e Detalhe da rua |
+| 7 | 42% avaliam mal o trecho a pé (P10) | Distância até a ESAMC em cada rua e "Voltar até o carro", com o ponto do carro e a posição atual no mapa | Ruas por perto e Minha vaga |
+| 8 | 55% aceitam a localização só quando ligarem (P12); 1% recusa todas as formas | Localização desligada por padrão, duas formas opcionais de colaborar e nenhum cadastro | Primeira visita e Ajustes |
 | 9 | 94% dos motoristas usariam ou talvez usariam (P1 × P11) | Fluxo principal para quem dirige: "Procurar vaga" e "Estacionei" | Início |
-| 10 | 0 ruas com ocupação medida em campo até agora (limitação) | Estado "Sem dado" com padrão tracejado e "Sugerir rua para medição"; nada aparece como livre por omissão | Home · Sem dado e Sugerir rua |
+| 10 | 0 ruas com ocupação medida em campo até agora (limitação) | Estado "Sem dado" (tracejado) abaixo de 4 observações; "Sugerir rua para medição" para ruas fora da área coberta; nada aparece como livre por omissão | Home · Sem dado e Sugerir rua |
 
 *Tabela 9 — Tabela de justificativa: dado de campo ➔ funcionalidade ➔ tela. Percentuais da base válida (n=99), salvo indicação.*
 
@@ -516,9 +518,9 @@ Quatro ligações da tabela, do número à tela do protótipo.
 
 | Dado | ➔ Funcionalidade | Descrição |
 |---|---|---|
-| **75%** chegam entre 18h30 e 19h59 (P4) | **Abas de horário** | Agora, 19h, 21h e 22h no mapa e no início. A previsão é calculada por faixa de 30 minutos, com foco no pico. |
-| **54%** acham a vaga pouco previsível (P9) | **Chance em faixa** | O card principal mostra a faixa de chance da melhor rua e o horário da medição, com o aviso "Previsão, não garantia." |
-| **85%** saem entre 21h e 22h59 (P5) | **Saída prevista** | Quem registra a vaga informa a saída prevista, que entra na previsão de quem está chegando. A localização da vaga não é compartilhada. |
+| **75%** chegam entre 18h30 e 19h59 (P4) | **Abas de horário** | Agora, 19h, 21h e 22h no mapa e no início. A chance é calculada por faixa horária de 30 minutos, com foco no pico. |
+| **54%** acham a vaga pouco previsível (P9) | **Faixa de chance** | O card principal mostra a faixa de chance da melhor rua e a base, com o aviso "Previsão, não garantia." |
+| **85%** saem entre 21h e 22h59 (P5) | **Saída prevista** | Quem registra a vaga informa a saída prevista, que aparece para quem está chegando, à parte da chance. O registro leva só a rua e as faixas horárias; a localização exata da vaga não é compartilhada. |
 | **55%** aceitam a localização só quando ligarem (P12) | **Privacidade com controle** | Sem cadastro. A localização fica desligada até a pessoa ligar, e o registro manual é alternativa para quem não quer compartilhar. |
 
 *Figura 3 — Rastreamento visual de quatro dados da pesquisa até as telas do protótipo.*
@@ -533,7 +535,7 @@ O que a pesquisa respondeu, o que o produto propõe e o que fazer a seguir, com 
 
 A pesquisa respondeu à pergunta de partida. A procura por vaga no entorno da ESAMC é concentrada e repetida: 75% chegam entre 18h30 e 19h59 e 96% mantêm os mesmos horários. O que falta é previsibilidade: 54% dizem que a chance de vaga muda bastante na mesma rua e horário. Esse descompasso torna útil e viável uma previsão por rua e horário.
 
-O Parô transforma esse achado em produto: um app web, mobile first e sem cadastro, que mostra a chance de vaga em faixa e o horário da medição. A validação de conceito foi positiva (89% usariam ou talvez usariam; 94% entre motoristas), e o público aceita colaborar com dados quando tem controle sobre eles.
+O Parô transforma esse achado em produto: um app web, mobile first e sem cadastro, que mostra a faixa de chance de cada rua e a base da estimativa. A validação de conceito foi positiva (89% usariam ou talvez usariam; 94% entre motoristas), e o público aceita colaborar com dados quando tem controle sobre eles.
 
 O que ainda não está provado é a precisão. A ocupação real das vagas não foi medida em campo, e o protótipo ainda não passou por teste de usabilidade. Até lá, os percentuais nas telas são ilustrativos e o interesse declarado deve ser lido como teto.
 
@@ -561,19 +563,19 @@ Dicas práticas para quem atua no estacionamento do entorno da ESAMC. Cada recom
 
 | Etapa | Período | Ação | Entrega |
 |---|---|---|---|
-| 1. Medir | Semanas 1 a 4 | Contar as vagas ocupadas nas três ruas mais citadas, das 18h às 23h, em faixas de 30 minutos, com o limiar de 85% do protocolo de campo. | Primeiras faixas reais de chance |
-| 2. Testar | Semanas 3 a 5 | Aplicar o teste de usabilidade com 5 a 8 motoristas (roteiro na seção 10.1) e ajustar as telas. | Protótipo validado no uso |
-| 3. Construir | Semanas 4 a 10 | Desenvolver o app web em Nuxt, com componentes Nuxt UI e banco PostgreSQL, seguindo o roteiro técnico do projeto. | App funcionando no ambiente local |
-| 4. Lançar | A partir da semana 11 | Executar o plano de lançamento (seção 12.4) e acompanhar as metas semana a semana. | Primeiros usuários e registros |
+| 1. Testar | Novembro e dezembro de 2026 | Atualizar o protótipo com as decisões das ADRs e aplicar o teste de usabilidade com 5 a 8 motoristas (roteiro na seção 10.1), com dados de demonstração. | Protótipo validado no uso |
+| 2. Construir | A partir de dezembro de 2026 | Desenvolver o PWA em Nuxt e Nuxt UI, com mapa MapLibre e tiles próprios, banco Postgres no Supabase e deploy na Vercel (ADRs 0017 a 0019), usando observações fictícias. | App funcionando com dados de demonstração |
+| 3. Medir | Semanas 1 a 4 do semestre de 2027 | Fazer observações nas cinco ruas cobertas, das 18h às 23h, em faixas horárias de 30 minutos, com o limiar de 85%, até ter 4 observações em dias letivos normais por rua e faixa horária. Remover as observações fictícias. | Primeiras faixas de chance reais |
+| 4. Lançar | A partir da semana 5 do semestre de 2027 | Executar o plano de lançamento (seção 12.4), manter 1 noite de observação por semana e acompanhar as metas semana a semana. | Primeiros usuários e registros |
 
 ### 16.1 — Riscos e como reduzir
 
 | Risco | Como reduzir |
 |---|---|
-| Previsão errada nas primeiras semanas | Mostrar a chance em faixa e o horário da medição; perguntar "A previsão ajudou hoje?" e recalibrar. |
+| Previsão errada nas primeiras semanas | Mostrar a faixa de chance com a base, exigir 4 observações antes de sair de "Sem dado", perguntar "A previsão ajudou hoje?" e recalibrar os cortes. |
 | Poucos registros de chegada e saída | Recrutar colaboradores no pré-lançamento e manter o registro manual como alternativa. |
 | Interesse declarado que não vira uso | Medir o uso recorrente desde a semana 1, com meta de 30%. |
-| Preocupação com privacidade | Sem cadastro, localização sob demanda e botão para apagar o histórico em Ajustes. |
+| Preocupação com privacidade | Sem cadastro, localização sob demanda, registros sem identificador e apagados ao fim da noite, e botão para apagar o histórico do celular em Ajustes. |
 
 *Tabela 11 — Principais riscos do lançamento e como reduzi-los.*
 
