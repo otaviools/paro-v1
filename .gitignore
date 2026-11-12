@@ -1,0 +1,10 @@
+node_modules
+.nuxt
+.output
+.data
+.vercel
+dist
+.env
+.env.*
+!.env.example
+.claude/launch.json

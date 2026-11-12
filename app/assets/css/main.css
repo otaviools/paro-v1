@@ -1,0 +1,95 @@
+@import "tailwindcss";
+@import "@nuxt/ui";
+
+@theme {
+  --font-sans: 'Figtree', ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Tokens da paleta Papel (docs/design/design-system.md). */
+:root {
+  --paro-fundo: #F7F6F3;
+  --paro-superficie: #FFFFFF;
+  --paro-superficie-suave: #F3F2EE;
+  --paro-borda: #EAEAEA;
+  --paro-texto: #2F3437;
+  --paro-texto-fraco: #6F6E6A;
+  --paro-acao: #111111;
+  --paro-acao-texto: #FFFFFF;
+  --paro-acao-hover: #333333;
+  --paro-destaque: #E1F3FE;
+  --paro-destaque-texto: #1F6C9F;
+  --paro-foco: #1F6C9F;
+
+  /* Tipografia (tamanhos do design system) */
+  --paro-texto-titulo: 26px;
+  --paro-texto-stat: 22px;
+  --paro-texto-botao: 17px;
+  --paro-texto-card: 16px;
+  --paro-texto-corpo: 15px;
+  --paro-texto-interface: 14px;
+  --paro-texto-legenda: 13px;
+  --paro-texto-nota: 12px;
+  --paro-texto-etiqueta: 11px;
+
+  /* Escala de espaçamento de 4 px */
+  --paro-esp-1: 4px;
+  --paro-esp-2: 8px;
+  --paro-esp-3: 12px;
+  --paro-esp-4: 16px;
+  --paro-esp-5: 20px;
+  --paro-esp-6: 24px;
+  --paro-esp-8: 32px;
+  --paro-esp-12: 48px;
+  --paro-esp-16: 64px;
+
+  /* Raios (modelo 3 · Arredondado) */
+  --paro-raio-botao: 10px;
+  --paro-raio-linha: 12px;
+  --paro-raio-card: 16px;
+  --paro-raio-abas: 20px;
+  --paro-raio-pilula: 999px;
+
+  /* Espaçamento (modelo B · Equilibrado) */
+  --paro-margem: var(--paro-esp-5);
+
+  /* Nuxt UI lê estas variáveis */
+  --ui-bg: var(--paro-fundo);
+  --ui-bg-elevated: var(--paro-superficie);
+  --ui-bg-muted: var(--paro-superficie-suave);
+  --ui-border: var(--paro-borda);
+  --ui-text: var(--paro-texto);
+  --ui-text-highlighted: var(--paro-texto);
+  --ui-text-muted: var(--paro-texto-fraco);
+  --ui-radius: var(--paro-raio-botao);
+}
+
+.dark {
+  --paro-fundo: #191919;
+  --paro-superficie: #202020;
+  --paro-superficie-suave: #262626;
+  --paro-borda: #2C2C2C;
+  --paro-texto: #E8E7E4;
+  --paro-texto-fraco: #9B9A97;
+  --paro-acao: #E8E7E4;
+  --paro-acao-texto: #191919;
+  --paro-acao-hover: #D6D5D1;
+  --paro-destaque: #1C3446;
+  --paro-destaque-texto: #A9D3F2;
+  --paro-foco: #A9D3F2;
+}
+
+@media (min-width: 1024px) {
+  :root { --paro-margem: var(--paro-esp-8); }
+}
+
+body {
+  background: var(--paro-fundo);
+  color: var(--paro-texto);
+  font-family: var(--font-sans);
+  line-height: 1.5;
+}
+
+:focus-visible {
+  outline: 2px solid var(--paro-foco);
+  outline-offset: 2px;
+}
