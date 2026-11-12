@@ -200,6 +200,96 @@ describe('Panorama da noite', () => {
     expect(resultado.ruas.map((r) => r.rua.id)).toEqual(['rua-b', 'rua-c', 'rua-a'])
   })
 
+  describe('melhor chance', () => {
+    it('é a rua coberta de maior chance', async () => {
+      const { panorama } = criarPanorama({
+        areaCoberta: area,
+        observações: fonte([
+          ...noites('rua-a', [10, 10, 20, 20]), // 50%
+          ...noites('rua-b', [20, 20, 20, 10]), // 25%, a mais perto do destino
+          ...noites('rua-c', [10, 10, 10, 20]), // 75%
+        ]),
+      })
+
+      const resultado = await panorama('19:00', agora)
+
+      expect(resultado.melhorChance).toEqual({
+        rua: { id: 'rua-c', nome: 'Rua C' },
+        estimativa: { tipo: 'chance', faixaDeChance: 'Tranquilo', chance: 75, base: { observações: 4, última: '2027-02-18' } },
+        distânciaAoDestino: 200,
+      })
+    })
+
+    it('em empate de chance, é a rua mais perto do destino', async () => {
+      // rua-a (300 m) e rua-c (200 m) com 75%; rua-b (120 m) com 50%.
+      const { panorama } = criarPanorama({
+        areaCoberta: area,
+        observações: fonte([
+          ...noites('rua-a', [10, 10, 10, 20]),
+          ...noites('rua-b', [10, 10, 20, 20]),
+          ...noites('rua-c', [20, 10, 10, 10]),
+        ]),
+      })
+
+      const resultado = await panorama('19:00', agora)
+
+      expect(resultado.melhorChance?.rua.id).toBe('rua-c')
+    })
+
+    it('deixa de fora as ruas Sem dado, mesmo que a única com chance seja Difícil', async () => {
+      // rua-b, a mais perto do destino, e rua-c têm só 3 observações, todas livres.
+      const { panorama } = criarPanorama({
+        areaCoberta: area,
+        observações: fonte([
+          ...noites('rua-a', [20, 20, 20, 20]), // 0%
+          ...noites('rua-b', [10, 10, 10]),
+          ...noites('rua-c', [10, 10, 10]),
+        ]),
+      })
+
+      const resultado = await panorama('19:00', agora)
+
+      expect(resultado.melhorChance?.rua.id).toBe('rua-a')
+    })
+
+    it('existe com o rótulo Difícil quando todas as ruas estão Difícil', async () => {
+      const { panorama } = criarPanorama({
+        areaCoberta: area,
+        observações: fonte([
+          ...noites('rua-a', [20, 20, 20, 20]), // 0%
+          ...noites('rua-b', [20, 20, 20, 20]), // 0%
+          ...noites('rua-c', [10, 20, 20, 20]), // 25%
+        ]),
+      })
+
+      const resultado = await panorama('19:00', agora)
+
+      expect(resultado.melhorChance).toMatchObject({
+        rua: { id: 'rua-c' },
+        estimativa: { faixaDeChance: 'Difícil', chance: 25 },
+      })
+    })
+
+    it('não existe quando todas as ruas estão Sem dado', async () => {
+      const { panorama } = criarPanorama({
+        areaCoberta: area,
+        observações: fonte([...noites('rua-a', [10, 10, 10]), ...noites('rua-b', [10])]),
+      })
+
+      const resultado = await panorama('19:00', agora)
+
+      expect(resultado.melhorChance).toBeNull()
+    })
+
+    it('não existe em "agora", fora da área coberta', async () => {
+      const { panorama } = criarPanorama({ areaCoberta: area, observações: fonte(noites('rua-a', [10, 10, 10, 10])) })
+
+      const resultado = await panorama('agora', new Date('2027-05-05T18:00:00Z')) // 15h00
+
+      expect(resultado.melhorChance).toBeNull()
+    })
+  })
+
   it('em "agora", usa a faixa horária do instante', async () => {
     const { panorama } = criarPanorama({
       areaCoberta: area,
