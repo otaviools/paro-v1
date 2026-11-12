@@ -427,7 +427,7 @@ describe('Rua coberta ao longo da noite', () => {
     await expect(ruaAoLongoDaNoite('rua-z', agora)).rejects.toBeInstanceOf(RuaNãoCoberta)
   })
 
-  describe('melhor faixa', () => {
+  describe('melhor faixa horária', () => {
     it('é a faixa horária de maior chance da rua, sem contar as Sem dado', async () => {
       const { ruaAoLongoDaNoite } = criarPanorama({
         areaCoberta: area,
@@ -442,7 +442,7 @@ describe('Rua coberta ao longo da noite', () => {
 
       const resultado = await ruaAoLongoDaNoite('rua-a', agora)
 
-      expect(resultado.melhorFaixa).toBe('18:00')
+      expect(resultado.melhorFaixaHorária).toBe('18:00')
     })
 
     it('em empate de chance, é a faixa horária mais cedo', async () => {
@@ -457,7 +457,7 @@ describe('Rua coberta ao longo da noite', () => {
 
       const resultado = await ruaAoLongoDaNoite('rua-a', agora)
 
-      expect(resultado.melhorFaixa).toBe('20:30')
+      expect(resultado.melhorFaixaHorária).toBe('20:30')
     })
 
     it('não existe quando a rua está Sem dado em toda a noite', async () => {
@@ -468,7 +468,7 @@ describe('Rua coberta ao longo da noite', () => {
 
       const resultado = await ruaAoLongoDaNoite('rua-a', agora)
 
-      expect(resultado.melhorFaixa).toBeNull()
+      expect(resultado.melhorFaixaHorária).toBeNull()
     })
   })
 })

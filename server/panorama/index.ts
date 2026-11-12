@@ -47,8 +47,11 @@ export interface RuaAoLongoDaNoite {
   meioDoTrecho: Ponto
   /** Estimativa de cada faixa horária das 17h às 23h, em ordem. */
   faixasHorárias: FaixaHoráriaDaRua[]
-  /** Faixa horária de maior chance da rua; faixas Sem dado não concorrem. */
-  melhorFaixa: FaixaHorária | null
+  /**
+   * Faixa horária de maior chance da rua; em empate, a mais cedo. Faixas
+   * horárias Sem dado não concorrem: null quando a rua está Sem dado a noite toda.
+   */
+  melhorFaixaHorária: FaixaHorária | null
   /** Verdadeiro enquanto a chance vier de observações fictícias (ADR 0012). */
   demonstração: boolean
 }
@@ -132,16 +135,19 @@ export function criarPanorama({ areaCoberta, observações, chance = configuraca
         faixaHorária,
         estimativa: estimativaDe(estimativas, idDaRua, faixaHorária),
       }))
-      const melhor = faixasHorárias.reduce<FaixaHoráriaDaRua | null>((atual, faixa) =>
-        faixa.estimativa.tipo === 'chance' && (atual === null || chanceParaOrdenar(faixa.estimativa) > chanceParaOrdenar(atual.estimativa))
-          ? faixa
-          : atual, null)
+      // Só faixas horárias com chance concorrem; o ">" estrito mantém a mais cedo no empate.
+      let melhor: { faixaHorária: FaixaHorária, chance: number } | null = null
+      for (const { faixaHorária, estimativa } of faixasHorárias) {
+        if (estimativa.tipo === 'chance' && (melhor === null || estimativa.chance > melhor.chance)) {
+          melhor = { faixaHorária, chance: estimativa.chance }
+        }
+      }
       return {
         rua: { id: rua.id, nome: rua.nome },
         distânciaAoDestino: areaCoberta.distânciaAoDestino(rua.id),
         meioDoTrecho: rua.trecho.meio,
         faixasHorárias,
-        melhorFaixa: melhor?.faixaHorária ?? null,
+        melhorFaixaHorária: melhor?.faixaHorária ?? null,
         demonstração: observações.éDemonstração(),
       }
     },
