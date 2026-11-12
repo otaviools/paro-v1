@@ -1,17 +1,42 @@
 <script setup lang="ts">
 import type { EstadoDaChance } from '~/components/AmostraDeFaixaDeChance.vue'
+import { dadosDoCelularDoAparelho } from '~/dados-do-celular'
 
-/** Abas de faixa horária do Início. */
-const abas = [
-  { valor: 'agora', rotulo: 'Agora' },
-  { valor: '19:00', rotulo: '19h' },
-  { valor: '21:00', rotulo: '21h' },
-  { valor: '22:00', rotulo: '22h' },
-] as const
+/** Faixas horárias fixas das abas do Início, além de Agora. */
+const HORARIOS_DAS_ABAS = ['19:00', '21:00', '22:00']
 
-const faixaHoraria = ref<(typeof abas)[number]['valor']>('agora')
+/** Rotina do celular; lida só no navegador, depois de montar. */
+const rotina = ref<string | null>(null)
 
-const { data: panorama, status, error } = await useFetch('/api/panorama', { query: { faixaHoraria } })
+/** Agora, 19h, 21h e 22h; a rotina ganha a sua aba quando não é uma delas. */
+const abas = computed(() => {
+  const horarios = rotina.value && !HORARIOS_DAS_ABAS.includes(rotina.value)
+    ? [...HORARIOS_DAS_ABAS, rotina.value].sort()
+    : HORARIOS_DAS_ABAS
+  return [
+    { valor: 'agora', rotulo: 'Agora' },
+    ...horarios.map((h) => ({ valor: h, rotulo: rotuloDaFaixaHoraria(h) })),
+  ]
+})
+
+/** Null até ler a rotina; depois, a faixa horária da aba escolhida. */
+const faixaHoraria = ref<string | null>(null)
+
+// A faixa horária inicial depende da rotina, que só existe no celular: a
+// busca roda no navegador, depois de ler a rotina.
+const { data: panorama, status, error, execute } = useFetch('/api/panorama', {
+  query: { faixaHoraria },
+  server: false,
+  immediate: false,
+})
+
+onMounted(() => {
+  rotina.value = dadosDoCelularDoAparelho().rotina()
+  faixaHoraria.value = rotina.value ?? 'agora'
+  execute()
+})
+
+const carregando = computed(() => status.value === 'idle' || status.value === 'pending')
 
 type Estimativa = NonNullable<typeof panorama.value>['ruas'][number]['estimativa']
 
@@ -19,27 +44,10 @@ function estadoDe(estimativa: Estimativa): EstadoDaChance {
   return estimativa.tipo === 'chance' ? estimativa.faixaDeChance : 'Sem dado'
 }
 
-/** "AAAA-MM-DD" → "DD/MM". */
-function diaEMes(data: string) {
-  const [, mes, dia] = data.split('-')
-  return `${dia}/${mes}`
-}
-
-/** Rótulo e base, ou o texto obrigatório de Sem dado (design system). */
+/** Base, ou o texto obrigatório de Sem dado (design system). */
 function subtitulo(estimativa: Estimativa) {
   if (estimativa.tipo !== 'chance') return 'Ainda não temos observações suficientes nesta faixa horária'
-  const { observações, última } = estimativa.base
-  return `${observações} noites · última em ${diaEMes(última)}`
-}
-
-/** "19:00" → "19h"; "19:30" → "19h30". */
-function rotuloDaFaixaHoraria(inicio: string) {
-  const [h, m] = inicio.split(':')
-  return m === '00' ? `${h}h` : `${h}h${m}`
-}
-
-function distanciaAPe(metros: number) {
-  return `${metros} m a pé`
+  return textoDaBase(estimativa.base)
 }
 </script>
 
@@ -50,26 +58,33 @@ function distanciaAPe(metros: number) {
     <h1 class="titulo">Início</h1>
 
     <div class="abas" role="tablist" aria-label="Faixa horária">
-      <button
+      <ChipDeFaixaHoraria
         v-for="aba in abas"
         :key="aba.valor"
-        type="button"
         role="tab"
-        class="chip"
         :aria-selected="faixaHoraria === aba.valor"
+        :ativo="faixaHoraria === aba.valor"
         aria-controls="ruas-cobertas"
         @click="faixaHoraria = aba.valor"
       >
         {{ aba.rotulo }}
-      </button>
+      </ChipDeFaixaHoraria>
     </div>
+
+    <div v-if="carregando" class="card-esqueleto" aria-hidden="true" />
+    <CardDeMelhorChance
+      v-else-if="panorama?.faixaHorária"
+      class="melhor-chance"
+      :faixa-horaria="panorama.faixaHorária"
+      :melhor-chance="panorama.melhorChance"
+    />
 
     <section id="ruas-cobertas" role="tabpanel" aria-labelledby="titulo-ruas">
       <h2 id="titulo-ruas" class="etiqueta">
-        Ruas cobertas<template v-if="panorama?.faixaHorária"> · {{ rotuloDaFaixaHoraria(panorama.faixaHorária) }}</template>
+        Ruas cobertas<template v-if="!carregando && panorama?.faixaHorária"> · {{ rotuloDaFaixaHoraria(panorama.faixaHorária) }}</template>
       </h2>
 
-      <ul v-if="status === 'pending'" class="lista" aria-busy="true" aria-label="Carregando ruas cobertas">
+      <ul v-if="carregando" class="lista" aria-busy="true" aria-label="Carregando ruas cobertas">
         <li v-for="n in 5" :key="n" class="linha esqueleto" />
       </ul>
 
@@ -122,26 +137,16 @@ function distanciaAPe(metros: number) {
   margin-top: var(--paro-esp-6);
 }
 
-/* Chip de faixa horária: pílula de 32 px, texto em etiqueta. */
-.chip {
-  height: var(--paro-esp-8);
-  padding: 0 var(--paro-esp-4);
-  font-size: var(--paro-texto-etiqueta);
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  font-variant-numeric: tabular-nums;
-  color: var(--paro-texto);
-  background: var(--paro-superficie);
-  border: 1px solid var(--paro-borda);
-  border-radius: var(--paro-raio-pilula);
-  cursor: pointer;
+.melhor-chance,
+.card-esqueleto {
+  margin-top: var(--paro-esp-6);
 }
 
-.chip[aria-selected='true'] {
-  color: var(--paro-destaque-texto);
-  background: var(--paro-destaque);
-  border-color: var(--paro-destaque);
+/* Esqueleto no formato do card de melhor chance. */
+.card-esqueleto {
+  height: calc(var(--paro-esp-16) * 2 + var(--paro-esp-4));
+  background: var(--paro-superficie-suave);
+  border-radius: var(--paro-raio-card);
 }
 
 .etiqueta {
