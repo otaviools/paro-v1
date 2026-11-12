@@ -4,7 +4,7 @@ import type { ConfiguracaoDaAreaCoberta } from '../area-coberta'
 import { configuracaoDaAreaCoberta } from '../area-coberta/configuracao'
 import type { Observação, Observações } from '../observacoes'
 import { criarObservaçõesFictícias } from '../observacoes/ficticias'
-import { criarPanorama } from '.'
+import { criarPanorama, RuaNãoCoberta } from '.'
 
 const configuracao: ConfiguracaoDaAreaCoberta = {
   provisoria: true,
@@ -378,6 +378,101 @@ describe('Panorama da noite', () => {
   })
 })
 
+describe('Rua coberta ao longo da noite', () => {
+  it('dá a estimativa de cada faixa horária das 17h às 23h, em ordem, com Sem dado onde não há observações suficientes', async () => {
+    const { ruaAoLongoDaNoite } = criarPanorama({
+      areaCoberta: area,
+      observações: fonte([
+        ...noites('rua-a', [10, 10, 10, 20], '17:30'), // 3 de 4: 75%
+        ...noites('rua-a', [10, 20, 20, 20, 20], '19:00'), // 1 de 5: 20%
+        ...noites('rua-a', [10, 10, 10], '21:00'), // só 3 noites: Sem dado
+        ...noites('rua-b', [10, 10, 10, 10], '18:00'), // outra rua
+      ]),
+    })
+
+    const resultado = await ruaAoLongoDaNoite('rua-a', agora)
+
+    expect(resultado.faixasHorárias).toEqual([
+      { faixaHorária: '17:00', estimativa: { tipo: 'sem-dado' } },
+      { faixaHorária: '17:30', estimativa: { tipo: 'chance', faixaDeChance: 'Tranquilo', chance: 75, base: { observações: 4, última: '2027-02-18' } } },
+      { faixaHorária: '18:00', estimativa: { tipo: 'sem-dado' } },
+      { faixaHorária: '18:30', estimativa: { tipo: 'sem-dado' } },
+      { faixaHorária: '19:00', estimativa: { tipo: 'chance', faixaDeChance: 'Difícil', chance: 20, base: { observações: 5, última: '2027-02-19' } } },
+      { faixaHorária: '19:30', estimativa: { tipo: 'sem-dado' } },
+      { faixaHorária: '20:00', estimativa: { tipo: 'sem-dado' } },
+      { faixaHorária: '20:30', estimativa: { tipo: 'sem-dado' } },
+      { faixaHorária: '21:00', estimativa: { tipo: 'sem-dado' } },
+      { faixaHorária: '21:30', estimativa: { tipo: 'sem-dado' } },
+      { faixaHorária: '22:00', estimativa: { tipo: 'sem-dado' } },
+      { faixaHorária: '22:30', estimativa: { tipo: 'sem-dado' } },
+    ])
+  })
+
+  it('traz a rua, a distância ao destino, o meio do trecho e o aviso de demonstração', async () => {
+    const { ruaAoLongoDaNoite } = criarPanorama({ areaCoberta: area, observações: fonte([], true) })
+
+    const resultado = await ruaAoLongoDaNoite('rua-b', agora)
+
+    expect(resultado).toMatchObject({
+      rua: { id: 'rua-b', nome: 'Rua B' },
+      distânciaAoDestino: 120,
+      meioDoTrecho: { lat: -18.902, lon: -48.272 },
+      demonstração: true,
+    })
+  })
+
+  it('recusa uma rua que não é coberta', async () => {
+    const { ruaAoLongoDaNoite } = criarPanorama({ areaCoberta: area, observações: fonte([]) })
+
+    await expect(ruaAoLongoDaNoite('rua-z', agora)).rejects.toBeInstanceOf(RuaNãoCoberta)
+  })
+
+  describe('melhor faixa', () => {
+    it('é a faixa horária de maior chance da rua, sem contar as Sem dado', async () => {
+      const { ruaAoLongoDaNoite } = criarPanorama({
+        areaCoberta: area,
+        observações: fonte([
+          ...noites('rua-a', [10, 10, 20, 20], '17:00'), // 50%
+          ...noites('rua-a', [10, 10, 10, 20], '18:00'), // 75%
+          ...noites('rua-a', [10, 10, 10], '18:30'), // só 3 noites, todas livres: Sem dado
+          ...noites('rua-a', [20, 20, 20, 20], '19:00'), // 0%
+          ...noites('rua-b', [10, 10, 10, 10], '20:00'), // 100%, mas em outra rua
+        ]),
+      })
+
+      const resultado = await ruaAoLongoDaNoite('rua-a', agora)
+
+      expect(resultado.melhorFaixa).toBe('18:00')
+    })
+
+    it('em empate de chance, é a faixa horária mais cedo', async () => {
+      const { ruaAoLongoDaNoite } = criarPanorama({
+        areaCoberta: area,
+        observações: fonte([
+          ...noites('rua-a', [10, 10, 10, 20], '22:00'), // 75%
+          ...noites('rua-a', [10, 10, 20, 20], '17:00'), // 50%
+          ...noites('rua-a', [20, 10, 10, 10], '20:30'), // 75%
+        ]),
+      })
+
+      const resultado = await ruaAoLongoDaNoite('rua-a', agora)
+
+      expect(resultado.melhorFaixa).toBe('20:30')
+    })
+
+    it('não existe quando a rua está Sem dado em toda a noite', async () => {
+      const { ruaAoLongoDaNoite } = criarPanorama({
+        areaCoberta: area,
+        observações: fonte([...noites('rua-a', [10, 10, 10], '19:00'), ...noites('rua-b', [10, 10, 10, 10], '19:00')]),
+      })
+
+      const resultado = await ruaAoLongoDaNoite('rua-a', agora)
+
+      expect(resultado.melhorFaixa).toBeNull()
+    })
+  })
+})
+
 /** Dias letivos normais do semestre 2027-1, todos antes de `agora`. */
 const diasLetivosNormais = [
   '2027-02-15', '2027-02-16', '2027-02-17', '2027-02-18', '2027-02-19',
@@ -385,6 +480,6 @@ const diasLetivosNormais = [
 ]
 
 /** Uma observação por dia letivo normal, com as vagas ocupadas dadas (de 20). */
-function noites(ruaCoberta: string, vagasOcupadas: number[]): Observação[] {
-  return vagasOcupadas.map((ocupadas, i) => observação(ruaCoberta, diasLetivosNormais[i]!, ocupadas))
+function noites(ruaCoberta: string, vagasOcupadas: number[], faixaHorária = '19:00'): Observação[] {
+  return vagasOcupadas.map((ocupadas, i) => observação(ruaCoberta, diasLetivosNormais[i]!, ocupadas, faixaHorária))
 }
