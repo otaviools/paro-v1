@@ -1,5 +1,42 @@
 <script setup lang="ts">
-const { data: ruas, status } = await useFetch('/api/ruas')
+import type { EstadoDaChance } from '~/components/AmostraDeFaixaDeChance.vue'
+
+/** Abas de faixa horária do Início. */
+const abas = [
+  { valor: 'agora', rotulo: 'Agora' },
+  { valor: '19:00', rotulo: '19h' },
+  { valor: '21:00', rotulo: '21h' },
+  { valor: '22:00', rotulo: '22h' },
+] as const
+
+const faixaHoraria = ref<(typeof abas)[number]['valor']>('agora')
+
+const { data: panorama, status, error } = await useFetch('/api/panorama', { query: { faixaHoraria } })
+
+type Estimativa = NonNullable<typeof panorama.value>['ruas'][number]['estimativa']
+
+function estadoDe(estimativa: Estimativa): EstadoDaChance {
+  return estimativa.tipo === 'chance' ? estimativa.faixaDeChance : 'Sem dado'
+}
+
+/** "AAAA-MM-DD" → "DD/MM". */
+function diaEMes(data: string) {
+  const [, mes, dia] = data.split('-')
+  return `${dia}/${mes}`
+}
+
+/** Rótulo e base, ou o texto obrigatório de Sem dado (design system). */
+function subtitulo(estimativa: Estimativa) {
+  if (estimativa.tipo !== 'chance') return 'Ainda não temos observações suficientes nesta faixa horária'
+  const { observações, última } = estimativa.base
+  return `${observações} noites · última em ${diaEMes(última)}`
+}
+
+/** "19:00" → "19h"; "19:30" → "19h30". */
+function rotuloDaFaixaHoraria(inicio: string) {
+  const [h, m] = inicio.split(':')
+  return m === '00' ? `${h}h` : `${h}h${m}`
+}
 
 function distanciaAPe(metros: number) {
   return `${metros} m a pé`
@@ -8,20 +45,53 @@ function distanciaAPe(metros: number) {
 
 <template>
   <main class="inicio">
+    <AvisoDeDemonstracao v-if="panorama?.demonstração" class="aviso" />
+
     <h1 class="titulo">Início</h1>
 
-    <section aria-labelledby="ruas-cobertas">
-      <h2 id="ruas-cobertas" class="etiqueta">Ruas cobertas</h2>
+    <div class="abas" role="tablist" aria-label="Faixa horária">
+      <button
+        v-for="aba in abas"
+        :key="aba.valor"
+        type="button"
+        role="tab"
+        class="chip"
+        :aria-selected="faixaHoraria === aba.valor"
+        aria-controls="ruas-cobertas"
+        @click="faixaHoraria = aba.valor"
+      >
+        {{ aba.rotulo }}
+      </button>
+    </div>
 
-      <ul v-if="status !== 'pending'" class="lista">
-        <li v-for="rua in ruas" :key="rua.id" class="linha">
-          <span class="nome">{{ rua.nome }}</span>
-          <span class="distancia">{{ distanciaAPe(rua.distanciaAoDestinoMetros) }}</span>
-        </li>
+    <section id="ruas-cobertas" role="tabpanel" aria-labelledby="titulo-ruas">
+      <h2 id="titulo-ruas" class="etiqueta">
+        Ruas cobertas<template v-if="panorama?.faixaHorária"> · {{ rotuloDaFaixaHoraria(panorama.faixaHorária) }}</template>
+      </h2>
+
+      <ul v-if="status === 'pending'" class="lista" aria-busy="true" aria-label="Carregando ruas cobertas">
+        <li v-for="n in 5" :key="n" class="linha esqueleto" />
       </ul>
 
-      <ul v-else class="lista" aria-busy="true" aria-label="Carregando ruas cobertas">
-        <li v-for="n in 5" :key="n" class="linha esqueleto" />
+      <p v-else-if="error" class="mensagem">
+        Não foi possível carregar a chance agora. Tente de novo em instantes.
+      </p>
+
+      <p v-else-if="panorama && panorama.faixaHorária === null" class="mensagem">
+        Agora está fora da área coberta, que vai das 17h às 23h. Escolha 19h, 21h ou 22h para ver a chance.
+      </p>
+
+      <ul v-else class="lista">
+        <li v-for="{ rua, estimativa, distânciaAoDestino } in panorama?.ruas" :key="rua.id" class="linha">
+          <AmostraDeFaixaDeChance :estado="estadoDe(estimativa)" />
+          <div class="texto">
+            <span class="nome">{{ rua.nome }}</span>
+            <span class="subtitulo">
+              <strong class="rotulo">{{ estadoDe(estimativa) }}</strong> · {{ subtitulo(estimativa) }}
+            </span>
+          </div>
+          <span class="distancia">{{ distanciaAPe(distânciaAoDestino) }}</span>
+        </li>
       </ul>
     </section>
   </main>
@@ -34,11 +104,44 @@ function distanciaAPe(metros: number) {
   padding: var(--paro-esp-8) var(--paro-margem);
 }
 
+.aviso {
+  margin-bottom: var(--paro-esp-6);
+}
+
 .titulo {
   font-size: var(--paro-texto-titulo);
   font-weight: 700;
   letter-spacing: -0.02em;
   line-height: 1.2;
+}
+
+.abas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--paro-esp-2);
+  margin-top: var(--paro-esp-6);
+}
+
+/* Chip de faixa horária: pílula de 32 px, texto em etiqueta. */
+.chip {
+  height: var(--paro-esp-8);
+  padding: 0 var(--paro-esp-4);
+  font-size: var(--paro-texto-etiqueta);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+  color: var(--paro-texto);
+  background: var(--paro-superficie);
+  border: 1px solid var(--paro-borda);
+  border-radius: var(--paro-raio-pilula);
+  cursor: pointer;
+}
+
+.chip[aria-selected='true'] {
+  color: var(--paro-destaque-texto);
+  background: var(--paro-destaque);
+  border-color: var(--paro-destaque);
 }
 
 .etiqueta {
@@ -47,6 +150,7 @@ function distanciaAPe(metros: number) {
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
   color: var(--paro-texto-fraco);
 }
 
@@ -59,7 +163,6 @@ function distanciaAPe(metros: number) {
 .linha {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: var(--paro-esp-3);
   min-height: 56px;
   padding: var(--paro-esp-3) var(--paro-esp-4);
@@ -68,9 +171,27 @@ function distanciaAPe(metros: number) {
   border-radius: var(--paro-raio-linha);
 }
 
+.texto {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+}
+
 .nome {
   font-size: var(--paro-texto-corpo);
   font-weight: 600;
+}
+
+.subtitulo {
+  font-size: var(--paro-texto-legenda);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--paro-texto-fraco);
+}
+
+.rotulo {
+  font-weight: 600;
+  color: var(--paro-texto);
 }
 
 .distancia {
@@ -82,6 +203,15 @@ function distanciaAPe(metros: number) {
   color: var(--paro-texto-fraco);
   background: var(--paro-superficie-suave);
   border-radius: var(--paro-raio-pilula);
+}
+
+.mensagem {
+  margin-top: var(--paro-esp-3);
+  padding: var(--paro-esp-4);
+  font-size: var(--paro-texto-corpo);
+  background: var(--paro-superficie);
+  border: 1px solid var(--paro-borda);
+  border-radius: var(--paro-raio-linha);
 }
 
 .esqueleto {

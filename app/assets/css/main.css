@@ -20,6 +20,10 @@
   --paro-destaque-texto: #1F6C9F;
   --paro-foco: #1F6C9F;
 
+  /* Sinais: fundo e texto do mesmo par */
+  --paro-alerta: #FBF3DB;
+  --paro-alerta-texto: #8A5A00;
+
   /* Tipografia (tamanhos do design system) */
   --paro-texto-titulo: 26px;
   --paro-texto-stat: 22px;
@@ -76,6 +80,8 @@
   --paro-destaque: #1C3446;
   --paro-destaque-texto: #A9D3F2;
   --paro-foco: #A9D3F2;
+  --paro-alerta: #3A2F14;
+  --paro-alerta-texto: #EBCB82;
 }
 
 @media (min-width: 1024px) {
