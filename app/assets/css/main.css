@@ -56,6 +56,9 @@
   /* Espaçamento (modelo B · Equilibrado) */
   --paro-margem: var(--paro-esp-5);
 
+  /* Largura máxima do conteúdo das telas do celular */
+  --paro-largura-conteudo: 640px;
+
   /* Nuxt UI lê estas variáveis */
   --ui-bg: var(--paro-fundo);
   --ui-bg-elevated: var(--paro-superficie);

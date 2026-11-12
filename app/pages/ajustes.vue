@@ -60,7 +60,7 @@ function escolher(faixaHoraria: string | null) {
 
 <style scoped>
 .ajustes {
-  max-width: 640px;
+  max-width: var(--paro-largura-conteudo);
   margin: 0 auto;
   padding: var(--paro-esp-8) var(--paro-margem);
 }
