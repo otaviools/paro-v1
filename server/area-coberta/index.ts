@@ -99,6 +99,15 @@ export function criarAreaCoberta(configuracao: ConfiguracaoDaAreaCoberta) {
       return ruaCoberta(idDaRua).distanciaAoDestinoMetros
     },
 
+    /** Todas as faixas horárias da área coberta, em ordem. */
+    faixasHorárias(): FaixaHorária[] {
+      const faixas: FaixaHorária[] = []
+      for (let m = INICIO_EM_MINUTOS; m < FIM_EM_MINUTOS; m += DURACAO_DA_FAIXA) {
+        faixas.push(formatarMinutos(m))
+      }
+      return faixas
+    },
+
     /** Faixa horária do instante, ou null fora da área coberta. */
     faixaHorária(instante: Date): FaixaHorária | null {
       const { minutos } = horaLocal(instante, configuracao.fusoHorario)

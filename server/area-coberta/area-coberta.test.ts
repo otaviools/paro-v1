@@ -70,6 +70,13 @@ describe('Área coberta', () => {
     ])('o instante %s fica fora da área coberta', (instante) => {
       expect(area.faixaHorária(new Date(instante))).toBeNull()
     })
+
+    it('lista as doze faixas horárias da área coberta, das 17h às 23h', () => {
+      expect(area.faixasHorárias()).toEqual([
+        '17:00', '17:30', '18:00', '18:30', '19:00', '19:30',
+        '20:00', '20:30', '21:00', '21:30', '22:00', '22:30',
+      ])
+    })
   })
 
   describe('noite', () => {
