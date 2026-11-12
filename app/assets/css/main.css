@@ -47,6 +47,7 @@
   --paro-esp-16: 64px;
 
   /* Raios (modelo 3 · Arredondado) */
+  --paro-raio-amostra: 3px;
   --paro-raio-botao: 10px;
   --paro-raio-linha: 12px;
   --paro-raio-card: 16px;
