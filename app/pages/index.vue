@@ -106,15 +106,20 @@ function subtitulo(estimativa: Estimativa) {
       </p>
 
       <ul v-else class="lista">
-        <li v-for="{ rua, estimativa, distânciaAoDestino } in panorama?.ruas" :key="rua.id" class="linha">
-          <AmostraDeFaixaDeChance :estado="estadoDe(estimativa)" />
-          <div class="texto">
-            <span class="nome">{{ rua.nome }}</span>
-            <span class="subtitulo">
-              <strong class="rotulo">{{ estadoDe(estimativa) }}</strong> · {{ subtitulo(estimativa) }}
-            </span>
-          </div>
-          <span class="distancia">{{ distanciaAPe(distânciaAoDestino) }}</span>
+        <li v-for="{ rua, estimativa, distânciaAoDestino } in panorama?.ruas" :key="rua.id">
+          <NuxtLink
+            class="linha"
+            :to="{ path: `/ruas/${rua.id}`, query: { faixaHoraria: panorama?.faixaHorária } }"
+          >
+            <AmostraDeFaixaDeChance :estado="estadoDe(estimativa)" />
+            <div class="texto">
+              <span class="nome">{{ rua.nome }}</span>
+              <span class="subtitulo">
+                <strong class="rotulo">{{ estadoDe(estimativa) }}</strong> · {{ subtitulo(estimativa) }}
+              </span>
+            </div>
+            <span class="distancia">{{ distanciaAPe(distânciaAoDestino) }}</span>
+          </NuxtLink>
         </li>
       </ul>
     </section>
