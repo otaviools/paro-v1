@@ -13,11 +13,21 @@ export interface RuaNoPanorama {
   distânciaAoDestino: number
 }
 
+/** Rua coberta com chance (nunca Sem dado), que pode ser a melhor chance. */
+export interface MelhorChance extends RuaNoPanorama {
+  estimativa: Extract<Estimativa, { tipo: 'chance' }>
+}
+
 export interface Panorama {
   /** Faixa horária mostrada; null quando "agora" está fora da área coberta. */
   faixaHorária: FaixaHorária | null
   /** Ruas cobertas por chance; vazia quando `faixaHorária` é null. */
   ruas: RuaNoPanorama[]
+  /**
+   * Rua coberta de maior chance na faixa horária; em empate, a mais perto do
+   * destino. Ruas Sem dado não concorrem: null quando todas estão Sem dado.
+   */
+  melhorChance: MelhorChance | null
   /** Verdadeiro enquanto a chance vier de observações fictícias (ADR 0012). */
   demonstração: boolean
 }
@@ -49,6 +59,10 @@ function porChance(a: RuaNoPanorama, b: RuaNoPanorama): number {
     || a.distânciaAoDestino - b.distânciaAoDestino
 }
 
+function temChance(rua: RuaNoPanorama): rua is MelhorChance {
+  return rua.estimativa.tipo === 'chance'
+}
+
 export function criarPanorama({ areaCoberta, observações, chance = configuracaoDaChance }: DependênciasDoPanorama) {
   return {
     /**
@@ -59,7 +73,7 @@ export function criarPanorama({ areaCoberta, observações, chance = configuraca
     async panorama(pedida: FaixaHoráriaPedida, agora: Date): Promise<Panorama> {
       const demonstração = observações.éDemonstração()
       const faixaHorária = pedida === 'agora' ? areaCoberta.faixaHorária(agora) : pedida
-      if (faixaHorária === null) return { faixaHorária, ruas: [], demonstração }
+      if (faixaHorária === null) return { faixaHorária, ruas: [], melhorChance: null, demonstração }
       if (!areaCoberta.faixasHorárias().includes(faixaHorária)) throw new FaixaHoráriaInválida(faixaHorária)
 
       const semestre = areaCoberta.semestreDe(areaCoberta.noiteDe(agora))
@@ -67,15 +81,14 @@ export function criarPanorama({ areaCoberta, observações, chance = configuraca
         ? estimar(await observações.doSemestre(semestre), semestre, areaCoberta, chance)
         : new Map()
 
-      return {
-        faixaHorária,
-        ruas: areaCoberta.ruasCobertas().map((rua) => ({
-          rua: { id: rua.id, nome: rua.nome },
-          estimativa: estimativaDe(estimativas, rua.id, faixaHorária),
-          distânciaAoDestino: areaCoberta.distânciaAoDestino(rua.id),
-        })).sort(porChance),
-        demonstração,
-      }
+      const ruas: RuaNoPanorama[] = areaCoberta.ruasCobertas().map((rua) => ({
+        rua: { id: rua.id, nome: rua.nome },
+        estimativa: estimativaDe(estimativas, rua.id, faixaHorária),
+        distânciaAoDestino: areaCoberta.distânciaAoDestino(rua.id),
+      })).sort(porChance)
+
+      // As ruas já estão na ordem da melhor chance; Sem dado fica no fim e não concorre.
+      return { faixaHorária, ruas, melhorChance: ruas.find(temChance) ?? null, demonstração }
     },
   }
 }
