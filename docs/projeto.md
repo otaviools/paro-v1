@@ -9,7 +9,7 @@ Relatório final consolidado: da pesquisa de campo ao Parô, com protótipo, pla
 - **Grupo:** Equipe Brasil
 - Uberlândia, 4º Semestre de 2026
 
-> **Revisão de novembro de 2026.** As partes de produto, lançamento e próximos passos foram ajustadas às decisões registradas em `docs/adr/` (ADRs 0001 a 0023). Os resultados da pesquisa (seções 1 a 8) não mudaram. O vocabulário segue o `CONTEXT.md`.
+> **Revisão de novembro de 2026.** As partes de produto, lançamento e próximos passos foram ajustadas às decisões registradas em `docs/adr/` (ADRs 0001 a 0024). Os resultados da pesquisa (seções 1 a 8) não mudaram. O vocabulário segue o `CONTEXT.md`.
 
 ---
 
@@ -103,7 +103,7 @@ Oito fontes sustentam o estudo, do custo do estacionamento gratuito à previsão
 
 | Fonte | O que a literatura aponta | O que nossos dados mostram | No Parô |
 |---|---|---|---|
-| Shoup (2005) | A busca por vaga gera tráfego de cruzeiro e custo social. | 23% levam mais de 20 minutos entre chegar à região e chegar ao destino. | "Melhor chance agora" encurta a busca. |
+| Shoup (2005) | A busca por vaga gera tráfego de cruzeiro e custo social. | 23% levam mais de 20 minutos entre chegar à região e chegar ao destino. | "Melhor chance" encurta a busca. |
 | Arnott & Inci (2006) | O cruzeiro cresce com a ocupação das vagas. | 75% chegam na mesma janela de 90 minutos. | Previsão por faixa horária de 30 minutos, com foco no pico. |
 | Caicedo et al. (2012) | Prever a disponibilidade reduz o tempo de procura. | 89% usariam ou talvez usariam uma estimativa por rua e horário. | Faixa de chance com rótulo (Tranquilo, Apertado, Difícil) para cada rua. |
 | Van der Waerden et al. (2015) | Custo, distância a pé e tempo de busca pesam na escolha da vaga. | 42% avaliam mal o trecho a pé; entre motoristas, 46%. | Distância até a ESAMC em cada rua e rota a pé até o carro. |
@@ -390,7 +390,7 @@ Cinco a oito motoristas do turno noturno usam o protótipo do Figma, já atualiz
 
 O protótipo navegável está no Figma, nas páginas Produto Mobile e Produto Desktop: 20 telas mobile e as telas do painel desktop, nos temas claro e escuro, ligadas no modo de apresentação. Abaixo, as telas na ordem dos três fluxos: Home, Mapa e Minha vaga. A tela "Busca por destino" saiu do fluxo, porque o destino é sempre a ESAMC (ADR 0013).
 
-1. **Primeira visita:** escolhe como ajudar a previsão
+1. **Primeira visita:** escolhe a forma de colaborar para avisar quem está chegando
 2. **Início:** melhor chance na faixa horária da rotina e atalhos
 3. **Sem dado:** rua com menos de 4 observações na faixa horária
 4. **Mapa:** mapa de ruas real (MapLibre) com a faixa de chance de cada rua coberta e a legenda dos padrões
@@ -404,9 +404,9 @@ O protótipo navegável está no Figma, nas páginas Produto Mobile e Produto De
 
 ## 11. Protótipo visual: telas-chave e desktop
 
-*Figura 2 — Visão geral no desktop, tema escuro: mapa, melhor chance agora, ruas por perto, minha vaga e resumo da pesquisa.*
+*Figura 2 — Visão geral no desktop, tema escuro: mapa, melhor chance, ruas por perto, minha vaga e resumo da pesquisa.*
 
-Telas adicionais na página: **Início no tema escuro** e **Ajustes: formas de ajudar a previsão**.
+Telas adicionais na página: **Início no tema escuro** e **Ajustes: formas de colaborar (avisar quem está chegando)**.
 
 ### 11.1 — Decisões de design que vêm da pesquisa
 
@@ -501,7 +501,7 @@ Cada funcionalidade do Parô parte de um dado de campo. A tabela liga o número 
 |---|---|---|---|
 | 1 | 75% chegam entre 18h30 e 19h59 (P4) | Abas de horário (Agora, 19h, 21h e 22h) como atalhos para as faixas horárias de 30 minutos | Mapa · Visão geral e Início |
 | 2 | 85% saem entre 21h e 22h59 (P5) | Saída prevista e botão "Saí": quem chega vê as saídas previstas da noite, à parte da chance | Minha vaga · Vaga ativa |
-| 3 | 54% acham a vaga pouco previsível (P9, n=85) | Faixa de chance com rótulo (Tranquilo, Apertado, Difícil), sempre com a base | Início · Melhor chance agora |
+| 3 | 54% acham a vaga pouco previsível (P9, n=85) | Faixa de chance com rótulo (Tranquilo, Apertado, Difícil), sempre com a base | Início · Melhor chance |
 | 4 | 96% têm horários sempre ou quase sempre iguais (P6) | Rotina: horário de chegada habitual, guardado só no celular, que define a faixa horária inicial | Minha vaga e Ajustes |
 | 5 | 47% citam a Av. Vasconcelos Costa; 31% e 30% citam as duas seguintes (P8, n=81) | O mapa começa nas cinco ruas citadas, com a lista ordenada por chance | Mapa · Ruas por perto |
 | 6 | 23% levam mais de 20 minutos até o destino (P7) | "Melhor chance" e botão "Como chegar", que abre o app de navegação do celular | Início e Detalhe da rua |
