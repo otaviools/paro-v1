@@ -53,7 +53,7 @@ Proposta de módulos derivada do `CONTEXT.md` e das ADRs 0001 a 0024. Usa o voca
 - **Responsabilidade:** guardar o espaço e o tempo do produto: ruas cobertas e seus trechos, destino, distâncias, faixas horárias das 17h às 23h e calendário letivo.
 - **Interface:** `ruasCobertas()`, `distânciaAoDestino(rua)`, `ruaMaisPróxima(ponto)`, `faixaHorária(instante)`, `noiteDe(instante)`, `éDiaLetivoNormal(data)` e `semestreDe(data)`
 - **Por que juntar espaço e calendário:** os dois são dados fixos, configurados pela equipe, e mudam pelo mesmo motivo, a virada do semestre (ADRs 0008, 0019 e 0024). Separar daria dois módulos rasos.
-- **Dependências:** é em memória, carregado de configuração. Recebe o instante como parâmetro e nunca lê o relógio sozinho.
+- **Dependências:** é em memória, carregado de configuração. Recebe o instante como parâmetro e nunca lê o relógio sozinho. `ruaMaisPróxima(ponto)` roda no celular, na tela Registrar vaga, para que o ponto do carro nunca vá ao servidor (ADR 0003).
 
 ### 6. Métricas de uso
 
@@ -73,7 +73,7 @@ Proposta de módulos derivada do `CONTEXT.md` e das ADRs 0001 a 0024. Usa o voca
 ### 8. Mapa da área
 
 - **Responsabilidade:** desenhar as ruas cobertas sobre o mapa, com o padrão da faixa de chance de cada uma, e mostrar o ponto do carro.
-- **Interface:** `<MapaDaArea :ruas :pontoDoCarro @selecionar-rua>`
+- **Interface:** `<MapaDaArea :ruas :pontoDoCarro :posicaoAtual :etiquetaDoCarro @selecionar-rua>`
 - **Esconde:** o MapLibre GL, os tiles PMTiles, as imagens dos padrões (sólido, hachura, pontilhado e tracejado) e o tema escuro (ADRs 0006, 0017 e 0019).
 - **Seam:** tem um único adapter (MapLibre), então não vale criar uma porta. Basta isolar o MapLibre dentro do componente, para que nenhuma tela o use direto.
 
