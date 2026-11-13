@@ -82,6 +82,34 @@ function diaDaSemana(data: Data): number {
   return new Date(`${data}T12:00:00Z`).getUTCDay()
 }
 
+const METROS_POR_GRAU = 111_320
+
+/**
+ * Distância em metros do ponto até a linha do trecho (ou até o meio, sem
+ * linha). Numa área de poucas quadras, um plano em volta do ponto basta.
+ */
+function distânciaAoTrecho(ponto: Ponto, trecho: RuaCoberta['trecho']): number {
+  const escalaDaLongitude = Math.cos((ponto.lat * Math.PI) / 180)
+  const noPlano = (p: Ponto) => ({
+    x: (p.lon - ponto.lon) * escalaDaLongitude * METROS_POR_GRAU,
+    y: (p.lat - ponto.lat) * METROS_POR_GRAU,
+  })
+  const vértices = (trecho.linha.length > 0 ? trecho.linha : [trecho.meio]).map(noPlano)
+  if (vértices.length === 1) return Math.hypot(vértices[0]!.x, vértices[0]!.y)
+  let menor = Infinity
+  for (let i = 1; i < vértices.length; i++) {
+    const a = vértices[i - 1]!
+    const b = vértices[i]!
+    const dx = b.x - a.x
+    const dy = b.y - a.y
+    const quadradoDoComprimento = dx * dx + dy * dy
+    // Fração do segmento mais perto da origem (o ponto), presa entre as pontas.
+    const t = quadradoDoComprimento === 0 ? 0 : Math.min(1, Math.max(0, -(a.x * dx + a.y * dy) / quadradoDoComprimento))
+    menor = Math.min(menor, Math.hypot(a.x + t * dx, a.y + t * dy))
+  }
+  return menor
+}
+
 export function criarAreaCoberta(configuracao: ConfiguracaoDaAreaCoberta) {
   function ruaCoberta(id: string): RuaCoberta {
     const rua = configuracao.ruasCobertas.find((r) => r.id === id)
@@ -100,6 +128,15 @@ export function criarAreaCoberta(configuracao: ConfiguracaoDaAreaCoberta) {
 
     distânciaAoDestino(idDaRua: string): number {
       return ruaCoberta(idDaRua).distanciaAoDestinoMetros
+    },
+
+    /**
+     * Rua coberta mais perto do ponto, proposta no registro com localização
+     * ligada; o colaborador pode trocar. Só calcula: o ponto não é guardado.
+     */
+    ruaMaisPróxima(ponto: Ponto): RuaCoberta {
+      const distância = (rua: RuaCoberta) => distânciaAoTrecho(ponto, rua.trecho)
+      return configuracao.ruasCobertas.reduce((maisPerto, rua) => (distância(rua) < distância(maisPerto) ? rua : maisPerto))
     },
 
     /** Todas as faixas horárias da área coberta, em ordem. */

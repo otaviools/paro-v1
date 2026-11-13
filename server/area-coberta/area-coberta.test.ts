@@ -7,8 +7,30 @@ const configuracao: ConfiguracaoDaAreaCoberta = {
   fusoHorario: 'America/Sao_Paulo',
   destino: { nome: 'Entrada de pedestres principal', ponto: { lat: -18.9, lon: -48.27 } },
   ruasCobertas: [
-    { id: 'rua-a', nome: 'Rua A', trecho: { de: 'Esquina 1', ate: 'Esquina 2', meio: { lat: -18.901, lon: -48.271 }, linha: [] }, distanciaAoDestinoMetros: 300 },
-    { id: 'rua-b', nome: 'Rua B', trecho: { de: 'Esquina 3', ate: 'Esquina 4', meio: { lat: -18.902, lon: -48.272 }, linha: [] }, distanciaAoDestinoMetros: 120 },
+    // Rua A: trecho longo, de leste a oeste na latitude -18.901, de -48.280 a -48.270.
+    {
+      id: 'rua-a',
+      nome: 'Rua A',
+      trecho: {
+        de: 'Esquina 1',
+        ate: 'Esquina 2',
+        meio: { lat: -18.901, lon: -48.275 },
+        linha: [{ lat: -18.901, lon: -48.280 }, { lat: -18.901, lon: -48.270 }],
+      },
+      distanciaAoDestinoMetros: 300,
+    },
+    // Rua B: trecho curto, de leste a oeste na latitude -18.9025, de -48.2705 a -48.2695.
+    {
+      id: 'rua-b',
+      nome: 'Rua B',
+      trecho: {
+        de: 'Esquina 3',
+        ate: 'Esquina 4',
+        meio: { lat: -18.9025, lon: -48.270 },
+        linha: [{ lat: -18.9025, lon: -48.2705 }, { lat: -18.9025, lon: -48.2695 }],
+      },
+      distanciaAoDestinoMetros: 120,
+    },
   ],
   calendarioLetivo: [
     {
@@ -49,6 +71,21 @@ describe('Área coberta', () => {
     const area = criarAreaCoberta(configuracao)
 
     expect(() => area.distânciaAoDestino('rua-z')).toThrow('rua-z')
+  })
+
+  describe('rua mais próxima', () => {
+    const area = criarAreaCoberta(configuracao)
+
+    it('propõe a rua coberta cujo trecho fica mais perto do ponto', () => {
+      // 0,0003° (cerca de 33 m) ao norte do trecho da Rua B e 0,0012° (cerca de 133 m) ao sul do da Rua A.
+      expect(area.ruaMaisPróxima({ lat: -18.9022, lon: -48.270 }).id).toBe('rua-b')
+    })
+
+    it('mede até a linha do trecho, não só até o meio dele', () => {
+      // Perto da ponta leste da Rua A: cerca de 22 m da linha dela, mas 473 m do meio.
+      // O meio da Rua B fica a cerca de 154 m, e a linha dela a cerca de 145 m.
+      expect(area.ruaMaisPróxima({ lat: -18.9012, lon: -48.2705 }).id).toBe('rua-a')
+    })
   })
 
   describe('faixa horária', () => {
