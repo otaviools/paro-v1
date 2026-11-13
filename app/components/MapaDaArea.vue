@@ -1,7 +1,9 @@
 <!--
   Mapa da área (docs/modulos.md, módulo 8): desenha as ruas cobertas sobre o
   mapa de ruas real, cada trecho com o padrão e o rótulo da sua faixa de
-  chance (ADR 0006), e avisa quando o motorista toca num trecho.
+  chance (ADR 0006), e avisa quando o motorista toca num trecho. Para Voltar
+  até o carro, mostra o ponto do carro, a posição atual e uma etiqueta sobre
+  o mapa, sem rota (ADR 0020).
 
   Esconde o MapLibre GL (ADR 0017), os tiles próprios em PMTiles (ADR 0019),
   as imagens dos padrões e o tema escuro. Nenhuma outra parte do app importa
@@ -14,6 +16,7 @@ import type {
   FilterSpecification,
   GeoJSONSource,
   Map as MapaMapLibre,
+  Marker,
   StyleSpecification,
 } from 'maplibre-gl'
 import type { Feature, FeatureCollection } from 'geojson'
@@ -92,8 +95,12 @@ function carregarTiles(maplibre: typeof import('maplibre-gl')): Promise<PMTiles>
 <script setup lang="ts">
 const props = defineProps<{
   ruas: RuaNoMapa[]
-  /** Ponto do carro; preenchido no registro com localização ligada (ticket #8). Ainda não é desenhado. */
+  /** Ponto do carro, guardado só no celular no registro com localização ligada. */
   pontoDoCarro?: Ponto | null
+  /** Posição atual, lida uma vez em Voltar até o carro (ADR 0010). */
+  posicaoAtual?: Ponto | null
+  /** Texto da etiqueta sobre o mapa, acima do ponto do carro (a distância). */
+  etiquetaDoCarro?: string | null
 }>()
 
 const emit = defineEmits<{ 'selecionar-rua': [id: string] }>()
@@ -101,6 +108,7 @@ const emit = defineEmits<{ 'selecionar-rua': [id: string] }>()
 const recipiente = ref<HTMLDivElement>()
 const sonda = ref<HTMLDivElement>()
 let mapa: MapaMapLibre | null = null
+let maplibreGl: typeof import('maplibre-gl') | null = null
 
 // --- Cores do tema -------------------------------------------------------
 
@@ -400,9 +408,14 @@ function aplicarTema(m: MapaMapLibre) {
 
 // --- Enquadramento -------------------------------------------------------
 
-/** Caixa que contém todos os trechos, ou a área inteira dos tiles sem trechos. */
-function caixaDosTrechos(): [number, number, number, number] {
-  const pontos = props.ruas.flatMap((r) => r.linha)
+/**
+ * Caixa do enquadramento: com o ponto do carro, ele e a posição atual; sem
+ * ele, todos os trechos; sem nada, a área inteira dos tiles.
+ */
+function caixaDoEnquadramento(): [number, number, number, number] {
+  const pontos = props.pontoDoCarro
+    ? [props.pontoDoCarro, ...(props.posicaoAtual ? [props.posicaoAtual] : [])]
+    : props.ruas.flatMap((r) => r.linha)
   if (pontos.length === 0) return LIMITES_DOS_TILES
   const lons = pontos.map((p) => p.lon)
   const lats = pontos.map((p) => p.lat)
@@ -424,9 +437,9 @@ function margens() {
   return { top: px('Top'), bottom: px('Bottom'), left: px('Left'), right: FOLGA }
 }
 
-/** Enquadra as ruas cobertas. */
+/** Enquadra as ruas cobertas, ou o ponto do carro e a posição atual. */
 function centralizar() {
-  mapa?.fitBounds(caixaDosTrechos(), { padding: margens(), maxZoom: 17, duration: mapa.loaded() ? 300 : 0 })
+  mapa?.fitBounds(caixaDoEnquadramento(), { padding: margens(), maxZoom: 17, duration: mapa.loaded() ? 300 : 0 })
 }
 
 defineExpose({ centralizar })
@@ -448,6 +461,38 @@ function atualizarTrechos() {
   }
 }
 
+// --- Ponto do carro e posição atual --------------------------------------
+
+/** Elementos dos marcadores; o MapLibre os posiciona sobre o mapa. */
+const elementoDoCarro = ref<HTMLDivElement>()
+const elementoDaPosicao = ref<HTMLDivElement>()
+const elementoDaEtiqueta = ref<HTMLDivElement>()
+let marcadorDoCarro: Marker | null = null
+let marcadorDaPosicao: Marker | null = null
+let marcadorDaEtiqueta: Marker | null = null
+
+/** Põe, move ou tira um marcador conforme o ponto. */
+function posicionar(
+  marcador: Marker | null,
+  ponto: Ponto | null | undefined,
+  elemento: HTMLElement | undefined,
+  ancora: 'center' | 'bottom',
+): Marker | null {
+  if (!mapa || !maplibreGl || !elemento || !ponto) {
+    marcador?.remove()
+    return null
+  }
+  marcador ??= new maplibreGl.Marker({ element: elemento, anchor: ancora })
+  return marcador.setLngLat([ponto.lon, ponto.lat]).addTo(mapa)
+}
+
+function atualizarMarcadores() {
+  marcadorDaPosicao = posicionar(marcadorDaPosicao, props.posicaoAtual, elementoDaPosicao.value, 'center')
+  marcadorDoCarro = posicionar(marcadorDoCarro, props.pontoDoCarro, elementoDoCarro.value, 'center')
+  const pontoDaEtiqueta = props.etiquetaDoCarro ? props.pontoDoCarro : null
+  marcadorDaEtiqueta = posicionar(marcadorDaEtiqueta, pontoDaEtiqueta, elementoDaEtiqueta.value, 'bottom')
+}
+
 // --- Ciclo de vida -------------------------------------------------------
 
 const falhou = ref(false)
@@ -458,11 +503,12 @@ onMounted(async () => {
     const maplibre = await import('maplibre-gl')
     const arquivo = await carregarTiles(maplibre)
     if (!recipiente.value) return
+    maplibreGl = maplibre
 
     const m = new maplibre.Map({
       container: recipiente.value,
       style: estilo(`pmtiles://${arquivo.source.getKey()}`, coresDoTema()),
-      bounds: caixaDosTrechos(),
+      bounds: caixaDoEnquadramento(),
       fitBoundsOptions: { padding: margens(), maxZoom: 17 },
       maxBounds: LIMITES_DOS_TILES,
       minZoom: 13,
@@ -486,6 +532,7 @@ onMounted(async () => {
       aplicarTema(m)
       atualizarTrechos()
     })
+    atualizarMarcadores()
 
     // Tocar num trecho (ou na etiqueta dele) seleciona a rua coberta.
     m.on('click', (evento) => {
@@ -509,6 +556,13 @@ onMounted(async () => {
 
 watch(() => props.ruas, atualizarTrechos, { deep: true })
 
+// O carro ou a posição mudaram: move os marcadores e enquadra de novo.
+watch(() => [props.pontoDoCarro, props.posicaoAtual], () => {
+  atualizarMarcadores()
+  centralizar()
+}, { deep: true })
+watch(() => props.etiquetaDoCarro, atualizarMarcadores)
+
 // O tema troca a classe .dark no <html>; as cores são lidas depois da troca.
 watch(() => colorMode.value, () => {
   requestAnimationFrame(() => {
@@ -517,6 +571,7 @@ watch(() => colorMode.value, () => {
 }, { flush: 'post' })
 
 onBeforeUnmount(() => {
+  for (const marcador of [marcadorDoCarro, marcadorDaPosicao, marcadorDaEtiqueta]) marcador?.remove()
   mapa?.remove()
   mapa = null
 })
@@ -526,6 +581,20 @@ onBeforeUnmount(() => {
   <div class="mapa-da-area">
     <div ref="recipiente" class="recipiente" role="region" aria-label="Mapa das ruas cobertas" />
     <div ref="sonda" class="sonda" aria-hidden="true" />
+    <!-- Marcadores: ficam aqui, escondidos, até o MapLibre levá-los para o mapa. -->
+    <div class="marcadores">
+      <div ref="elementoDoCarro" class="marcador-carro" role="img" aria-label="Ponto do carro">
+        <UIcon name="i-lucide-car" class="icone-carro" aria-hidden="true" />
+      </div>
+      <div ref="elementoDaPosicao" class="marcador-posicao" role="img" aria-label="Sua posição atual" />
+      <!-- Etiqueta sobre o mapa (design system, "Gavetas, avisos flutuantes e carregamento"). -->
+      <div ref="elementoDaEtiqueta" class="marcador-etiqueta">
+        <span class="etiqueta-do-carro">
+          <UIcon name="i-lucide-footprints" class="icone-etiqueta" aria-hidden="true" />
+          {{ etiquetaDoCarro }}
+        </span>
+      </div>
+    </div>
     <p v-if="falhou" class="falha">
       Não foi possível abrir o mapa. A lista das ruas cobertas continua disponível.
     </p>
@@ -561,6 +630,65 @@ onBeforeUnmount(() => {
   border: 1px solid var(--paro-borda);
   border-radius: var(--paro-raio-linha);
   transform: translateY(-50%);
+}
+
+/* Fora do mapa, os marcadores ficam escondidos. */
+.marcadores {
+  display: none;
+}
+
+/* Ponto do carro: ícone do carro no fundo da ação, com contorno de superfície. */
+.marcador-carro {
+  display: grid;
+  place-items: center;
+  width: var(--paro-esp-8);
+  height: var(--paro-esp-8);
+  color: var(--paro-acao-texto);
+  background: var(--paro-acao);
+  border: 2px solid var(--paro-superficie);
+  border-radius: var(--paro-raio-botao);
+}
+
+.icone-carro {
+  width: var(--paro-esp-4);
+  height: var(--paro-esp-4);
+}
+
+/* Posição atual: ponto na cor de destaque, com contorno de superfície. */
+.marcador-posicao {
+  width: var(--paro-esp-5);
+  height: var(--paro-esp-5);
+  background: var(--paro-destaque-texto);
+  border: 4px solid var(--paro-superficie);
+  border-radius: var(--paro-raio-pilula);
+}
+
+/* A etiqueta fica acima do ponto do carro, com folga para o ícone dele. */
+.marcador-etiqueta {
+  padding-bottom: var(--paro-esp-6);
+  pointer-events: none;
+}
+
+.etiqueta-do-carro {
+  display: flex;
+  align-items: center;
+  gap: var(--paro-esp-1);
+  padding: var(--paro-esp-1) var(--paro-esp-2);
+  font-family: var(--font-sans);
+  font-size: var(--paro-texto-legenda);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: var(--paro-texto);
+  background: var(--paro-superficie);
+  border: 1px solid var(--paro-borda);
+  border-radius: var(--paro-raio-pilula);
+}
+
+.icone-etiqueta {
+  flex: none;
+  width: var(--paro-esp-4);
+  height: var(--paro-esp-4);
 }
 
 /* Créditos do mapa acima do que flutua no rodapé (barra de abas, gaveta). */
