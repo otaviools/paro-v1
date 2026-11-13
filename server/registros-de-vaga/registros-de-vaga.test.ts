@@ -143,4 +143,87 @@ describe('Registros de vaga', () => {
       ])
     })
   })
+
+  describe('fechar a noite', () => {
+    it('grava o total de registros por rua coberta e faixa horária de chegada, encerrados incluídos', async () => {
+      await registros.registrar({ ruaCoberta: 'rua-a', chegada: '19:00', saídaPrevista: '21:30' }, agora)
+      await registros.registrar({ ruaCoberta: 'rua-a', chegada: '19:00', saídaPrevista: '22:00' }, agora)
+      const { código } = await registros.registrar({ ruaCoberta: 'rua-b', chegada: '18:30', saídaPrevista: '21:30' }, agora)
+      await registros.encerrar(código, agora)
+
+      await registros.fecharNoite(noite)
+
+      expect(await registros.totaisDaNoite(noite)).toEqual([
+        { ruaCoberta: 'rua-a', faixaHorária: '19:00', quantidade: 2 },
+        { ruaCoberta: 'rua-b', faixaHorária: '18:30', quantidade: 1 },
+      ])
+    })
+
+    it('apaga os registros da noite, e as saídas previstas dela ficam vazias', async () => {
+      await registros.registrar({ ruaCoberta: 'rua-a', chegada: '19:00', saídaPrevista: '21:30' }, agora)
+
+      await registros.fecharNoite(noite)
+
+      expect(await registros.saídasPrevistas(noite)).toEqual([])
+    })
+
+    it('recusa o código de um registro da noite fechada, no alterar saída e no "Saí"', async () => {
+      const { código } = await registros.registrar({ ruaCoberta: 'rua-a', chegada: '19:00', saídaPrevista: '21:30' }, agora)
+
+      await registros.fecharNoite(noite)
+
+      await expect(registros.alterarSaída(código, '22:00', agora)).rejects.toThrow(CódigoRecusado)
+      await expect(registros.encerrar(código, agora)).rejects.toThrow(CódigoRecusado)
+    })
+
+    it('não duplica os totais quando a mesma noite é fechada duas vezes', async () => {
+      await registros.registrar({ ruaCoberta: 'rua-a', chegada: '19:00', saídaPrevista: '21:30' }, agora)
+
+      await registros.fecharNoite(noite)
+      await registros.fecharNoite(noite)
+
+      expect(await registros.totaisDaNoite(noite)).toEqual([
+        { ruaCoberta: 'rua-a', faixaHorária: '19:00', quantidade: 1 },
+      ])
+    })
+
+    it('não mexe nos registros de outras noites', async () => {
+      await registros.registrar({ ruaCoberta: 'rua-a', chegada: '19:00', saídaPrevista: '21:30' }, agora)
+
+      await registros.fecharNoite('2027-05-04')
+
+      expect(await registros.totaisDaNoite('2027-05-04')).toEqual([])
+      expect(await registros.saídasPrevistas(noite)).toEqual([
+        { ruaCoberta: 'rua-a', faixaHorária: '21:30', quantidade: 1 },
+      ])
+    })
+
+    it('fecha as noites anteriores ainda abertas e deixa a noite de agora aberta', async () => {
+      /** Segunda-feira, 03/05/2027, 19h10 em Uberlândia. */
+      const segunda = new Date('2027-05-03T22:10:00Z')
+      /** Terça-feira, 04/05/2027, 19h10 em Uberlândia. */
+      const terça = new Date('2027-05-04T22:10:00Z')
+      await registros.registrar({ ruaCoberta: 'rua-a', chegada: '19:00', saídaPrevista: '21:30' }, segunda)
+      await registros.registrar({ ruaCoberta: 'rua-b', chegada: '19:00', saídaPrevista: '21:30' }, terça)
+      await registros.registrar({ ruaCoberta: 'rua-a', chegada: '19:00', saídaPrevista: '21:30' }, agora)
+
+      expect(await registros.fecharNoitesAnteriores(agora)).toEqual(['2027-05-03', '2027-05-04'])
+
+      expect(await registros.totaisDaNoite('2027-05-03')).toEqual([{ ruaCoberta: 'rua-a', faixaHorária: '19:00', quantidade: 1 }])
+      expect(await registros.totaisDaNoite('2027-05-04')).toEqual([{ ruaCoberta: 'rua-b', faixaHorária: '19:00', quantidade: 1 }])
+      expect(await registros.totaisDaNoite(noite)).toEqual([])
+      expect(await registros.saídasPrevistas(noite)).toEqual([
+        { ruaCoberta: 'rua-a', faixaHorária: '21:30', quantidade: 1 },
+      ])
+    })
+
+    it('na madrugada, depois das 23h, fecha a noite que acabou', async () => {
+      await registros.registrar({ ruaCoberta: 'rua-a', chegada: '19:00', saídaPrevista: '21:30' }, agora)
+      /** Quinta-feira, 06/05/2027, 0h30 em Uberlândia (3h30 em UTC). */
+      const madrugada = new Date('2027-05-06T03:30:00Z')
+
+      expect(await registros.fecharNoitesAnteriores(madrugada)).toEqual([noite])
+      expect(await registros.saídasPrevistas(noite)).toEqual([])
+    })
+  })
 })

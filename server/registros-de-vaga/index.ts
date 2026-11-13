@@ -26,6 +26,17 @@ export interface SaídaPrevista {
   quantidade: number
 }
 
+/**
+ * Total de registros por noite (ADR 0021): quantos registros de vaga chegaram
+ * numa rua coberta e faixa horária, numa noite fechada. Sem identificador nem código.
+ */
+export interface TotalDeRegistros {
+  ruaCoberta: string
+  /** Faixa horária de chegada dos registros. */
+  faixaHorária: FaixaHorária
+  quantidade: number
+}
+
 export interface DependênciasDosRegistrosDeVaga {
   banco: Banco
   areaCoberta: AreaCoberta
@@ -70,6 +81,35 @@ export function criarRegistrosDeVaga({ banco, areaCoberta }: DependênciasDosReg
     if (faixaDeAgora !== null && saídaPrevista < faixaDeAgora) {
       throw new RegistroInválido('A saída prevista não pode ser numa faixa horária que já passou')
     }
+  }
+
+  /**
+   * Fecha a noite (ADR 0021): grava o total de registros por rua coberta e
+   * faixa horária de chegada, encerrados incluídos, e apaga os registros
+   * dessa noite. Os códigos deles deixam de valer.
+   *
+   * Conta pela chegada porque ela é quando o registro foi feito (a rota usa
+   * a faixa horária de agora) e não muda depois; a saída prevista muda com
+   * "alterar saída" e perde o sentido no "Saí". Assim o total mede quantos
+   * registros houve em cada faixa horária, para a meta de 20 por noite.
+   *
+   * Um comando só, para que totais e exclusão aconteçam juntos. Fechar de
+   * novo não duplica nada: os registros já contados foram apagados, e um
+   * registro que chegue depois soma ao total que já existe.
+   */
+  async function fecharNoite(noite: Data): Promise<void> {
+    await banco.query(
+      `with apagados as (
+         delete from registros_de_vaga where noite = $1
+         returning rua_coberta, chegada
+       )
+       insert into totais_de_registros (noite, rua_coberta, faixa_horaria, quantidade)
+       select $1, rua_coberta, chegada, count(*)::int from apagados
+       group by rua_coberta, chegada
+       on conflict (noite, rua_coberta, faixa_horaria)
+       do update set quantidade = totais_de_registros.quantidade + excluded.quantidade`,
+      [noite],
+    )
   }
 
   return {
@@ -127,6 +167,32 @@ export function criarRegistrosDeVaga({ banco, areaCoberta }: DependênciasDosReg
         [noite],
       )
       return rows.map((r) => ({ ruaCoberta: r.rua_coberta, faixaHorária: r.saida_prevista, quantidade: r.quantidade }))
+    },
+
+    fecharNoite,
+
+    /**
+     * Fecha todas as noites anteriores à noite de `agora` que ainda têm
+     * registros. A noite de `agora` continua aberta. Devolve as noites fechadas.
+     */
+    async fecharNoitesAnteriores(agora: Date): Promise<Data[]> {
+      const { rows } = await banco.query<{ noite: string }>(
+        `select distinct to_char(noite, 'YYYY-MM-DD') as noite from registros_de_vaga
+         where noite < $1 order by noite`,
+        [areaCoberta.noiteDe(agora)],
+      )
+      for (const { noite } of rows) await fecharNoite(noite)
+      return rows.map((r) => r.noite)
+    },
+
+    /** Total de registros de uma noite fechada, por rua coberta e faixa horária de chegada. */
+    async totaisDaNoite(noite: Data): Promise<TotalDeRegistros[]> {
+      const { rows } = await banco.query<{ rua_coberta: string, faixa_horaria: string, quantidade: number }>(
+        `select rua_coberta, faixa_horaria, quantidade from totais_de_registros
+         where noite = $1 order by rua_coberta, faixa_horaria`,
+        [noite],
+      )
+      return rows.map((r) => ({ ruaCoberta: r.rua_coberta, faixaHorária: r.faixa_horaria, quantidade: r.quantidade }))
     },
   }
 }
