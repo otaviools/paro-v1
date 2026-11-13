@@ -38,6 +38,10 @@
         Para contar quantas pessoas voltam a usar o Parô, cada visita leva um número sorteado no celular, que
         troca todo mês e não vai junto com os registros de vaga.
       </p>
+      <p>
+        A resposta a "A previsão ajudou hoje?" leva só o sim ou o não, sem esse número e sem nada que identifique
+        você. Só o seu celular guarda que você já respondeu naquela noite.
+      </p>
     </section>
 
     <section class="bloco" aria-labelledby="privacidade-retencao">
@@ -47,7 +51,7 @@
           Registros de vaga: apagados no fim de cada noite. Fica só o total de registros por rua coberta e faixa
           horária, sem código e sem nada que identifique alguém.
         </li>
-        <li>Visitas com o número do mês: guardadas por até 60 dias e depois viram totais.</li>
+        <li>Visitas com o número do mês: guardadas por até 60 dias e depois viram totais por semana, sem o número.</li>
       </ul>
       <p>
         "Apagar histórico" limpa só o celular. Um registro de vaga já enviado fica no servidor até o fim da noite,
