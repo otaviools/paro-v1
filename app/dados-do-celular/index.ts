@@ -38,19 +38,42 @@ export interface RegistroNoCelular {
   saídaPrevista: FaixaHorária
 }
 
+/**
+ * Ponto do carro: a posição exata onde o motorista deixou o carro, lida no
+ * registro com localização ligada. Nunca sai do aparelho (ADR 0003).
+ */
+export interface Ponto {
+  lat: number
+  lon: number
+}
+
 const CHAVE_DA_ROTINA = 'paro:rotina'
 const CHAVE_DO_REGISTRO = 'paro:registro-de-vaga'
+const CHAVE_DO_PONTO_DO_CARRO = 'paro:ponto-do-carro'
 
 /**
- * Dados do celular: o que fica no aparelho (ADRs 0004, 0014 e 0015). Guarda a
- * rotina e o registro de vaga aberto, com o código. Só o código vai ao
- * servidor, para mudar a saída prevista ou tocar em "Saí"; o resto nunca sai
- * do aparelho.
+ * Dados do celular: o que fica no aparelho (ADRs 0003, 0004, 0014 e 0015).
+ * Guarda a rotina e o registro de vaga aberto, com o código e o ponto do
+ * carro. Só o código vai ao servidor, para mudar a saída prevista ou tocar em
+ * "Saí"; o resto, e o ponto do carro em especial, nunca sai do aparelho.
  */
 export function criarDadosDoCelular(armazenamento: Armazenamento) {
   function registroGuardado(): RegistroNoCelular | null {
     const guardado = armazenamento.getItem(CHAVE_DO_REGISTRO)
     return guardado === null ? null : JSON.parse(guardado) as RegistroNoCelular
+  }
+
+  /**
+   * Registro de vaga aberto na `noite`, ou null. O código expira no fim da
+   * noite (ADR 0014): um registro de outra noite é apagado do aparelho, com o
+   * ponto do carro.
+   */
+  function registroAtual(noite: Noite): RegistroNoCelular | null {
+    const registro = registroGuardado()
+    if (registro === null || registro.noite === noite) return registro
+    armazenamento.removeItem(CHAVE_DO_REGISTRO)
+    armazenamento.removeItem(CHAVE_DO_PONTO_DO_CARRO)
+    return null
   }
 
   return {
@@ -65,21 +88,28 @@ export function criarDadosDoCelular(armazenamento: Armazenamento) {
       else armazenamento.setItem(CHAVE_DA_ROTINA, faixaHorária)
     },
 
-    /** Guarda o registro de vaga que acabou de ser feito, com o código. */
-    guardarRegistro(registro: RegistroNoCelular): void {
+    /**
+     * Guarda o registro de vaga que acabou de ser feito, com o código, e o
+     * ponto do carro quando a localização foi lida no registro.
+     */
+    guardarRegistro(registro: RegistroNoCelular, pontoDoCarro?: Ponto): void {
       armazenamento.setItem(CHAVE_DO_REGISTRO, JSON.stringify(registro))
+      // O registro manual não tem ponto do carro, nem herda o de um registro anterior.
+      if (pontoDoCarro) armazenamento.setItem(CHAVE_DO_PONTO_DO_CARRO, JSON.stringify(pontoDoCarro))
+      else armazenamento.removeItem(CHAVE_DO_PONTO_DO_CARRO)
     },
 
     /**
-     * Registro de vaga aberto na `noite`, ou null. O código expira no fim da
-     * noite (ADR 0014): um registro de outra noite é apagado do aparelho.
+     * Ponto do carro do registro aberto na `noite`, ou null. Vale enquanto
+     * o registro vale: some com ele no fim da noite.
      */
-    registroAtual(noite: Noite): RegistroNoCelular | null {
-      const registro = registroGuardado()
-      if (registro === null || registro.noite === noite) return registro
-      armazenamento.removeItem(CHAVE_DO_REGISTRO)
-      return null
+    pontoDoCarro(noite: Noite): Ponto | null {
+      if (registroAtual(noite) === null) return null
+      const guardado = armazenamento.getItem(CHAVE_DO_PONTO_DO_CARRO)
+      return guardado === null ? null : JSON.parse(guardado) as Ponto
     },
+
+    registroAtual,
 
     /** Guarda a nova saída prevista do registro aberto, depois que o servidor aceitou. */
     mudarSaídaDoRegistro(saídaPrevista: FaixaHorária): void {
@@ -88,9 +118,13 @@ export function criarDadosDoCelular(armazenamento: Armazenamento) {
       armazenamento.setItem(CHAVE_DO_REGISTRO, JSON.stringify({ ...registro, saídaPrevista }))
     },
 
-    /** Apaga o registro e o código: depois do "Saí", ou quando o servidor recusa o código. */
+    /**
+     * Apaga o registro, o código e o ponto do carro: depois do "Saí", ou
+     * quando o servidor recusa o código.
+     */
     apagarRegistro(): void {
       armazenamento.removeItem(CHAVE_DO_REGISTRO)
+      armazenamento.removeItem(CHAVE_DO_PONTO_DO_CARRO)
     },
   }
 }
