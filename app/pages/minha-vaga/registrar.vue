@@ -5,16 +5,19 @@
   coberta e as faixas horárias (ADRs 0003 e 0004); o código volta para o
   celular (ADR 0014). A barra de abas some nesta tela.
 
-  "Usar minha localização" lê a posição uma vez, só quando tocado (ADR 0010),
-  e a Área coberta propõe a rua coberta mais próxima, que o colaborador pode
-  trocar. O cálculo é feito aqui no celular: a posição vira o ponto do carro,
-  guardado só nos Dados do celular, e nunca vai ao servidor (ADR 0003). Sem a
-  localização, vale o modo manual: a rua escolhida na lista, sem ponto do carro.
+  A tela segue a forma de colaborar dos Dados do celular (ADR 0010). Com a
+  localização ligada, "Usar minha localização" lê a posição uma vez, só quando
+  tocado, e a Área coberta propõe a rua coberta mais próxima, que o
+  colaborador pode trocar. O cálculo é feito aqui no celular: a posição vira o
+  ponto do carro, guardado só nos Dados do celular, e nunca vai ao servidor
+  (ADR 0003). No registro manual, o botão não aparece: a rua é escolhida na
+  lista, sem ponto do carro. Com a forma "nenhuma", o registro está desligado
+  e a tela volta para Minha vaga.
 -->
 <script setup lang="ts">
 import { areaCoberta } from '~~/server/area-coberta'
 import { dadosDoCelularDoAparelho } from '~/dados-do-celular'
-import type { DadosDoCelular, Ponto } from '~/dados-do-celular'
+import type { DadosDoCelular, FormaDeColaborar, Ponto } from '~/dados-do-celular'
 
 definePageMeta({ semBarraDeAbas: true })
 
@@ -26,6 +29,15 @@ const { data: faixasHorarias } = await useFetch('/api/faixas-horarias')
 const { data: agora, error: erroDoAgora } = useFetch('/api/agora', { key: 'agora-registrar', server: false })
 
 let dados: DadosDoCelular | undefined
+
+/** Forma de colaborar; lida no navegador, ao abrir a tela. */
+const forma = ref<FormaDeColaborar | null>(null)
+onMounted(() => {
+  dados ??= dadosDoCelularDoAparelho()
+  forma.value = dados.formaDeColaborar()
+  if (forma.value === 'nenhuma') navigateTo('/minha-vaga', { replace: true })
+})
+const comLocalizacao = computed(() => forma.value === 'localização-ligada')
 
 // Com um registro aberto nesta noite, a tela é a Vaga ativa.
 watch(agora, (valor) => {
@@ -158,6 +170,7 @@ function voltar() {
         <h2 id="rotulo-rua" class="etiqueta">Rua coberta</h2>
 
         <button
+          v-if="comLocalizacao"
           type="button"
           class="secundario"
           :aria-busy="localizando"
@@ -168,7 +181,10 @@ function voltar() {
           <UIcon v-else name="i-lucide-locate" class="icone" aria-hidden="true" />
           {{ localizando ? 'Lendo a sua localização' : 'Usar minha localização' }}
         </button>
-        <p v-if="erroDaLocalizacao" id="erro-localizacao" class="erro" role="alert">
+        <p v-if="!comLocalizacao" id="nota-localizacao" class="nota">
+          Escolha na lista a rua coberta onde você estacionou. No registro manual, a localização não é usada.
+        </p>
+        <p v-else-if="erroDaLocalizacao" id="erro-localizacao" class="erro" role="alert">
           <UIcon name="i-lucide-circle-alert" class="icone" aria-hidden="true" />
           {{ erroDaLocalizacao }}
         </p>

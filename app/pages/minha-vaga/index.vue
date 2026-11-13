@@ -3,11 +3,13 @@
   (referências Waymo e Lime): card com a saída prevista como título, a rua
   coberta e a linha de ações com "Mudar saída" e, no registro com localização
   ligada, "Voltar até o carro"; "Saí" fixo no rodapé. Sem registro, leva para
-  Registrar vaga.
+  Registrar vaga; com a forma de colaborar "nenhuma", o registro de vaga está
+  desligado e a tela leva para Ajustes (ADR 0010). Um registro aberto continua
+  com "Saí" mesmo depois de desligar a colaboração.
 -->
 <script setup lang="ts">
 import { dadosDoCelularDoAparelho } from '~/dados-do-celular'
-import type { DadosDoCelular, RegistroNoCelular } from '~/dados-do-celular'
+import type { DadosDoCelular, FormaDeColaborar, RegistroNoCelular } from '~/dados-do-celular'
 
 /** Noite e faixa horária de agora; lidas no navegador, na hora de abrir a tela. */
 const { data: agora, error: erroDoAgora } = useFetch('/api/agora', { key: 'agora-minha-vaga', server: false })
@@ -18,6 +20,7 @@ const registro = ref<RegistroNoCelular | null>(null)
 /** Só o registro com localização ligada tem ponto do carro (ADR 0003). */
 const temPontoDoCarro = ref(false)
 const lido = ref(false)
+const forma = ref<FormaDeColaborar>('nenhuma')
 
 // O registro guardado só vale na noite em que foi feito (ADR 0014).
 watch(agora, (valor) => {
@@ -25,6 +28,7 @@ watch(agora, (valor) => {
   dados ??= dadosDoCelularDoAparelho()
   registro.value = dados.registroAtual(valor.noite)
   temPontoDoCarro.value = dados.pontoDoCarro(valor.noite) !== null
+  forma.value = dados.formaDeColaborar()
   lido.value = true
 }, { immediate: true })
 
@@ -164,6 +168,20 @@ async function sair() {
         :salvando="mudandoSaida"
         @salvar="mudarSaida"
       />
+    </template>
+
+    <template v-else-if="forma === 'nenhuma'">
+      <section class="card" aria-labelledby="titulo-desligado">
+        <h2 id="titulo-desligado" class="nome-card">Registro de vaga desligado</h2>
+        <p class="explicacao">
+          Você escolheu só consultar a chance. Para registrar a vaga e avisar quem está chegando quando ela deve
+          ficar livre, escolha uma forma de colaborar em Ajustes.
+        </p>
+      </section>
+
+      <footer class="rodape">
+        <NuxtLink to="/ajustes" class="principal">Escolher forma de colaborar</NuxtLink>
+      </footer>
     </template>
 
     <template v-else>
