@@ -44,6 +44,8 @@ const { abas, faixaHoraria, panorama, error, carregando } = usePanoramaDaNoite()
         :erro="Boolean(error)"
       />
     </section>
+
+    <PerguntaAjudou class="ajudou" />
   </main>
 </template>
 
@@ -100,5 +102,9 @@ const { abas, faixaHoraria, panorama, error, carregando } = usePanoramaDaNoite()
 
 .lista {
   margin-top: var(--paro-esp-3);
+}
+
+.ajudou {
+  margin-top: var(--paro-esp-8);
 }
 </style>
