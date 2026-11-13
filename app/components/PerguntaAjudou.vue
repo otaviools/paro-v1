@@ -12,7 +12,8 @@ import { dadosDoCelularDoAparelho } from '~/dados-do-celular'
 const { data: agora } = useFetch('/api/agora', { key: 'agora-inicio', server: false })
 
 const visivel = ref(false)
-const enviando = ref(false)
+/** A resposta que está indo ao servidor; o botão dela mostra o indicador de carregando. */
+const enviando = ref<boolean | null>(null)
 const erro = ref(false)
 
 watch(agora, (valor) => {
@@ -23,8 +24,8 @@ watch(agora, (valor) => {
 const { avisar } = useAvisoFlutuante()
 
 async function responder(ajudou: boolean) {
-  if (!agora.value || enviando.value) return
-  enviando.value = true
+  if (!agora.value || enviando.value !== null) return
+  enviando.value = ajudou
   erro.value = false
   try {
     await $fetch('/api/ajudou', { method: 'POST', body: { ajudou } })
@@ -36,7 +37,7 @@ async function responder(ajudou: boolean) {
     erro.value = true
   }
   finally {
-    enviando.value = false
+    enviando.value = null
   }
 }
 </script>
@@ -46,13 +47,19 @@ async function responder(ajudou: boolean) {
     <h2 id="titulo-ajudou" class="titulo">A previsão ajudou hoje?</h2>
 
     <div class="botoes">
-      <button type="button" class="secundario" :disabled="enviando" @click="responder(true)">
-        <UIcon name="i-lucide-thumbs-up" class="icone" aria-hidden="true" />
-        Sim
+      <button type="button" class="secundario" :aria-busy="enviando === true" @click="responder(true)">
+        <UIcon v-if="enviando === true" name="i-lucide-loader-circle" class="icone carregando" aria-label="Enviando" />
+        <template v-else>
+          <UIcon name="i-lucide-thumbs-up" class="icone" aria-hidden="true" />
+          Sim
+        </template>
       </button>
-      <button type="button" class="secundario" :disabled="enviando" @click="responder(false)">
-        <UIcon name="i-lucide-thumbs-down" class="icone" aria-hidden="true" />
-        Não
+      <button type="button" class="secundario" :aria-busy="enviando === false" @click="responder(false)">
+        <UIcon v-if="enviando === false" name="i-lucide-loader-circle" class="icone carregando" aria-label="Enviando" />
+        <template v-else>
+          <UIcon name="i-lucide-thumbs-down" class="icone" aria-hidden="true" />
+          Não
+        </template>
       </button>
     </div>
 
@@ -110,14 +117,19 @@ async function responder(ajudou: boolean) {
   transform: scale(0.98);
 }
 
-.secundario:disabled {
-  cursor: default;
-}
-
 .icone {
   flex: none;
   width: var(--paro-esp-4);
   height: var(--paro-esp-4);
+}
+
+/* Carregando (design system, "Botões"): indicador no lugar do texto, mesma largura. */
+.carregando {
+  animation: girar 1s linear infinite;
+}
+
+@keyframes girar {
+  to { transform: rotate(360deg); }
 }
 
 /* Erro em texto de perigo, com ícone; nunca só cor. */
