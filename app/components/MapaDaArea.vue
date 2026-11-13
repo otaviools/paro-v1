@@ -645,7 +645,7 @@ onBeforeUnmount(() => {
   height: var(--paro-esp-8);
   color: var(--paro-acao-texto);
   background: var(--paro-acao);
-  border: 2px solid var(--paro-superficie);
+  border: calc(var(--paro-esp-1) / 2) solid var(--paro-superficie);
   border-radius: var(--paro-raio-botao);
 }
 
@@ -659,7 +659,7 @@ onBeforeUnmount(() => {
   width: var(--paro-esp-5);
   height: var(--paro-esp-5);
   background: var(--paro-destaque-texto);
-  border: 4px solid var(--paro-superficie);
+  border: var(--paro-esp-1) solid var(--paro-superficie);
   border-radius: var(--paro-raio-pilula);
 }
 
