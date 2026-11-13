@@ -20,6 +20,17 @@ export default defineNuxtConfig({
   // O tema segue o sistema por padrão (design system, "Tema escuro").
   colorMode: { preference: 'system', fallback: 'light' },
 
+  nitro: {
+    vercel: {
+      config: {
+        // Fechamento diário das noites anteriores (ADR 0021). O cron da
+        // Vercel usa UTC: 3h30 UTC é 0h30 em Uberlândia (UTC-3), depois do fim
+        // da área coberta às 23h. A rota exige o segredo CRON_SECRET.
+        crons: [{ path: '/api/cron/fechar-noites', schedule: '30 3 * * *' }],
+      },
+    },
+  },
+
   // Fonte servida pelo próprio app, para funcionar offline no PWA.
   fonts: {
     families: [{ name: 'Figtree', provider: 'google', weights: [400, 500, 600, 700] }],
