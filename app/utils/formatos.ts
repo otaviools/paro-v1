@@ -21,6 +21,17 @@ export function distanciaAPe(metros: number) {
   return `${metros} m a pé`
 }
 
+/**
+ * Distância em linha reta até o carro: "120 m em linha reta", "1,2 km em
+ * linha reta". Arredonda para 10 m, perto da precisão da localização.
+ */
+export function distanciaEmLinhaRetaTexto(metros: number) {
+  if (metros < 10) return 'menos de 10 m em linha reta'
+  const arredondado = Math.round(metros / 10) * 10
+  if (arredondado < 1000) return `${arredondado} m em linha reta`
+  return `${(metros / 1000).toLocaleString('pt-BR', { maximumFractionDigits: 1 })} km em linha reta`
+}
+
 /** "18:00" → "18h–18h30"; "22:30" → "22h30–23h". */
 export function intervaloDaFaixaHoraria(inicio: string) {
   const [h, m] = inicio.split(':').map(Number) as [number, number]
