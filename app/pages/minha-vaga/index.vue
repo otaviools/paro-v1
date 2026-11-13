@@ -124,7 +124,7 @@ async function sair() {
 
       <!-- Card Vaga ativa (design system, "Cards"; referência Waymo). -->
       <section class="card" aria-labelledby="titulo-vaga">
-        <p class="etiqueta">Vaga ativa</p>
+        <p class="etiqueta">Seu registro de vaga</p>
         <h2 id="titulo-vaga" class="saida">Saída prevista: {{ rotuloDaFaixaHoraria(registro.saídaPrevista) }}</h2>
         <p class="rua">{{ registro.ruaCoberta.nome }}</p>
         <p class="chegada">Chegada: {{ rotuloDaFaixaHoraria(registro.chegada) }}</p>
