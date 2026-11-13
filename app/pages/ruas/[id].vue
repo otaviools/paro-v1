@@ -2,7 +2,9 @@
   Detalhe da rua: abre por cima, com botão de voltar no topo esquerdo e
   "Como chegar" fixo no rodapé (design system, "Padrões de navegação").
   Mostra a faixa de chance de cada faixa horária da noite e, na faixa horária
-  selecionada, a chance em número com a base (ADR 0006).
+  selecionada, a chance em número com a base (ADR 0006). As saídas previstas
+  da noite ficam num bloco à parte da chance (ADR 0009) e são lidas de novo a
+  cada 90 segundos (ADR 0018).
 -->
 <script setup lang="ts">
 import type { EstadoDaChance } from '~/components/AmostraDeFaixaDeChance.vue'
@@ -12,7 +14,18 @@ definePageMeta({ semBarraDeAbas: true })
 const route = useRoute()
 const router = useRouter()
 
-const { data: rua, error } = await useFetch(() => `/api/ruas/${route.params.id}`)
+const { data: rua, error, refresh } = await useFetch(() => `/api/ruas/${route.params.id}`)
+
+/** As saídas previstas mudam ao longo da noite; o app consulta o servidor de novo (ADR 0018). */
+const INTERVALO_DE_ATUALIZACAO = 90_000
+let atualizacao: ReturnType<typeof setInterval> | undefined
+onMounted(() => { atualizacao = setInterval(() => refresh(), INTERVALO_DE_ATUALIZACAO) })
+onBeforeUnmount(() => clearInterval(atualizacao))
+
+/** "1 saída prevista", "3 saídas previstas". */
+function textoDasSaidas(quantidade: number) {
+  return quantidade === 1 ? '1 saída prevista' : `${quantidade} saídas previstas`
+}
 
 /** Faixa horária vinda do Início; sem ela, a melhor faixa horária. */
 const escolhida = ref<string | null>(typeof route.query.faixaHoraria === 'string' ? route.query.faixaHoraria : null)
@@ -109,6 +122,24 @@ function fecharAviso() {
         <p v-if="selecionada.estimativa.tipo === 'sem-dado'" class="sem-dado">
           Ainda não temos observações suficientes nesta faixa horária
         </p>
+      </section>
+
+      <!-- Bloco de dado à parte da chance: dado declarado, não observado (ADR 0009). -->
+      <section class="bloco saidas" aria-labelledby="titulo-saidas">
+        <h2 id="titulo-saidas" class="titulo-bloco">
+          <UIcon name="i-lucide-log-out" class="icone" aria-hidden="true" />
+          Saídas previstas nesta noite
+        </h2>
+
+        <dl v-if="rua.saídasPrevistas.length" class="dados">
+          <div v-for="saida in rua.saídasPrevistas" :key="saida.faixaHorária" class="dado">
+            <dt>{{ intervaloDaFaixaHoraria(saida.faixaHorária) }}</dt>
+            <dd>{{ textoDasSaidas(saida.quantidade) }}</dd>
+          </div>
+        </dl>
+        <p v-else class="sem-saidas">Ninguém registrou saída prevista nesta rua hoje.</p>
+
+        <p class="nota">Informadas por quem estacionou aqui. Não entram na chance.</p>
       </section>
     </template>
 
@@ -255,6 +286,18 @@ function fecharAviso() {
 .sem-dado {
   padding-top: var(--paro-esp-3);
   font-size: var(--paro-texto-corpo);
+  border-top: 1px solid var(--paro-borda);
+}
+
+.sem-saidas {
+  padding: var(--paro-esp-3) 0;
+  font-size: var(--paro-texto-corpo);
+}
+
+.nota {
+  padding-top: var(--paro-esp-3);
+  font-size: var(--paro-texto-nota);
+  color: var(--paro-texto-fraco);
   border-top: 1px solid var(--paro-borda);
 }
 
