@@ -1,3 +1,5 @@
+import type { EstadoDaChance } from '~/components/AmostraDeFaixaDeChance.vue'
+
 /** "19:00" → "19h"; "19:30" → "19h30". */
 export function rotuloDaFaixaHoraria(inicio: string) {
   const [h, m] = inicio.split(':')
@@ -35,4 +37,11 @@ export function intervaloDaFaixaHoraria(inicio: string) {
 export function textoDaChanceComBase(chance: number, base: { observações: number, última: string }) {
   const naoCheias = Math.round((chance * base.observações) / 100)
   return `${naoCheias} de ${textoDaBase(base)}`
+}
+
+/** Estado mostrado de uma estimativa: a faixa de chance, ou Sem dado. */
+export function estadoDaEstimativa(
+  estimativa: { tipo: 'chance', faixaDeChance: Exclude<EstadoDaChance, 'Sem dado'> } | { tipo: 'sem-dado' },
+): EstadoDaChance {
+  return estimativa.tipo === 'chance' ? estimativa.faixaDeChance : 'Sem dado'
 }
