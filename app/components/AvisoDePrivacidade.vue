@@ -18,7 +18,7 @@
       <ul class="lista">
         <li>A sua rotina, o horário em que você costuma chegar.</li>
         <li>A forma de colaborar que você escolheu.</li>
-        <li>O código do seu registro de vaga, que permite mudar a saída prevista e tocar em "Saí".</li>
+        <li>O código do seu registro de vaga, que permite mudar a saída prevista e tocar em "Saí". Ele vale só naquela noite.</li>
         <li>O ponto do carro, a posição exata onde você estacionou, para Voltar até o carro.</li>
       </ul>
       <p>

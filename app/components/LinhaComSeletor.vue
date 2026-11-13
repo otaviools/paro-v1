@@ -107,7 +107,7 @@ const id = useId()
 
 .seletor.ligado .botao {
   background: var(--paro-acao-texto);
-  transform: translateX(calc(var(--paro-esp-5)));
+  transform: translateX(var(--paro-esp-5));
 }
 
 @media (prefers-reduced-motion: no-preference) {
