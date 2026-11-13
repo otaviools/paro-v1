@@ -13,12 +13,15 @@
   "dependencies": {
     "@nuxt/ui": "^4.12.0",
     "@vite-pwa/nuxt": "^1.1.1",
+    "maplibre-gl": "^6.18.0",
     "nuxt": "^4.6.4",
+    "pmtiles": "^4.5.0",
     "tailwindcss": "^4.3.5"
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.16",
     "@iconify-json/lucide": "^1.2.153",
+    "@types/geojson": "^7946.0.16",
     "typescript": "^6.0.3",
     "vitest": "^5.1.0",
     "vue-tsc": "^3.3.14"
