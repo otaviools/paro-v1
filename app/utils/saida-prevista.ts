@@ -15,6 +15,6 @@ export function gruposDaSaidaPrevista(faixasHorarias: string[], aPartirDe: strin
   const possiveis = faixasHorarias.filter((f) => f >= aPartirDe)
   return [
     { rotulo: 'Antes do pico de saída', faixasHorarias: possiveis.filter((f) => f < INICIO_DO_PICO_DE_SAIDA) },
-    { rotulo: 'Pico de saída · 21h às 23h', faixasHorarias: possiveis.filter((f) => f >= INICIO_DO_PICO_DE_SAIDA) },
+    { rotulo: 'Pico de saída · 21h às 22h59', faixasHorarias: possiveis.filter((f) => f >= INICIO_DO_PICO_DE_SAIDA) },
   ].filter((g) => g.faixasHorarias.length > 0)
 }
