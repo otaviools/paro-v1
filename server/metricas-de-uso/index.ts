@@ -55,6 +55,25 @@ export class IdMensalInválido extends Error {
   }
 }
 
+/** Maior período de um relatório, para a consulta não varrer anos de noites. */
+const MÁXIMO_DE_DIAS_DO_RELATÓRIO = 366
+
+/** Período de relatório invertido, fora do formato "AAAA-MM-DD" ou longo demais. */
+export class PeríodoInválido extends Error {
+  constructor() {
+    super(`Informe de e ate no formato AAAA-MM-DD, com ate depois de de e no máximo ${MÁXIMO_DE_DIAS_DO_RELATÓRIO} dias`)
+  }
+}
+
+const DIA_EM_MS = 24 * 60 * 60 * 1000
+
+/** Dias de `de` a `até`, ou NaN se uma das datas não está no formato "AAAA-MM-DD". */
+function diasEntre(de: Data, até: Data): number {
+  const formato = /^\d{4}-\d{2}-\d{2}$/
+  if (!formato.test(de) || !formato.test(até)) return Number.NaN
+  return (Date.parse(`${até}T00:00:00Z`) - Date.parse(`${de}T00:00:00Z`)) / DIA_EM_MS
+}
+
 export interface DependênciasDasMétricasDeUso {
   banco: Banco
   /**
@@ -135,9 +154,11 @@ export function criarMetricasDeUso({ banco, registrosDeVaga }: DependênciasDasM
     /**
      * Metas do plano (seção 12.6) entre `de` e `até`, inclusive: recorrência
      * das semanas já consolidadas, respostas de "A previsão ajudou hoje?" e
-     * total de registros das noites já fechadas.
+     * total de registros das noites já fechadas. Período de até 366 dias.
      */
     async relatório(de: Data, até: Data): Promise<Relatório> {
+      const dias = diasEntre(de, até)
+      if (!(dias >= 0 && dias <= MÁXIMO_DE_DIAS_DO_RELATÓRIO)) throw new PeríodoInválido()
       const { rows: respostas } = await banco.query<{ data: string, sim: number, nao: number }>(
         `select to_char(data, 'YYYY-MM-DD') as data,
            (count(*) filter (where ajudou))::int as sim,

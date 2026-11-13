@@ -58,7 +58,7 @@ Proposta de módulos derivada do `CONTEXT.md` e das ADRs 0001 a 0024. Usa o voca
 ### 6. Métricas de uso
 
 - **Responsabilidade:** acompanhar as metas do plano (seção 12.6): recorrência, utilidade percebida e total de registros por noite.
-- **Interface:** `registrarSessão(idMensal, data)`, `responderAjudou(ajudou, data)`, `consolidar(data) → { semanasConsolidadas, sessõesApagadas }` (a rotina diária) e `relatório(de, até) → { recorrência: [{ semana, motoristas, voltaramNaSemanaSeguinte }], ajudou: [{ data, sim, não }], registrosPorNoite: [{ noite, total, porRuaEFaixaHorária }] }`, para a equipe.
+- **Interface:** `registrarSessão(idMensal, data)`, `responderAjudou(ajudou, data)`, `consolidar(data) → { semanasConsolidadas, sessõesApagadas }` (a rotina diária) e `relatório(de, até)` (até 366 dias) `→ { recorrência: [{ semana, motoristas, voltaramNaSemanaSeguinte }], ajudou: [{ data, sim, não }], registrosPorNoite: [{ noite, total, porRuaEFaixaHorária }] }`, para a equipe.
 - **Esconde:**
   - a recorrência por semana: o total de uma semana é gravado quando a semana seguinte termina;
   - a retenção de 60 dias das sessões e a consolidação em totais (ADRs 0004 e 0021);
