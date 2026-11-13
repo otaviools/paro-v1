@@ -22,11 +22,30 @@ export function armazenamentoEmMemória(): Armazenamento {
 /** Início de uma faixa horária, no formato "HH:MM" (ex.: "19:30"). */
 export type FaixaHorária = string
 
-const CHAVE_DA_ROTINA = 'paro:rotina'
+/** Data local da noite, no formato "AAAA-MM-DD". */
+export type Noite = string
 
 /**
- * Dados do celular: o que nunca sai do aparelho (ADRs 0004 e 0015). Neste
- * momento, só a rotina. Nada daqui é enviado ao servidor.
+ * Registro de vaga aberto, como o celular guarda. O código é o que permite
+ * mudar a saída prevista ou tocar em "Saí" (ADR 0014); a rua e as faixas
+ * horárias ficam aqui para a tela Vaga ativa.
+ */
+export interface RegistroNoCelular {
+  código: string
+  noite: Noite
+  ruaCoberta: { id: string, nome: string }
+  chegada: FaixaHorária
+  saídaPrevista: FaixaHorária
+}
+
+const CHAVE_DA_ROTINA = 'paro:rotina'
+const CHAVE_DO_REGISTRO = 'paro:registro-de-vaga'
+
+/**
+ * Dados do celular: o que fica no aparelho (ADRs 0004, 0014 e 0015). Guarda a
+ * rotina e o registro de vaga aberto, com o código. Só o código vai ao
+ * servidor, para mudar a saída prevista ou tocar em "Saí"; o resto nunca sai
+ * do aparelho.
  */
 export function criarDadosDoCelular(armazenamento: Armazenamento) {
   return {
@@ -39,6 +58,37 @@ export function criarDadosDoCelular(armazenamento: Armazenamento) {
     definirRotina(faixaHorária: FaixaHorária | null): void {
       if (faixaHorária === null) armazenamento.removeItem(CHAVE_DA_ROTINA)
       else armazenamento.setItem(CHAVE_DA_ROTINA, faixaHorária)
+    },
+
+    /** Guarda o registro de vaga que acabou de ser feito, com o código. */
+    guardarRegistro(registro: RegistroNoCelular): void {
+      armazenamento.setItem(CHAVE_DO_REGISTRO, JSON.stringify(registro))
+    },
+
+    /**
+     * Registro de vaga aberto na `noite`, ou null. O código expira no fim da
+     * noite (ADR 0014): um registro de outra noite é apagado do aparelho.
+     */
+    registroAtual(noite: Noite): RegistroNoCelular | null {
+      const guardado = armazenamento.getItem(CHAVE_DO_REGISTRO)
+      if (guardado === null) return null
+      const registro = JSON.parse(guardado) as RegistroNoCelular
+      if (registro.noite === noite) return registro
+      armazenamento.removeItem(CHAVE_DO_REGISTRO)
+      return null
+    },
+
+    /** Guarda a nova saída prevista do registro aberto, depois que o servidor aceitou. */
+    mudarSaídaDoRegistro(saídaPrevista: FaixaHorária): void {
+      const guardado = armazenamento.getItem(CHAVE_DO_REGISTRO)
+      if (guardado === null) return
+      const registro = JSON.parse(guardado) as RegistroNoCelular
+      armazenamento.setItem(CHAVE_DO_REGISTRO, JSON.stringify({ ...registro, saídaPrevista }))
+    },
+
+    /** Apaga o registro e o código: depois do "Saí", ou quando o servidor recusa o código. */
+    apagarRegistro(): void {
+      armazenamento.removeItem(CHAVE_DO_REGISTRO)
     },
   }
 }
