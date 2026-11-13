@@ -9,7 +9,7 @@ Proposta de módulos derivada do `CONTEXT.md` e das ADRs 0001 a 0024. Usa o voca
 - **Responsabilidade:** responder "como está cada rua coberta nesta faixa horária". É o módulo de leitura das telas Início, Mapa, Detalhe da rua e Visão geral desktop.
 - **Interface:**
   - `panorama(faixaHorária, agora) → { ruas: [{ rua, estimativa, saídasPrevistas, distânciaAoDestino }], melhorChance, demonstração: boolean }`
-  - `ruaAoLongoDaNoite(rua, agora) → { rua, distânciaAoDestino, meioDoTrecho, faixasHorárias: [{ faixaHorária, estimativa }], melhorFaixaHorária, demonstração }`, para o Detalhe da rua
+  - `ruaAoLongoDaNoite(rua, agora) → { rua, distânciaAoDestino, meioDoTrecho, faixasHorárias: [{ faixaHorária, estimativa }], melhorFaixaHorária, saídasPrevistas: [{ faixaHorária, quantidade }], demonstração }`, para o Detalhe da rua
 - **Esconde:**
   - a regra da melhor chance: desempate pela distância até o destino e ruas Sem dado fora da disputa;
   - a junção de Chance, Registros de vaga e Área coberta;
@@ -41,7 +41,7 @@ Proposta de módulos derivada do `CONTEXT.md` e das ADRs 0001 a 0024. Usa o voca
 ### 4. Registros de vaga
 
 - **Responsabilidade:** cuidar do ciclo de vida de um registro numa noite. Recebe o registro, permite alterá-lo ou encerrá-lo, conta as saídas previstas e fecha a noite.
-- **Interface:** `registrar(rua, chegada, saídaPrevista) → código`, `alterarSaída(código, faixa)`, `encerrar(código)` (o "Saí"), `saídasPrevistas(noite)` e `fecharNoite(noite)`
+- **Interface:** `registrar({ rua, chegada, saídaPrevista }, agora) → { código, noite, chegada }`, `alterarSaída(código, faixa, agora)`, `encerrar(código, agora)` (o "Saí"), `saídasPrevistas(noite) → [{ ruaCoberta, faixaHorária, quantidade }]` e `fecharNoite(noite)`. A chegada pode ser `"agora"`, a faixa horária do instante.
 - **Esconde:**
   - o código de uso único, que expira no fim da noite (ADR 0014);
   - a ausência de identificador (ADR 0004);

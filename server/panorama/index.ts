@@ -5,10 +5,17 @@ import type { ConfiguracaoDaChance, Estimativa } from '../chance'
 import { configuracaoDaChance } from '../chance/configuracao'
 import type { Observações } from '../observacoes'
 import { observaçõesDoApp } from '../observacoes/fonte'
+import type { RegistrosDeVaga } from '../registros-de-vaga'
+import { registrosDeVagaDoApp } from '../registros-de-vaga/do-app'
 
 export interface RuaNoPanorama {
   rua: { id: string, nome: string }
   estimativa: Estimativa
+  /**
+   * Registros de vaga abertos da noite com saída prevista nesta rua coberta e
+   * faixa horária. À parte da chance, que vem só das observações (ADR 0009).
+   */
+  saídasPrevistas: number
   /** Distância a pé do meio do trecho até o destino, em metros. */
   distânciaAoDestino: number
 }
@@ -48,6 +55,11 @@ export interface RuaAoLongoDaNoite {
   /** Estimativa de cada faixa horária das 17h às 23h, em ordem. */
   faixasHorárias: FaixaHoráriaDaRua[]
   /**
+   * Saídas previstas da noite na rua, só nas faixas horárias que têm alguma,
+   * em ordem. À parte da chance (ADR 0009).
+   */
+  saídasPrevistas: { faixaHorária: FaixaHorária, quantidade: number }[]
+  /**
    * Faixa horária de maior chance da rua; em empate, a mais cedo. Faixas
    * horárias Sem dado não concorrem: null quando a rua está Sem dado a noite toda.
    */
@@ -59,6 +71,8 @@ export interface RuaAoLongoDaNoite {
 export interface DependênciasDoPanorama {
   areaCoberta: AreaCoberta
   observações: Observações
+  /** De onde vêm as saídas previstas da noite. */
+  registrosDeVaga: Pick<RegistrosDeVaga, 'saídasPrevistas'>
   /** Parâmetros da Chance; por padrão, os da configuração do app. */
   chance?: ConfiguracaoDaChance
 }
@@ -93,7 +107,7 @@ function temChance(rua: RuaNoPanorama): rua is MelhorChance {
   return rua.estimativa.tipo === 'chance'
 }
 
-export function criarPanorama({ areaCoberta, observações, chance = configuracaoDaChance }: DependênciasDoPanorama) {
+export function criarPanorama({ areaCoberta, observações, registrosDeVaga, chance = configuracaoDaChance }: DependênciasDoPanorama) {
   /** Estimativas do semestre da noite de `agora`; vazias fora de qualquer semestre. */
   async function estimativasDaNoite(agora: Date): Promise<Map<string, Estimativa>> {
     const semestre = areaCoberta.semestreDe(areaCoberta.noiteDe(agora))
@@ -114,11 +128,16 @@ export function criarPanorama({ areaCoberta, observações, chance = configuraca
       if (faixaHorária === null) return { faixaHorária, ruas: [], melhorChance: null, demonstração }
       if (!areaCoberta.faixasHorárias().includes(faixaHorária)) throw new FaixaHoráriaInválida(faixaHorária)
 
-      const estimativas = await estimativasDaNoite(agora)
+      const [estimativas, saídasPrevistas] = await Promise.all([
+        estimativasDaNoite(agora),
+        registrosDeVaga.saídasPrevistas(areaCoberta.noiteDe(agora)),
+      ])
 
       const ruas: RuaNoPanorama[] = areaCoberta.ruasCobertas().map((rua) => ({
         rua: { id: rua.id, nome: rua.nome },
         estimativa: estimativaDe(estimativas, rua.id, faixaHorária),
+        saídasPrevistas: saídasPrevistas
+          .find((s) => s.ruaCoberta === rua.id && s.faixaHorária === faixaHorária)?.quantidade ?? 0,
         distânciaAoDestino: areaCoberta.distânciaAoDestino(rua.id),
       })).sort(porChance)
 
@@ -130,7 +149,10 @@ export function criarPanorama({ areaCoberta, observações, chance = configuraca
     async ruaAoLongoDaNoite(idDaRua: string, agora: Date): Promise<RuaAoLongoDaNoite> {
       const rua = areaCoberta.ruasCobertas().find((r) => r.id === idDaRua)
       if (!rua) throw new RuaNãoCoberta(idDaRua)
-      const estimativas = await estimativasDaNoite(agora)
+      const [estimativas, saídasPrevistas] = await Promise.all([
+        estimativasDaNoite(agora),
+        registrosDeVaga.saídasPrevistas(areaCoberta.noiteDe(agora)),
+      ])
       const faixasHorárias = areaCoberta.faixasHorárias().map((faixaHorária) => ({
         faixaHorária,
         estimativa: estimativaDe(estimativas, idDaRua, faixaHorária),
@@ -148,11 +170,19 @@ export function criarPanorama({ areaCoberta, observações, chance = configuraca
         meioDoTrecho: rua.trecho.meio,
         faixasHorárias,
         melhorFaixaHorária: melhor?.faixaHorária ?? null,
+        saídasPrevistas: saídasPrevistas
+          .filter((s) => s.ruaCoberta === idDaRua)
+          .map(({ faixaHorária, quantidade }) => ({ faixaHorária, quantidade }))
+          .sort((a, b) => a.faixaHorária.localeCompare(b.faixaHorária)),
         demonstração: observações.éDemonstração(),
       }
     },
   }
 }
 
-/** Panorama da noite do app, com a área coberta e a fonte de observações ativa. */
-export const panoramaDaNoite = criarPanorama({ areaCoberta: areaCobertaDoApp, observações: observaçõesDoApp })
+/** Panorama da noite do app, com a área coberta, a fonte de observações ativa e o banco do app. */
+export const panoramaDaNoite = criarPanorama({
+  areaCoberta: areaCobertaDoApp,
+  observações: observaçõesDoApp,
+  registrosDeVaga: registrosDeVagaDoApp,
+})
