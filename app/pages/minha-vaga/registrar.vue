@@ -1,13 +1,20 @@
 <!--
-  Registrar vaga, no modo manual (referências Pangea e Lime): a rua coberta
-  escolhida no seletor de opção com ícone e a saída prevista escolhida na
-  gaveta de escolha. A chegada é a faixa horária de agora. O registro leva só
-  a rua coberta e as faixas horárias (ADRs 0003 e 0004); o código volta para
-  o celular (ADR 0014). A barra de abas some nesta tela.
+  Registrar vaga (referências Pangea e Lime): a rua coberta escolhida no
+  seletor de opção com ícone e a saída prevista escolhida na gaveta de
+  escolha. A chegada é a faixa horária de agora. O registro leva só a rua
+  coberta e as faixas horárias (ADRs 0003 e 0004); o código volta para o
+  celular (ADR 0014). A barra de abas some nesta tela.
+
+  "Usar minha localização" lê a posição uma vez, só quando tocado (ADR 0010),
+  e a Área coberta propõe a rua coberta mais próxima, que o colaborador pode
+  trocar. O cálculo é feito aqui no celular: a posição vira o ponto do carro,
+  guardado só nos Dados do celular, e nunca vai ao servidor (ADR 0003). Sem a
+  localização, vale o modo manual: a rua escolhida na lista, sem ponto do carro.
 -->
 <script setup lang="ts">
+import { areaCoberta } from '~~/server/area-coberta'
 import { dadosDoCelularDoAparelho } from '~/dados-do-celular'
-import type { DadosDoCelular } from '~/dados-do-celular'
+import type { DadosDoCelular, Ponto } from '~/dados-do-celular'
 
 definePageMeta({ semBarraDeAbas: true })
 
@@ -45,6 +52,35 @@ function escolherRua(id: string) {
   erroDaRua.value = null
 }
 
+// --- Localização ligada ---------------------------------------------------
+
+/** Ponto do carro lido neste registro; null no modo manual. */
+const pontoDoCarro = ref<Ponto | null>(null)
+/** Rua coberta proposta pela localização; o colaborador pode trocar. */
+const ruaProposta = ref<string | null>(null)
+const localizando = ref(false)
+const erroDaLocalizacao = ref<string | null>(null)
+
+async function usarMinhaLocalizacao() {
+  if (localizando.value) return
+  localizando.value = true
+  erroDaLocalizacao.value = null
+  const leitura = await lerLocalizacao()
+  localizando.value = false
+  if (leitura.tipo === 'lida') {
+    pontoDoCarro.value = leitura.ponto
+    ruaProposta.value = areaCoberta.ruaMaisPróxima(leitura.ponto).id
+    escolherRua(ruaProposta.value)
+    return
+  }
+  // Sem localização, o registro segue no modo manual, sem ponto do carro.
+  pontoDoCarro.value = null
+  ruaProposta.value = null
+  erroDaLocalizacao.value = leitura.tipo === 'negada'
+    ? 'A localização não foi liberada. Escolha a rua coberta na lista; sem a localização, o registro não guarda o ponto do carro.'
+    : 'Não foi possível ler a sua localização agora. Escolha a rua coberta na lista; sem a localização, o registro não guarda o ponto do carro.'
+}
+
 function escolherSaida(faixaHoraria: string) {
   saidaPrevista.value = faixaHoraria
   erroDaSaida.value = null
@@ -73,7 +109,7 @@ async function registrar() {
       ruaCoberta: { id: rua.id, nome: rua.nome },
       chegada: registrado.chegada,
       saídaPrevista: saidaPrevista.value,
-    })
+    }, pontoDoCarro.value ?? undefined)
     vagaRecemRegistrada.value = true
     await navigateTo('/minha-vaga', { replace: true })
   }
@@ -120,6 +156,33 @@ function voltar() {
     <form v-else id="registro" class="formulario" novalidate @submit.prevent="registrar">
       <section class="secao" aria-labelledby="rotulo-rua">
         <h2 id="rotulo-rua" class="etiqueta">Rua coberta</h2>
+
+        <button
+          type="button"
+          class="secundario"
+          :aria-busy="localizando"
+          :aria-describedby="erroDaLocalizacao ? 'erro-localizacao' : 'nota-localizacao'"
+          @click="usarMinhaLocalizacao"
+        >
+          <UIcon v-if="localizando" name="i-lucide-loader-circle" class="icone carregando" aria-hidden="true" />
+          <UIcon v-else name="i-lucide-locate" class="icone" aria-hidden="true" />
+          {{ localizando ? 'Lendo a sua localização' : 'Usar minha localização' }}
+        </button>
+        <p v-if="erroDaLocalizacao" id="erro-localizacao" class="erro" role="alert">
+          <UIcon name="i-lucide-circle-alert" class="icone" aria-hidden="true" />
+          {{ erroDaLocalizacao }}
+        </p>
+        <p v-else-if="ruaProposta" id="nota-localizacao" class="nota" role="status">
+          <UIcon name="i-lucide-locate" class="icone" aria-hidden="true" />
+          {{ ruaEscolhida === ruaProposta
+            ? 'Rua proposta pela sua localização. Se não for esta, toque na rua certa.'
+            : 'Rua trocada. O ponto do carro continua guardado só neste celular.' }}
+        </p>
+        <p v-else id="nota-localizacao" class="nota">
+          Com a localização, o celular propõe a rua coberta mais próxima e guarda o ponto do carro só neste
+          aparelho, para Voltar até o carro. Ou escolha a rua na lista.
+        </p>
+
         <div class="opcoes" role="radiogroup" aria-labelledby="rotulo-rua" :aria-describedby="erroDaRua ? 'erro-rua' : undefined">
           <button
             v-for="rua in ruas"
@@ -252,6 +315,47 @@ function voltar() {
   color: var(--paro-texto-fraco);
 }
 
+/* Botão secundário (design system, "Botões"). */
+.secundario {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--paro-esp-2);
+  width: 100%;
+  min-height: calc(var(--paro-esp-8) + var(--paro-esp-3));
+  padding: 0 var(--paro-esp-4);
+  font-size: var(--paro-texto-interface);
+  font-weight: 500;
+  color: var(--paro-texto);
+  background: var(--paro-superficie);
+  border: 1px solid var(--paro-borda);
+  border-radius: var(--paro-raio-botao);
+  cursor: pointer;
+}
+
+.secundario:active {
+  transform: scale(0.98);
+}
+
+.secundario .carregando {
+  width: var(--paro-esp-4);
+  height: var(--paro-esp-4);
+}
+
+.nota {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--paro-esp-2);
+  max-width: 70ch;
+  font-size: var(--paro-texto-legenda);
+  color: var(--paro-texto-fraco);
+}
+
+.nota .icone,
+.erro .icone {
+  margin-top: 0.1em;
+}
+
 /* Seletor de opção com ícone (design system, "Formulários"; referência Pangea). */
 .opcoes {
   display: grid;
@@ -341,7 +445,7 @@ function voltar() {
 /* Erro em texto de perigo, com ícone, nunca só cor (design system, "Formulários"). */
 .erro {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: var(--paro-esp-2);
   font-size: var(--paro-texto-legenda);
   font-weight: 500;
