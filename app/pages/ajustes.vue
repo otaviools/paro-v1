@@ -53,9 +53,14 @@ const temRegistroAberto = ref(false)
 
 const { avisar } = useAvisoFlutuante()
 
-function pedirConfirmacao() {
+/**
+ * Sem a noite de agora (ainda carregando ou sem conexão), não dá para saber
+ * se o registro guardado ainda vale: o aviso aparece por precaução.
+ */
+async function pedirConfirmacao() {
   dados ??= dadosDoCelularDoAparelho()
-  temRegistroAberto.value = agora.value ? dados.registroAtual(agora.value.noite) !== null : false
+  const noite = agora.value?.noite ?? (await $fetch('/api/agora').catch(() => null))?.noite
+  temRegistroAberto.value = noite ? dados.registroAtual(noite) !== null : true
   confirmacao.value?.abrir()
 }
 
@@ -166,7 +171,7 @@ function apagarHistorico() {
           <UIcon name="i-lucide-circle-alert" class="icone-pequeno" aria-hidden="true" />
           <div class="aviso-textos">
             <p>
-              Você tem um registro de vaga aberto nesta noite. Sem o código, não dá mais para mudar a saída prevista
+              Se você tem um registro de vaga aberto nesta noite: sem o código, não dá mais para mudar a saída prevista
               nem tocar em "Saí", e a sua saída prevista continua contando para quem está chegando até o fim da noite.
             </p>
             <NuxtLink to="/minha-vaga" class="link-perigo" @click="confirmacao?.fechar()">
@@ -176,7 +181,7 @@ function apagarHistorico() {
         </aside>
 
         <div class="botoes">
-          <button type="button" class="secundario" @click="confirmacao?.fechar()">Cancelar</button>
+          <button type="button" class="link" @click="confirmacao?.fechar()">Cancelar</button>
           <button type="button" class="secundario destrutivo-confirmar" @click="apagarHistorico">
             <UIcon name="i-lucide-trash-2" class="icone-pequeno" aria-hidden="true" />
             Apagar
@@ -346,6 +351,15 @@ function apagarHistorico() {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--paro-esp-2);
+}
+
+/* Botão link (design system, "Botões"): "Cancelar". */
+.link {
+  min-height: calc(var(--paro-esp-12) + var(--paro-esp-1));
+  font-size: var(--paro-texto-interface);
+  font-weight: 600;
+  color: var(--paro-destaque-texto);
+  cursor: pointer;
 }
 
 /* Botão secundário (design system, "Botões"). */
