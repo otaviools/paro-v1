@@ -144,4 +144,82 @@ describe('Dados do celular', () => {
       expect(naNoiteSeguinte.pontoDoCarro('2027-05-05')).toBeNull()
     })
   })
+
+  describe('forma de colaborar', () => {
+    it('começa desligada: nenhuma, antes de a pessoa escolher', () => {
+      const dados = criarDadosDoCelular(armazenamentoEmMemória())
+
+      expect(dados.formaDeColaborar()).toBe('nenhuma')
+    })
+
+    it('é a forma que a pessoa escolheu, e continua guardada quando o app abre de novo', () => {
+      const aparelho = armazenamentoEmMemória()
+      criarDadosDoCelular(aparelho).definirFormaDeColaborar('manual')
+
+      const reaberto = criarDadosDoCelular(aparelho)
+
+      expect(reaberto.formaDeColaborar()).toBe('manual')
+    })
+
+    it('volta a desligada quando a pessoa desliga a colaboração em Ajustes', () => {
+      const dados = criarDadosDoCelular(armazenamentoEmMemória())
+      dados.definirFormaDeColaborar('localização-ligada')
+
+      dados.definirFormaDeColaborar('nenhuma')
+
+      expect(dados.formaDeColaborar()).toBe('nenhuma')
+    })
+  })
+
+  describe('primeira visita', () => {
+    it('ainda não aconteceu num aparelho novo', () => {
+      const dados = criarDadosDoCelular(armazenamentoEmMemória())
+
+      expect(dados.primeiraVisitaConcluída()).toBe(false)
+    })
+
+    it('aparece só uma vez: depois de concluída, continua concluída quando o app abre de novo', () => {
+      const aparelho = armazenamentoEmMemória()
+      criarDadosDoCelular(aparelho).concluirPrimeiraVisita()
+
+      const reaberto = criarDadosDoCelular(aparelho)
+
+      expect(reaberto.primeiraVisitaConcluída()).toBe(true)
+    })
+  })
+
+  describe('apagar histórico', () => {
+    const registro = {
+      código: 'codigo-do-servidor',
+      noite: '2027-05-05',
+      ruaCoberta: { id: 'rua-a', nome: 'Rua A' },
+      chegada: '19:00',
+      saídaPrevista: '21:30',
+    }
+
+    it('limpa tudo do aparelho: rotina, registro com o código e ponto do carro', () => {
+      const aparelho = armazenamentoEmMemória()
+      const dados = criarDadosDoCelular(aparelho)
+      dados.definirRotina('19:00')
+      dados.guardarRegistro(registro, { lat: -18.912858, lon: -48.279568 })
+
+      dados.apagarHistórico()
+
+      const reaberto = criarDadosDoCelular(aparelho)
+      expect(reaberto.rotina()).toBeNull()
+      expect(reaberto.registroAtual('2027-05-05')).toBeNull()
+      expect(reaberto.pontoDoCarro('2027-05-05')).toBeNull()
+    })
+
+    it('mantém a forma de colaborar e não traz de volta a Primeira visita', () => {
+      const dados = criarDadosDoCelular(armazenamentoEmMemória())
+      dados.definirFormaDeColaborar('manual')
+      dados.concluirPrimeiraVisita()
+
+      dados.apagarHistórico()
+
+      expect(dados.formaDeColaborar()).toBe('manual')
+      expect(dados.primeiraVisitaConcluída()).toBe(true)
+    })
+  })
 })

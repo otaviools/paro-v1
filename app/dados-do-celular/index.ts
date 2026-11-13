@@ -47,9 +47,24 @@ export interface Ponto {
   lon: number
 }
 
+/**
+ * Forma de colaborar (ADR 0010): registro com a localização ligada, registro
+ * manual, ou nenhuma. Não existe localização contínua.
+ */
+export type FormaDeColaborar = 'localização-ligada' | 'manual' | 'nenhuma'
+
 const CHAVE_DA_ROTINA = 'paro:rotina'
 const CHAVE_DO_REGISTRO = 'paro:registro-de-vaga'
 const CHAVE_DO_PONTO_DO_CARRO = 'paro:ponto-do-carro'
+const CHAVE_DA_FORMA_DE_COLABORAR = 'paro:forma-de-colaborar'
+const CHAVE_DA_PRIMEIRA_VISITA = 'paro:primeira-visita-concluida'
+
+/**
+ * O histórico do aparelho: o que "Apagar histórico" limpa. Toda chave nova
+ * de histórico entra aqui. A forma de colaborar e a Primeira visita não são
+ * histórico, são escolhas da pessoa, e ficam.
+ */
+const CHAVES_DO_HISTÓRICO = [CHAVE_DA_ROTINA, CHAVE_DO_REGISTRO, CHAVE_DO_PONTO_DO_CARRO]
 
 /**
  * Dados do celular: o que fica no aparelho (ADRs 0003, 0004, 0014 e 0015).
@@ -111,6 +126,26 @@ export function criarDadosDoCelular(armazenamento: Armazenamento) {
 
     registroAtual,
 
+    /** Forma de colaborar escolhida; desligada ('nenhuma') até a pessoa escolher (ADR 0010). */
+    formaDeColaborar(): FormaDeColaborar {
+      const guardada = armazenamento.getItem(CHAVE_DA_FORMA_DE_COLABORAR)
+      return guardada === 'localização-ligada' || guardada === 'manual' ? guardada : 'nenhuma'
+    },
+
+    /** Guarda a forma de colaborar escolhida na Primeira visita ou em Ajustes. */
+    definirFormaDeColaborar(forma: FormaDeColaborar): void {
+      armazenamento.setItem(CHAVE_DA_FORMA_DE_COLABORAR, forma)
+    },
+
+    /** Se a Primeira visita já foi feita neste aparelho; ela aparece só uma vez. */
+    primeiraVisitaConcluída(): boolean {
+      return armazenamento.getItem(CHAVE_DA_PRIMEIRA_VISITA) !== null
+    },
+
+    concluirPrimeiraVisita(): void {
+      armazenamento.setItem(CHAVE_DA_PRIMEIRA_VISITA, 'sim')
+    },
+
     /** Guarda a nova saída prevista do registro aberto, depois que o servidor aceitou. */
     mudarSaídaDoRegistro(saídaPrevista: FaixaHorária): void {
       const registro = registroGuardado()
@@ -125,6 +160,16 @@ export function criarDadosDoCelular(armazenamento: Armazenamento) {
     apagarRegistro(): void {
       armazenamento.removeItem(CHAVE_DO_REGISTRO)
       armazenamento.removeItem(CHAVE_DO_PONTO_DO_CARRO)
+    },
+
+    /**
+     * "Apagar histórico" (ADR 0004): limpa a rotina, o registro de vaga com o
+     * código e o ponto do carro. Limpa só o celular; sem o código, o registro
+     * aberto no servidor não pode mais ser alterado e expira no fim da noite
+     * (ADR 0014).
+     */
+    apagarHistórico(): void {
+      for (const chave of CHAVES_DO_HISTÓRICO) armazenamento.removeItem(chave)
     },
   }
 }
