@@ -41,7 +41,10 @@ export class CódigoRecusado extends Error {
   }
 }
 
-/** Registro fora das regras: rua não coberta, faixa horária fora da área coberta ou saída antes da chegada. */
+/**
+ * Registro fora das regras: rua não coberta, faixa horária fora da área
+ * coberta, saída antes da chegada ou numa faixa horária que já passou.
+ */
 export class RegistroInválido extends Error {}
 
 function hashDe(código: string): string {
@@ -55,10 +58,18 @@ export function criarRegistrosDeVaga({ banco, areaCoberta }: DependênciasDosReg
     }
   }
 
-  /** "HH:MM" em ordem de texto é a ordem do horário. */
-  function exigirSaídaDepoisDaChegada(chegada: FaixaHorária, saídaPrevista: FaixaHorária) {
+  /**
+   * A saída prevista é uma faixa horária da área coberta, não é antes da
+   * chegada e não é uma faixa horária que já passou em `agora`.
+   * "HH:MM" em ordem de texto é a ordem do horário.
+   */
+  function exigirSaídaPrevistaVálida(chegada: FaixaHorária, saídaPrevista: FaixaHorária, agora: Date) {
     exigirFaixaHorária(saídaPrevista, 'saída prevista')
     if (saídaPrevista < chegada) throw new RegistroInválido('A saída prevista não pode ser antes da chegada')
+    const faixaDeAgora = areaCoberta.faixaHorária(agora)
+    if (faixaDeAgora !== null && saídaPrevista < faixaDeAgora) {
+      throw new RegistroInválido('A saída prevista não pode ser numa faixa horária que já passou')
+    }
   }
 
   return {
@@ -69,7 +80,7 @@ export function criarRegistrosDeVaga({ banco, areaCoberta }: DependênciasDosReg
       }
       const chegadaDoRegistro = chegada === 'agora' ? areaCoberta.faixaHorária(agora) : chegada
       exigirFaixaHorária(chegadaDoRegistro, 'chegada')
-      exigirSaídaDepoisDaChegada(chegadaDoRegistro, saídaPrevista)
+      exigirSaídaPrevistaVálida(chegadaDoRegistro, saídaPrevista, agora)
 
       const noite = areaCoberta.noiteDe(agora)
       const código = randomBytes(16).toString('base64url')
@@ -90,7 +101,7 @@ export function criarRegistrosDeVaga({ banco, areaCoberta }: DependênciasDosReg
         [hash, areaCoberta.noiteDe(agora)],
       )
       if (!registro) throw new CódigoRecusado()
-      exigirSaídaDepoisDaChegada(registro.chegada, saídaPrevista)
+      exigirSaídaPrevistaVálida(registro.chegada, saídaPrevista, agora)
       await banco.query('update registros_de_vaga set saida_prevista = $2 where hash_do_codigo = $1', [hash, saídaPrevista])
     },
 
