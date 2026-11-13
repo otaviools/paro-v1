@@ -1,8 +1,9 @@
 <!--
   Minha vaga. Com um registro de vaga aberto nesta noite, mostra a Vaga ativa
   (referências Waymo e Lime): card com a saída prevista como título, a rua
-  coberta e a linha de ações com "Mudar saída", e "Saí" fixo no rodapé. Sem
-  registro, leva para Registrar vaga no modo manual.
+  coberta e a linha de ações com "Mudar saída" e, no registro com localização
+  ligada, "Voltar até o carro"; "Saí" fixo no rodapé. Sem registro, leva para
+  Registrar vaga.
 -->
 <script setup lang="ts">
 import { dadosDoCelularDoAparelho } from '~/dados-do-celular'
@@ -14,6 +15,8 @@ const { data: faixasHorarias } = useFetch('/api/faixas-horarias', { server: fals
 
 let dados: DadosDoCelular | undefined
 const registro = ref<RegistroNoCelular | null>(null)
+/** Só o registro com localização ligada tem ponto do carro (ADR 0003). */
+const temPontoDoCarro = ref(false)
 const lido = ref(false)
 
 // O registro guardado só vale na noite em que foi feito (ADR 0014).
@@ -21,6 +24,7 @@ watch(agora, (valor) => {
   if (!valor) return
   dados ??= dadosDoCelularDoAparelho()
   registro.value = dados.registroAtual(valor.noite)
+  temPontoDoCarro.value = dados.pontoDoCarro(valor.noite) !== null
   lido.value = true
 }, { immediate: true })
 
@@ -38,6 +42,7 @@ const { avisar } = useAvisoFlutuante()
 function esquecerRegistro() {
   dados?.apagarRegistro()
   registro.value = null
+  temPontoDoCarro.value = false
   confirmarRegistro.value = false
   avisar('Este registro não vale mais nesta noite. Registre a vaga de novo se precisar.')
 }
@@ -134,6 +139,10 @@ async function sair() {
             <UIcon name="i-lucide-clock" class="icone" aria-hidden="true" />
             Mudar saída
           </button>
+          <NuxtLink v-if="temPontoDoCarro" to="/minha-vaga/carro" class="secundario">
+            <UIcon name="i-lucide-map-pin" class="icone" aria-hidden="true" />
+            Voltar até o carro
+          </NuxtLink>
         </div>
       </section>
 
@@ -268,6 +277,7 @@ async function sair() {
 /* Linha de ações com ícone e rótulo, separada por --paro-borda. */
 .acoes {
   display: flex;
+  flex-wrap: wrap;
   gap: var(--paro-esp-2);
   margin-top: var(--paro-esp-3);
   padding-top: var(--paro-esp-3);
