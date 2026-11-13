@@ -48,6 +48,11 @@ const CHAVE_DO_REGISTRO = 'paro:registro-de-vaga'
  * do aparelho.
  */
 export function criarDadosDoCelular(armazenamento: Armazenamento) {
+  function registroGuardado(): RegistroNoCelular | null {
+    const guardado = armazenamento.getItem(CHAVE_DO_REGISTRO)
+    return guardado === null ? null : JSON.parse(guardado) as RegistroNoCelular
+  }
+
   return {
     /** Faixa horária de chegada habitual, ou null sem rotina. */
     rotina(): FaixaHorária | null {
@@ -70,19 +75,16 @@ export function criarDadosDoCelular(armazenamento: Armazenamento) {
      * noite (ADR 0014): um registro de outra noite é apagado do aparelho.
      */
     registroAtual(noite: Noite): RegistroNoCelular | null {
-      const guardado = armazenamento.getItem(CHAVE_DO_REGISTRO)
-      if (guardado === null) return null
-      const registro = JSON.parse(guardado) as RegistroNoCelular
-      if (registro.noite === noite) return registro
+      const registro = registroGuardado()
+      if (registro === null || registro.noite === noite) return registro
       armazenamento.removeItem(CHAVE_DO_REGISTRO)
       return null
     },
 
     /** Guarda a nova saída prevista do registro aberto, depois que o servidor aceitou. */
     mudarSaídaDoRegistro(saídaPrevista: FaixaHorária): void {
-      const guardado = armazenamento.getItem(CHAVE_DO_REGISTRO)
-      if (guardado === null) return
-      const registro = JSON.parse(guardado) as RegistroNoCelular
+      const registro = registroGuardado()
+      if (registro === null) return
       armazenamento.setItem(CHAVE_DO_REGISTRO, JSON.stringify({ ...registro, saídaPrevista }))
     },
 
