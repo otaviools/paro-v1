@@ -4,7 +4,9 @@
   reta, sem calcular rota (ADR 0020). O ponto do carro vem só dos Dados do
   celular (ADR 0003). A posição atual é lida uma vez ao abrir a tela e de novo
   só quando a pessoa toca em "Atualizar minha posição"; nunca é acompanhada
-  (ADR 0010), nem guardada, nem enviada. A barra de abas some nesta tela.
+  (ADR 0010), nem guardada, nem enviada. Com a localização desligada em
+  Ajustes, a posição atual não é lida e o mapa mostra só o ponto do carro.
+  A barra de abas some nesta tela.
 -->
 <script setup lang="ts">
 import { dadosDoCelularDoAparelho } from '~/dados-do-celular'
@@ -24,6 +26,8 @@ const semRuas: RuaNoMapa[] = []
 const registro = ref<RegistroNoCelular | null>(null)
 const pontoDoCarro = ref<Ponto | null>(null)
 const lido = ref(false)
+/** A posição atual só é lida com a forma de colaborar "localização ligada". */
+const localizacaoLigada = ref(false)
 
 // --- Posição atual -------------------------------------------------------------
 
@@ -51,8 +55,9 @@ watch(agora, (valor) => {
   const dados = dadosDoCelularDoAparelho()
   registro.value = dados.registroAtual(valor.noite)
   pontoDoCarro.value = dados.pontoDoCarro(valor.noite)
+  localizacaoLigada.value = dados.formaDeColaborar() === 'localização-ligada'
   lido.value = true
-  if (pontoDoCarro.value) atualizarPosicao()
+  if (pontoDoCarro.value && localizacaoLigada.value) atualizarPosicao()
 }, { immediate: true })
 
 const distancia = computed(() =>
@@ -95,19 +100,27 @@ function voltar() {
       <template v-else-if="registro && pontoDoCarro">
         <p class="rua">{{ registro.ruaCoberta.nome }}</p>
         <p class="linha">Chegada: {{ rotuloDaFaixaHoraria(registro.chegada) }}</p>
-        <p v-if="distancia" class="linha" role="status">
-          <UIcon name="i-lucide-footprints" class="icone-pequeno" aria-hidden="true" />
-          Você está a {{ distancia }} do carro.
-        </p>
-        <p v-else-if="erroDaPosicao" class="erro" role="alert">
-          <UIcon name="i-lucide-circle-alert" class="icone-pequeno" aria-hidden="true" />
-          {{ erroDaPosicao }}
-        </p>
+        <template v-if="!localizacaoLigada">
+          <p class="linha">
+            A localização está desligada em Ajustes, então o mapa mostra só o ponto do carro.
+          </p>
+          <NuxtLink to="/ajustes" class="principal">Abrir Ajustes</NuxtLink>
+        </template>
+        <template v-else>
+          <p v-if="distancia" class="linha" role="status">
+            <UIcon name="i-lucide-footprints" class="icone-pequeno" aria-hidden="true" />
+            Você está a {{ distancia }} do carro.
+          </p>
+          <p v-else-if="erroDaPosicao" class="erro" role="alert">
+            <UIcon name="i-lucide-circle-alert" class="icone-pequeno" aria-hidden="true" />
+            {{ erroDaPosicao }}
+          </p>
 
-        <button type="button" class="principal" :aria-busy="localizando" @click="atualizarPosicao">
-          <UIcon v-if="localizando" name="i-lucide-loader-circle" class="carregando" aria-label="Lendo a sua posição" />
-          <template v-else>Atualizar minha posição</template>
-        </button>
+          <button type="button" class="principal" :aria-busy="localizando" @click="atualizarPosicao">
+            <UIcon v-if="localizando" name="i-lucide-loader-circle" class="carregando" aria-label="Lendo a sua posição" />
+            <template v-else>Atualizar minha posição</template>
+          </button>
+        </template>
       </template>
 
       <template v-else-if="!registro">
