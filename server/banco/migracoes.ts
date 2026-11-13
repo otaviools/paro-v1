@@ -38,4 +38,31 @@ export const migracoes: Migracao[] = [
       );
     `,
   },
+  {
+    // Métricas de uso (ADRs 0004 e 0021).
+    // - sessoes: o identificador mensal e a data da visita, nada mais.
+    //   Guardadas por 60 dias; depois só ficam os totais.
+    // - totais_de_sessoes: por semana (segunda-feira), quantos motoristas
+    //   houve e quantos voltaram na semana seguinte. Sem identificador.
+    // - respostas_ajudou: a resposta a "A previsão ajudou hoje?" e a data,
+    //   sem identificador.
+    nome: '0003_metricas_de_uso',
+    sql: `
+      create table sessoes (
+        id_mensal text not null,
+        data date not null,
+        primary key (id_mensal, data)
+      );
+      create table totais_de_sessoes (
+        semana date primary key,
+        motoristas integer not null,
+        voltaram_na_semana_seguinte integer not null
+      );
+      create table respostas_ajudou (
+        data date not null,
+        ajudou boolean not null
+      );
+      create index respostas_ajudou_data on respostas_ajudou (data);
+    `,
+  },
 ]
