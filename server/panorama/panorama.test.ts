@@ -4,6 +4,8 @@ import type { ConfiguracaoDaAreaCoberta } from '../area-coberta'
 import { configuracaoDaAreaCoberta } from '../area-coberta/configuracao'
 import type { Observação, Observações } from '../observacoes'
 import { criarObservaçõesFictícias } from '../observacoes/ficticias'
+import { criarBancoDeTeste } from '../banco/teste'
+import { criarRegistrosDeVaga } from '../registros-de-vaga'
 import { criarPanorama, RuaNãoCoberta } from '.'
 
 const configuracao: ConfiguracaoDaAreaCoberta = {
@@ -55,6 +57,9 @@ function fonte(lista: Observação[], demonstração = false): Observações {
   }
 }
 
+/** Noite sem nenhum registro de vaga. */
+const semRegistrosDeVaga = { async saídasPrevistas() { return [] } }
+
 function estimativaDe(resultado: Awaited<ReturnType<ReturnType<typeof criarPanorama>['panorama']>>, rua: string) {
   return resultado.ruas.find((r) => r.rua.id === rua)!.estimativa
 }
@@ -63,6 +68,7 @@ describe('Panorama da noite', () => {
   it('mostra Sem dado, e não Difícil, para uma rua com só 3 observações, todas cheias', async () => {
     const { panorama } = criarPanorama({
       areaCoberta: area,
+      registrosDeVaga: semRegistrosDeVaga,
       observações: fonte([
         observação('rua-a', '2027-02-17', 20),
         observação('rua-a', '2027-02-24', 19),
@@ -79,6 +85,7 @@ describe('Panorama da noite', () => {
     // 7 de 10 noites abaixo de 85% de ocupação: chance de 70% (ADR 0005), Tranquilo (ADR 0006).
     const { panorama } = criarPanorama({
       areaCoberta: area,
+      registrosDeVaga: semRegistrosDeVaga,
       observações: fonte([
         observação('rua-a', '2027-02-15', 10),
         observação('rua-a', '2027-02-16', 12),
@@ -110,7 +117,7 @@ describe('Panorama da noite', () => {
     [0, 'Difícil', 0],
   ])('com %i de 10 noites não cheias, a faixa de chance é %s, com chance de %i', async (naoCheias, faixaDeChance, chance) => {
     const ocupações = Array.from({ length: 10 }, (_, i) => (i < naoCheias ? 10 : 20))
-    const { panorama } = criarPanorama({ areaCoberta: area, observações: fonte(noites('rua-a', ocupações)) })
+    const { panorama } = criarPanorama({ areaCoberta: area, registrosDeVaga: semRegistrosDeVaga, observações: fonte(noites('rua-a', ocupações)) })
 
     const resultado = await panorama('19:00', agora)
 
@@ -121,6 +128,7 @@ describe('Panorama da noite', () => {
     // 17 de 20 vagas = 85% (cheia); 16 de 20 = 80% (não cheia).
     const { panorama } = criarPanorama({
       areaCoberta: area,
+      registrosDeVaga: semRegistrosDeVaga,
       observações: fonte([...noites('rua-a', [17, 17, 17, 17]), ...noites('rua-b', [16, 16, 16, 16])]),
     })
 
@@ -133,6 +141,7 @@ describe('Panorama da noite', () => {
   it('mostra Sem dado quando as 4 observações caem em só 3 dias diferentes', async () => {
     const { panorama } = criarPanorama({
       areaCoberta: area,
+      registrosDeVaga: semRegistrosDeVaga,
       observações: fonte([...noites('rua-a', [10, 10, 10]), observação('rua-a', '2027-02-17', 10)]),
     })
 
@@ -150,6 +159,7 @@ describe('Panorama da noite', () => {
     ]
     const { panorama } = criarPanorama({
       areaCoberta: area,
+      registrosDeVaga: semRegistrosDeVaga,
       observações: fonte([
         ...noites('rua-a', [10, 10, 10, 10]), ...foraDoPadrão('rua-a'),
         ...noites('rua-b', [10, 10, 10]), ...foraDoPadrão('rua-b'),
@@ -170,6 +180,7 @@ describe('Panorama da noite', () => {
   it('ordena as ruas cobertas por chance, com Sem dado no fim, cada uma com a distância ao destino', async () => {
     const { panorama } = criarPanorama({
       areaCoberta: area,
+      registrosDeVaga: semRegistrosDeVaga,
       observações: fonte([
         ...noites('rua-a', [10, 10, 20, 20]), // 50%
         ...noites('rua-c', [10, 10, 10, 20]), // 75%
@@ -188,6 +199,7 @@ describe('Panorama da noite', () => {
   it('em empate de chance, põe primeiro a rua mais perto do destino', async () => {
     const { panorama } = criarPanorama({
       areaCoberta: area,
+      registrosDeVaga: semRegistrosDeVaga,
       observações: fonte([
         ...noites('rua-a', [10, 10, 10, 10]),
         ...noites('rua-b', [10, 10, 10, 10]),
@@ -204,6 +216,7 @@ describe('Panorama da noite', () => {
     it('é a rua coberta de maior chance', async () => {
       const { panorama } = criarPanorama({
         areaCoberta: area,
+        registrosDeVaga: semRegistrosDeVaga,
         observações: fonte([
           ...noites('rua-a', [10, 10, 20, 20]), // 50%
           ...noites('rua-b', [20, 20, 20, 10]), // 25%, a mais perto do destino
@@ -216,6 +229,7 @@ describe('Panorama da noite', () => {
       expect(resultado.melhorChance).toEqual({
         rua: { id: 'rua-c', nome: 'Rua C' },
         estimativa: { tipo: 'chance', faixaDeChance: 'Tranquilo', chance: 75, base: { observações: 4, última: '2027-02-18' } },
+        saídasPrevistas: 0,
         distânciaAoDestino: 200,
       })
     })
@@ -224,6 +238,7 @@ describe('Panorama da noite', () => {
       // rua-a (300 m) e rua-c (200 m) com 75%; rua-b (120 m) com 50%.
       const { panorama } = criarPanorama({
         areaCoberta: area,
+        registrosDeVaga: semRegistrosDeVaga,
         observações: fonte([
           ...noites('rua-a', [10, 10, 10, 20]),
           ...noites('rua-b', [10, 10, 20, 20]),
@@ -240,6 +255,7 @@ describe('Panorama da noite', () => {
       // rua-b, a mais perto do destino, e rua-c têm só 3 observações, todas livres.
       const { panorama } = criarPanorama({
         areaCoberta: area,
+        registrosDeVaga: semRegistrosDeVaga,
         observações: fonte([
           ...noites('rua-a', [20, 20, 20, 20]), // 0%
           ...noites('rua-b', [10, 10, 10]),
@@ -255,6 +271,7 @@ describe('Panorama da noite', () => {
     it('existe com o rótulo Difícil quando todas as ruas estão Difícil', async () => {
       const { panorama } = criarPanorama({
         areaCoberta: area,
+        registrosDeVaga: semRegistrosDeVaga,
         observações: fonte([
           ...noites('rua-a', [20, 20, 20, 20]), // 0%
           ...noites('rua-b', [20, 20, 20, 20]), // 0%
@@ -273,6 +290,7 @@ describe('Panorama da noite', () => {
     it('não existe quando todas as ruas estão Sem dado', async () => {
       const { panorama } = criarPanorama({
         areaCoberta: area,
+        registrosDeVaga: semRegistrosDeVaga,
         observações: fonte([...noites('rua-a', [10, 10, 10]), ...noites('rua-b', [10])]),
       })
 
@@ -282,7 +300,7 @@ describe('Panorama da noite', () => {
     })
 
     it('não existe em "agora", fora da área coberta', async () => {
-      const { panorama } = criarPanorama({ areaCoberta: area, observações: fonte(noites('rua-a', [10, 10, 10, 10])) })
+      const { panorama } = criarPanorama({ areaCoberta: area, registrosDeVaga: semRegistrosDeVaga, observações: fonte(noites('rua-a', [10, 10, 10, 10])) })
 
       const resultado = await panorama('agora', new Date('2027-05-05T18:00:00Z')) // 15h00
 
@@ -293,6 +311,7 @@ describe('Panorama da noite', () => {
   it('em "agora", usa a faixa horária do instante', async () => {
     const { panorama } = criarPanorama({
       areaCoberta: area,
+      registrosDeVaga: semRegistrosDeVaga,
       observações: fonte([
         ...noites('rua-a', [10, 10, 10, 10]),
         observação('rua-b', '2027-02-15', 10, '21:00'),
@@ -306,7 +325,7 @@ describe('Panorama da noite', () => {
   })
 
   it('em "agora", fora da área coberta, não mostra nenhuma rua', async () => {
-    const { panorama } = criarPanorama({ areaCoberta: area, observações: fonte(noites('rua-a', [10, 10, 10, 10])) })
+    const { panorama } = criarPanorama({ areaCoberta: area, registrosDeVaga: semRegistrosDeVaga, observações: fonte(noites('rua-a', [10, 10, 10, 10])) })
 
     const resultado = await panorama('agora', new Date('2027-05-05T18:00:00Z')) // 15h00
 
@@ -315,7 +334,7 @@ describe('Panorama da noite', () => {
   })
 
   it('recusa uma faixa horária fora da área coberta', async () => {
-    const { panorama } = criarPanorama({ areaCoberta: area, observações: fonte([]) })
+    const { panorama } = criarPanorama({ areaCoberta: area, registrosDeVaga: semRegistrosDeVaga, observações: fonte([]) })
 
     await expect(panorama('23:00', agora)).rejects.toThrow('23:00')
   })
@@ -327,6 +346,7 @@ describe('Panorama da noite', () => {
     it('indica que a chance é de demonstração', async () => {
       const { panorama } = criarPanorama({
         areaCoberta,
+        registrosDeVaga: semRegistrosDeVaga,
         observações: criarObservaçõesFictícias(configuracaoDaAreaCoberta),
       })
 
@@ -338,6 +358,7 @@ describe('Panorama da noite', () => {
     it.each(areaCoberta.faixasHorárias())('na faixa horária %s, mostra Tranquilo, Apertado, Difícil e Sem dado', async (faixaHorária) => {
       const { panorama } = criarPanorama({
         areaCoberta,
+        registrosDeVaga: semRegistrosDeVaga,
         observações: criarObservaçõesFictícias(configuracaoDaAreaCoberta),
       })
 
@@ -357,7 +378,7 @@ describe('Panorama da noite', () => {
   })
 
   it('com uma fonte de observações reais, não indica demonstração', async () => {
-    const { panorama } = criarPanorama({ areaCoberta: area, observações: fonte([], false) })
+    const { panorama } = criarPanorama({ areaCoberta: area, registrosDeVaga: semRegistrosDeVaga, observações: fonte([], false) })
 
     const resultado = await panorama('19:00', agora)
 
@@ -368,6 +389,7 @@ describe('Panorama da noite', () => {
     // Com cortes de 80% e 50%, 7 de 10 noites (70%) passa a ser Apertado.
     const { panorama } = criarPanorama({
       areaCoberta: area,
+      registrosDeVaga: semRegistrosDeVaga,
       observações: fonte(noites('rua-a', [10, 10, 10, 10, 10, 10, 10, 20, 20, 20])),
       chance: { ocupaçãoDeRuaCheia: 85, mínimoDeObservações: 4, cortes: { tranquilo: 80, apertado: 50 } },
     })
@@ -382,6 +404,7 @@ describe('Rua coberta ao longo da noite', () => {
   it('dá a estimativa de cada faixa horária das 17h às 23h, em ordem, com Sem dado onde não há observações suficientes', async () => {
     const { ruaAoLongoDaNoite } = criarPanorama({
       areaCoberta: area,
+      registrosDeVaga: semRegistrosDeVaga,
       observações: fonte([
         ...noites('rua-a', [10, 10, 10, 20], '17:30'), // 3 de 4: 75%
         ...noites('rua-a', [10, 20, 20, 20, 20], '19:00'), // 1 de 5: 20%
@@ -409,7 +432,7 @@ describe('Rua coberta ao longo da noite', () => {
   })
 
   it('traz a rua, a distância ao destino, o meio do trecho e o aviso de demonstração', async () => {
-    const { ruaAoLongoDaNoite } = criarPanorama({ areaCoberta: area, observações: fonte([], true) })
+    const { ruaAoLongoDaNoite } = criarPanorama({ areaCoberta: area, registrosDeVaga: semRegistrosDeVaga, observações: fonte([], true) })
 
     const resultado = await ruaAoLongoDaNoite('rua-b', agora)
 
@@ -422,7 +445,7 @@ describe('Rua coberta ao longo da noite', () => {
   })
 
   it('recusa uma rua que não é coberta', async () => {
-    const { ruaAoLongoDaNoite } = criarPanorama({ areaCoberta: area, observações: fonte([]) })
+    const { ruaAoLongoDaNoite } = criarPanorama({ areaCoberta: area, registrosDeVaga: semRegistrosDeVaga, observações: fonte([]) })
 
     await expect(ruaAoLongoDaNoite('rua-z', agora)).rejects.toBeInstanceOf(RuaNãoCoberta)
   })
@@ -431,6 +454,7 @@ describe('Rua coberta ao longo da noite', () => {
     it('é a faixa horária de maior chance da rua, sem contar as Sem dado', async () => {
       const { ruaAoLongoDaNoite } = criarPanorama({
         areaCoberta: area,
+        registrosDeVaga: semRegistrosDeVaga,
         observações: fonte([
           ...noites('rua-a', [10, 10, 20, 20], '17:00'), // 50%
           ...noites('rua-a', [10, 10, 10, 20], '18:00'), // 75%
@@ -448,6 +472,7 @@ describe('Rua coberta ao longo da noite', () => {
     it('em empate de chance, é a faixa horária mais cedo', async () => {
       const { ruaAoLongoDaNoite } = criarPanorama({
         areaCoberta: area,
+        registrosDeVaga: semRegistrosDeVaga,
         observações: fonte([
           ...noites('rua-a', [10, 10, 10, 20], '22:00'), // 75%
           ...noites('rua-a', [10, 10, 20, 20], '17:00'), // 50%
@@ -463,6 +488,7 @@ describe('Rua coberta ao longo da noite', () => {
     it('não existe quando a rua está Sem dado em toda a noite', async () => {
       const { ruaAoLongoDaNoite } = criarPanorama({
         areaCoberta: area,
+        registrosDeVaga: semRegistrosDeVaga,
         observações: fonte([...noites('rua-a', [10, 10, 10], '19:00'), ...noites('rua-b', [10, 10, 10, 10], '19:00')]),
       })
 
@@ -480,6 +506,60 @@ const diasLetivosNormais = [
 ]
 
 /** Uma observação por dia letivo normal, com as vagas ocupadas dadas (de 20). */
+describe('Saídas previstas no Panorama da noite', () => {
+  /** Panorama com registros de vaga num banco de teste, e os mesmos registros para registrar. */
+  async function comRegistros(observações: Observação[] = []) {
+    const registrosDeVaga = criarRegistrosDeVaga({ banco: await criarBancoDeTeste(), areaCoberta: area })
+    return { registrosDeVaga, ...criarPanorama({ areaCoberta: area, registrosDeVaga, observações: fonte(observações) }) }
+  }
+
+  /** Quinta-feira, 06/05/2027, 19h10 em Uberlândia. */
+  const noiteSeguinte = new Date('2027-05-06T22:10:00Z')
+
+  it('dá a cada rua coberta as saídas previstas da noite na faixa horária, sem mudar a chance', async () => {
+    const { registrosDeVaga, panorama } = await comRegistros(noites('rua-a', [10, 10, 10, 20], '21:00')) // 75%
+    await registrosDeVaga.registrar({ ruaCoberta: 'rua-a', chegada: '19:00', saídaPrevista: '21:00' }, agora)
+    await registrosDeVaga.registrar({ ruaCoberta: 'rua-a', chegada: '19:00', saídaPrevista: '21:00' }, agora)
+    await registrosDeVaga.registrar({ ruaCoberta: 'rua-a', chegada: '19:00', saídaPrevista: '21:30' }, agora)
+    await registrosDeVaga.registrar({ ruaCoberta: 'rua-b', chegada: '19:00', saídaPrevista: '21:00' }, noiteSeguinte)
+
+    const resultado = await panorama('21:00', agora)
+
+    expect(resultado.ruas.map(({ rua, saídasPrevistas }) => [rua.id, saídasPrevistas])).toEqual([
+      ['rua-a', 2],
+      ['rua-b', 0],
+      ['rua-c', 0],
+    ])
+    expect(estimativaDe(resultado, 'rua-a')).toMatchObject({ chance: 75, base: { observações: 4 } })
+  })
+
+  it('dá as saídas previstas da rua coberta em cada faixa horária da noite, à parte da chance', async () => {
+    const { registrosDeVaga, ruaAoLongoDaNoite } = await comRegistros()
+    await registrosDeVaga.registrar({ ruaCoberta: 'rua-a', chegada: '19:00', saídaPrevista: '22:00' }, agora)
+    await registrosDeVaga.registrar({ ruaCoberta: 'rua-a', chegada: '18:00', saídaPrevista: '21:00' }, agora)
+    await registrosDeVaga.registrar({ ruaCoberta: 'rua-a', chegada: '19:00', saídaPrevista: '21:00' }, agora)
+    await registrosDeVaga.registrar({ ruaCoberta: 'rua-b', chegada: '19:00', saídaPrevista: '21:30' }, agora)
+    await registrosDeVaga.registrar({ ruaCoberta: 'rua-a', chegada: '19:00', saídaPrevista: '21:30' }, noiteSeguinte)
+
+    const resultado = await ruaAoLongoDaNoite('rua-a', agora)
+
+    expect(resultado.saídasPrevistas).toEqual([
+      { faixaHorária: '21:00', quantidade: 2 },
+      { faixaHorária: '22:00', quantidade: 1 },
+    ])
+  })
+
+  it('deixa de contar a saída prevista depois do "Saí"', async () => {
+    const { registrosDeVaga, panorama } = await comRegistros()
+    const { código } = await registrosDeVaga.registrar({ ruaCoberta: 'rua-a', chegada: '19:00', saídaPrevista: '21:00' }, agora)
+
+    await registrosDeVaga.encerrar(código, agora)
+
+    const resultado = await panorama('21:00', agora)
+    expect(resultado.ruas.find((r) => r.rua.id === 'rua-a')!.saídasPrevistas).toBe(0)
+  })
+})
+
 function noites(ruaCoberta: string, vagasOcupadas: number[], faixaHorária = '19:00'): Observação[] {
   return vagasOcupadas.map((ocupadas, i) => observação(ruaCoberta, diasLetivosNormais[i]!, ocupadas, faixaHorária))
 }
