@@ -222,4 +222,52 @@ describe('Dados do celular', () => {
       expect(dados.primeiraVisitaConcluída()).toBe(true)
     })
   })
+
+  describe('identificador de sessão do mês', () => {
+    it('é o mesmo durante o mês, mesmo com o app aberto de novo', () => {
+      const aparelho = armazenamentoEmMemória()
+      const id = criarDadosDoCelular(aparelho).idDeSessãoDoMês('2027-05')
+
+      const reaberto = criarDadosDoCelular(aparelho)
+
+      expect(reaberto.idDeSessãoDoMês('2027-05')).toBe(id)
+    })
+
+    it('muda na virada do mês (ADR 0004)', () => {
+      const dados = criarDadosDoCelular(armazenamentoEmMemória())
+      const deMaio = dados.idDeSessãoDoMês('2027-05')
+
+      const deJunho = dados.idDeSessãoDoMês('2027-06')
+
+      expect(deJunho).not.toBe(deMaio)
+      expect(dados.idDeSessãoDoMês('2027-06')).toBe(deJunho)
+    })
+
+    it('é um número sorteado de 16 bytes em hexadecimal, diferente em cada aparelho', () => {
+      const um = criarDadosDoCelular(armazenamentoEmMemória()).idDeSessãoDoMês('2027-05')
+      const outro = criarDadosDoCelular(armazenamentoEmMemória()).idDeSessãoDoMês('2027-05')
+
+      expect(um).toMatch(/^[0-9a-f]{32}$/)
+      expect(outro).not.toBe(um)
+    })
+  })
+
+  describe('resposta a "A previsão ajudou hoje?"', () => {
+    it('fica marcada como respondida na noite em que a pessoa respondeu', () => {
+      const aparelho = armazenamentoEmMemória()
+      const dados = criarDadosDoCelular(aparelho)
+      expect(dados.respondeuAjudou('2027-05-05')).toBe(false)
+
+      dados.marcarRespostaAjudou('2027-05-05')
+
+      expect(criarDadosDoCelular(aparelho).respondeuAjudou('2027-05-05')).toBe(true)
+    })
+
+    it('volta a ser perguntada na noite seguinte', () => {
+      const dados = criarDadosDoCelular(armazenamentoEmMemória())
+      dados.marcarRespostaAjudou('2027-05-05')
+
+      expect(dados.respondeuAjudou('2027-05-06')).toBe(false)
+    })
+  })
 })

@@ -58,6 +58,17 @@ const CHAVE_DO_REGISTRO = 'paro:registro-de-vaga'
 const CHAVE_DO_PONTO_DO_CARRO = 'paro:ponto-do-carro'
 const CHAVE_DA_FORMA_DE_COLABORAR = 'paro:forma-de-colaborar'
 const CHAVE_DA_PRIMEIRA_VISITA = 'paro:primeira-visita-concluida'
+const CHAVE_DA_SESSÃO_DO_MÊS = 'paro:sessao-do-mes'
+const CHAVE_DA_RESPOSTA_AJUDOU = 'paro:respondeu-ajudou'
+
+/** Mês no formato "AAAA-MM". */
+export type Mês = string
+
+/** 16 bytes aleatórios em hexadecimal: o formato que o servidor aceita. */
+function sortearId(): string {
+  const bytes = crypto.getRandomValues(new Uint8Array(16))
+  return Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('')
+}
 
 /**
  * O histórico do aparelho: o que "Apagar histórico" limpa. Toda chave nova
@@ -160,6 +171,33 @@ export function criarDadosDoCelular(armazenamento: Armazenamento) {
     apagarRegistro(): void {
       armazenamento.removeItem(CHAVE_DO_REGISTRO)
       armazenamento.removeItem(CHAVE_DO_PONTO_DO_CARRO)
+    },
+
+    /**
+     * Identificador de sessão do `mês` (ADR 0004): um número sorteado no
+     * aparelho, que troca quando o mês muda. É a única coisa que vai ao
+     * servidor a cada visita, nunca junto com um registro de vaga.
+     */
+    idDeSessãoDoMês(mês: Mês): string {
+      const guardada = armazenamento.getItem(CHAVE_DA_SESSÃO_DO_MÊS)
+      const sessão = guardada === null ? null : JSON.parse(guardada) as { mês: Mês, id: string }
+      if (sessão?.mês === mês) return sessão.id
+      const id = sortearId()
+      armazenamento.setItem(CHAVE_DA_SESSÃO_DO_MÊS, JSON.stringify({ mês, id }))
+      return id
+    },
+
+    /**
+     * Se "A previsão ajudou hoje?" já foi respondida neste aparelho na
+     * `noite`. A pergunta aparece uma vez por noite; a resposta vai ao
+     * servidor sem identificador, e só o celular sabe que respondeu.
+     */
+    respondeuAjudou(noite: Noite): boolean {
+      return armazenamento.getItem(CHAVE_DA_RESPOSTA_AJUDOU) === noite
+    },
+
+    marcarRespostaAjudou(noite: Noite): void {
+      armazenamento.setItem(CHAVE_DA_RESPOSTA_AJUDOU, noite)
     },
 
     /**
