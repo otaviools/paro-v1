@@ -107,7 +107,16 @@ describe('Dados do celular', () => {
       expect(reaberto.pontoDoCarro('2027-05-05')).toEqual(ponto)
     })
 
-    it('não existe no registro manual, nem o de um registro com localização de outra noite', () => {
+    it('não existe no registro manual', () => {
+      const dados = criarDadosDoCelular(armazenamentoEmMemória())
+
+      dados.guardarRegistro(registro)
+
+      expect(dados.registroAtual('2027-05-05')).toEqual(registro)
+      expect(dados.pontoDoCarro('2027-05-05')).toBeNull()
+    })
+
+    it('não passa para o registro manual seguinte, mesmo vindo de um registro com localização', () => {
       const dados = criarDadosDoCelular(armazenamentoEmMemória())
       dados.guardarRegistro(registro, ponto)
 
