@@ -87,4 +87,52 @@ describe('Dados do celular', () => {
       expect(criarDadosDoCelular(aparelho).registroAtual('2027-05-05')).toBeNull()
     })
   })
+
+  describe('ponto do carro', () => {
+    const registro = {
+      código: 'codigo-do-servidor',
+      noite: '2027-05-05',
+      ruaCoberta: { id: 'rua-a', nome: 'Rua A' },
+      chegada: '19:00',
+      saídaPrevista: '21:30',
+    }
+    const ponto = { lat: -18.912858, lon: -48.279568 }
+
+    it('fica no aparelho no registro com localização ligada, mesmo quando o app abre de novo', () => {
+      const aparelho = armazenamentoEmMemória()
+      criarDadosDoCelular(aparelho).guardarRegistro(registro, ponto)
+
+      const reaberto = criarDadosDoCelular(aparelho)
+
+      expect(reaberto.pontoDoCarro('2027-05-05')).toEqual(ponto)
+    })
+
+    it('não existe no registro manual, nem o de um registro com localização de outra noite', () => {
+      const dados = criarDadosDoCelular(armazenamentoEmMemória())
+      dados.guardarRegistro(registro, ponto)
+
+      dados.guardarRegistro({ ...registro, código: 'outro-codigo', noite: '2027-05-06' })
+
+      expect(dados.pontoDoCarro('2027-05-06')).toBeNull()
+    })
+
+    it('é apagado do aparelho no "Saí"', () => {
+      const aparelho = armazenamentoEmMemória()
+      criarDadosDoCelular(aparelho).guardarRegistro(registro, ponto)
+
+      criarDadosDoCelular(aparelho).apagarRegistro()
+
+      expect(criarDadosDoCelular(aparelho).pontoDoCarro('2027-05-05')).toBeNull()
+    })
+
+    it('some com o registro na noite seguinte, sem precisar do "Saí"', () => {
+      const aparelho = armazenamentoEmMemória()
+      criarDadosDoCelular(aparelho).guardarRegistro(registro, ponto)
+
+      const naNoiteSeguinte = criarDadosDoCelular(aparelho)
+
+      expect(naNoiteSeguinte.pontoDoCarro('2027-05-06')).toBeNull()
+      expect(naNoiteSeguinte.pontoDoCarro('2027-05-05')).toBeNull()
+    })
+  })
 })
