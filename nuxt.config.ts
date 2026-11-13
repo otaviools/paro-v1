@@ -43,7 +43,11 @@ export default defineNuxtConfig({
     },
     workbox: {
       navigateFallback: '/',
-      globPatterns: ['**/*.{js,css,html,svg,woff2}'],
+      // mjs é o worker do MapLibre; pmtiles e pbf são os tiles e as fontes dos
+      // rótulos do Mapa da área. Ficam no precache para o mapa abrir offline
+      // (ADR 0019). O Mapa da área lê o .pmtiles inteiro com um GET simples,
+      // então o precache basta, sem Range requests.
+      globPatterns: ['**/*.{js,mjs,css,html,svg,woff2,pmtiles,pbf}'],
     },
     devOptions: { enabled: false },
   },
