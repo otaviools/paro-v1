@@ -1,11 +1,9 @@
-<!--
-  Barra de abas flutuante do mobile (design system, "Padrões de navegação").
-  Minha vaga entra na barra quando a tela existir.
--->
+<!-- Barra de abas flutuante do mobile (design system, "Padrões de navegação"). -->
 <script setup lang="ts">
 const abas = [
   { para: '/', rotulo: 'Início', icone: 'i-lucide-house' },
   { para: '/mapa', rotulo: 'Mapa', icone: 'i-lucide-map' },
+  { para: '/minha-vaga', rotulo: 'Minha vaga', icone: 'i-lucide-car' },
   { para: '/ajustes', rotulo: 'Ajustes', icone: 'i-lucide-settings' },
 ]
 </script>
