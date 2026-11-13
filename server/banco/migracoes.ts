@@ -23,4 +23,19 @@ export const migracoes: Migracao[] = [
       create index registros_de_vaga_noite on registros_de_vaga (noite);
     `,
   },
+  {
+    // Total de registros por noite (ADR 0021): o que fica de uma noite fechada.
+    // Só a noite, a rua coberta, a faixa horária de chegada e a quantidade.
+    // Sem identificador e sem código. A chave impede total duplicado.
+    nome: '0002_totais_de_registros',
+    sql: `
+      create table totais_de_registros (
+        noite date not null,
+        rua_coberta text not null,
+        faixa_horaria text not null,
+        quantidade integer not null,
+        primary key (noite, rua_coberta, faixa_horaria)
+      );
+    `,
+  },
 ]
