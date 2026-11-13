@@ -116,6 +116,15 @@ export function criarPanorama({ areaCoberta, observações, registrosDeVaga, cha
       : new Map()
   }
 
+  /** Estimativas do semestre e saídas previstas da noite de `agora`. */
+  async function daNoite(agora: Date) {
+    const [estimativas, saídasPrevistas] = await Promise.all([
+      estimativasDaNoite(agora),
+      registrosDeVaga.saídasPrevistas(areaCoberta.noiteDe(agora)),
+    ])
+    return { estimativas, saídasPrevistas }
+  }
+
   return {
     /**
      * Como está cada rua coberta na faixa horária, na noite de `agora`.
@@ -128,10 +137,7 @@ export function criarPanorama({ areaCoberta, observações, registrosDeVaga, cha
       if (faixaHorária === null) return { faixaHorária, ruas: [], melhorChance: null, demonstração }
       if (!areaCoberta.faixasHorárias().includes(faixaHorária)) throw new FaixaHoráriaInválida(faixaHorária)
 
-      const [estimativas, saídasPrevistas] = await Promise.all([
-        estimativasDaNoite(agora),
-        registrosDeVaga.saídasPrevistas(areaCoberta.noiteDe(agora)),
-      ])
+      const { estimativas, saídasPrevistas } = await daNoite(agora)
 
       const ruas: RuaNoPanorama[] = areaCoberta.ruasCobertas().map((rua) => ({
         rua: { id: rua.id, nome: rua.nome },
@@ -149,10 +155,7 @@ export function criarPanorama({ areaCoberta, observações, registrosDeVaga, cha
     async ruaAoLongoDaNoite(idDaRua: string, agora: Date): Promise<RuaAoLongoDaNoite> {
       const rua = areaCoberta.ruasCobertas().find((r) => r.id === idDaRua)
       if (!rua) throw new RuaNãoCoberta(idDaRua)
-      const [estimativas, saídasPrevistas] = await Promise.all([
-        estimativasDaNoite(agora),
-        registrosDeVaga.saídasPrevistas(areaCoberta.noiteDe(agora)),
-      ])
+      const { estimativas, saídasPrevistas } = await daNoite(agora)
       const faixasHorárias = areaCoberta.faixasHorárias().map((faixaHorária) => ({
         faixaHorária,
         estimativa: estimativaDe(estimativas, idDaRua, faixaHorária),

@@ -505,7 +505,6 @@ const diasLetivosNormais = [
   '2027-02-22', '2027-02-23', '2027-02-24', '2027-02-25', '2027-02-26',
 ]
 
-/** Uma observação por dia letivo normal, com as vagas ocupadas dadas (de 20). */
 describe('Saídas previstas no Panorama da noite', () => {
   /** Panorama com registros de vaga num banco de teste, e os mesmos registros para registrar. */
   async function comRegistros(observações: Observação[] = []) {
@@ -560,6 +559,7 @@ describe('Saídas previstas no Panorama da noite', () => {
   })
 })
 
+/** Uma observação por dia letivo normal, com as vagas ocupadas dadas (de 20). */
 function noites(ruaCoberta: string, vagasOcupadas: number[], faixaHorária = '19:00'): Observação[] {
   return vagasOcupadas.map((ocupadas, i) => observação(ruaCoberta, diasLetivosNormais[i]!, ocupadas, faixaHorária))
 }
