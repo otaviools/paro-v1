@@ -9,6 +9,7 @@ const route = useRoute()
     </div>
     <!-- Telas que abrem por cima (Detalhe da rua) escondem a barra de abas. -->
     <BarraDeAbas v-if="!route.meta.semBarraDeAbas" />
+    <AvisoFlutuante />
   </UApp>
 </template>
 
