@@ -8,8 +8,11 @@ export interface Ponto {
 export interface RuaCoberta {
   id: string
   nome: string
-  /** Trecho delimitado da rua (ADR 0024). */
-  trecho: { de: string, ate: string, meio: Ponto }
+  /**
+   * Trecho delimitado da rua (ADR 0024): esquinas, meio e a linha do trecho,
+   * de uma ponta à outra, que o Mapa da área desenha.
+   */
+  trecho: { de: string, ate: string, meio: Ponto, linha: Ponto[] }
   /** Distância a pé do meio do trecho até o destino (ADR 0024). */
   distanciaAoDestinoMetros: number
 }
