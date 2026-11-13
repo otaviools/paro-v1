@@ -12,42 +12,72 @@ export const configuracaoDaAreaCoberta: ConfiguracaoDaAreaCoberta = {
   provisoria: true,
   fusoHorario: 'America/Sao_Paulo',
 
-  // PROVISÓRIO: coordenada aproximada da entrada de pedestres principal (ADR 0024).
+  // PROVISÓRIO: ponto da ESAMC no OpenStreetMap, até a medição da entrada de
+  // pedestres principal (ADR 0024).
   destino: {
     nome: 'Entrada de pedestres principal da ESAMC Uberlândia',
-    ponto: { lat: -18.9146, lon: -48.2754 },
+    ponto: { lat: -18.912511, lon: -48.279397 },
   },
 
   // As cinco ruas cobertas da ADR 0001. Trechos e distâncias PROVISÓRIOS (ADR 0024).
+  // PROVISÓRIO: cada linha vai de uma esquina à outra no quarteirão mais perto
+  // da ESAMC, com os vértices das vias do OpenStreetMap (recorte do mapa em
+  // public/mapa). O meio é o ponto médio da linha. Os limites reais vêm do
+  // protocolo de campo.
   ruasCobertas: [
     {
       id: 'vasconcelos-costa',
       nome: 'Av. Vasconcelos Costa',
-      trecho: { de: 'a definir', ate: 'a definir', meio: { lat: -18.9140, lon: -48.2760 } },
+      trecho: {
+        de: 'a definir',
+        ate: 'a definir',
+        meio: { lat: -18.912858, lon: -48.279568 },
+        linha: [{ lat: -18.913016, lon: -48.280114 }, { lat: -18.912699, lon: -48.279022 }],
+      },
       distanciaAoDestinoMetros: 150,
     },
     {
       id: 'rivalino-pereira',
       nome: 'R. Rivalino Pereira',
-      trecho: { de: 'a definir', ate: 'a definir', meio: { lat: -18.9152, lon: -48.2745 } },
+      trecho: {
+        de: 'a definir',
+        ate: 'a definir',
+        meio: { lat: -18.913144, lon: -48.278883 },
+        linha: [{ lat: -18.912699, lon: -48.279022 }, { lat: -18.913589, lon: -48.278743 }],
+      },
       distanciaAoDestinoMetros: 250,
     },
     {
       id: 'belo-horizonte',
       nome: 'Av. Belo Horizonte',
-      trecho: { de: 'a definir', ate: 'a definir', meio: { lat: -18.9160, lon: -48.2770 } },
+      trecho: {
+        de: 'a definir',
+        ate: 'a definir',
+        meio: { lat: -18.911947, lon: -48.279874 },
+        linha: [{ lat: -18.912105, lon: -48.280411 }, { lat: -18.911788, lon: -48.279336 }],
+      },
       distanciaAoDestinoMetros: 350,
     },
     {
       id: 'arlindo-teixeira',
       nome: 'R. Arlindo Teixeira',
-      trecho: { de: 'a definir', ate: 'a definir', meio: { lat: -18.9135, lon: -48.2740 } },
+      trecho: {
+        de: 'a definir',
+        ate: 'a definir',
+        meio: { lat: -18.913463, lon: -48.279975 },
+        linha: [{ lat: -18.913016, lon: -48.280114 }, { lat: -18.913909, lon: -48.279835 }],
+      },
       distanciaAoDestinoMetros: 300,
     },
     {
       id: 'alexandre-marquez',
       nome: 'R. Alexandre Marquez',
-      trecho: { de: 'a definir', ate: 'a definir', meio: { lat: -18.9128, lon: -48.2765 } },
+      trecho: {
+        de: 'a definir',
+        ate: 'a definir',
+        meio: { lat: -18.913749, lon: -48.279289 },
+        linha: [{ lat: -18.913909, lon: -48.279835 }, { lat: -18.913589, lon: -48.278743 }],
+      },
       distanciaAoDestinoMetros: 450,
     },
   ],
