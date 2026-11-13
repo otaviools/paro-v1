@@ -110,6 +110,11 @@ function voltar() {
         </button>
       </template>
 
+      <template v-else-if="!registro">
+        <p class="linha">Nenhum registro de vaga aberto nesta noite.</p>
+        <NuxtLink to="/minha-vaga" class="principal">Ver minha vaga</NuxtLink>
+      </template>
+
       <template v-else>
         <p class="linha">
           Este registro de vaga não tem o ponto do carro. O ponto só fica guardado no celular quando a vaga é
