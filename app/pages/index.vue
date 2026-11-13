@@ -8,6 +8,8 @@ const { abas, faixaHoraria, panorama, error, carregando } = usePanoramaDaNoite()
 
     <h1 class="titulo">Início</h1>
 
+    <BlocoDaVagaAtiva class="vaga-ativa" />
+
     <div class="abas" role="tablist" aria-label="Faixa horária">
       <ChipDeFaixaHoraria
         v-for="aba in abas"
@@ -61,6 +63,10 @@ const { abas, faixaHoraria, panorama, error, carregando } = usePanoramaDaNoite()
   font-weight: 700;
   letter-spacing: -0.02em;
   line-height: 1.2;
+}
+
+.vaga-ativa {
+  margin-top: var(--paro-esp-6);
 }
 
 .abas {
