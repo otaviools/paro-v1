@@ -49,7 +49,7 @@ function comecar() {
   <main class="primeira-visita">
     <template v-if="passo === 'boas-vindas'">
       <section class="conteudo" aria-labelledby="titulo-boas-vindas">
-        <h1 id="titulo-boas-vindas" class="titulo">Chance de vaga perto da ESAMC</h1>
+        <h1 id="titulo-boas-vindas" class="titulo">Chance de vaga nas ruas cobertas</h1>
         <p class="explicacao">
           O Parô mostra em quais ruas cobertas e faixas horárias costuma haver vaga à noite, para você decidir
           antes de sair de casa.
@@ -202,6 +202,11 @@ function comecar() {
   gap: var(--paro-esp-3);
 }
 
+@media (min-width: 1024px) {
+  .cards,
+  .escolhas { gap: var(--paro-esp-4); }
+}
+
 /* Cards (design system, "Cards"): superfície, borda de 1 px, raio de 16 px. */
 .card,
 .escolha {
@@ -269,6 +274,7 @@ function comecar() {
   cursor: pointer;
 }
 
+/* Na nota, o link vai para a linha de baixo, com o alvo de toque inteiro. */
 .link-na-linha {
   display: block;
 }
