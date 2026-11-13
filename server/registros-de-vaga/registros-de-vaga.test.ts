@@ -90,6 +90,18 @@ describe('Registros de vaga', () => {
     ])
   })
 
+  it('recusa mudar a saída para uma faixa horária que já passou', async () => {
+    const { código } = await registros.registrar({ ruaCoberta: 'rua-a', chegada: '19:00', saídaPrevista: '22:00' }, agora)
+    /** 05/05/2027, 21h10 em Uberlândia. */
+    const às21h10 = new Date('2027-05-06T00:10:00Z')
+
+    await expect(registros.alterarSaída(código, '20:00', às21h10)).rejects.toThrow(RegistroInválido)
+    await registros.alterarSaída(código, '21:00', às21h10)
+    expect(await registros.saídasPrevistas(noite)).toEqual([
+      { ruaCoberta: 'rua-a', faixaHorária: '21:00', quantidade: 1 },
+    ])
+  })
+
   describe('código', () => {
     it('recusa um código que não é de nenhum registro', async () => {
       await registros.registrar({ ruaCoberta: 'rua-a', chegada: '19:00', saídaPrevista: '21:30' }, agora)
