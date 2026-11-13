@@ -3,7 +3,7 @@ import { criarAreaCoberta } from '../area-coberta'
 import type { ConfiguracaoDaAreaCoberta } from '../area-coberta'
 import { criarBancoDeTeste } from '../banco/teste'
 import { criarRegistrosDeVaga } from '../registros-de-vaga'
-import { criarMetricasDeUso, IdMensalInválido } from '.'
+import { criarMetricasDeUso, IdMensalInválido, PeríodoInválido } from '.'
 
 const configuracao: ConfiguracaoDaAreaCoberta = {
   provisoria: true,
@@ -119,5 +119,27 @@ describe('Métricas de uso', () => {
   it('recusa um identificador mensal que não é um número sorteado, para não guardar texto livre', async () => {
     await expect(metricas.registrarSessão('fulano@exemplo.com', '2027-05-05')).rejects.toThrow(IdMensalInválido)
     await expect(metricas.registrarSessão('', '2027-05-05')).rejects.toThrow(IdMensalInválido)
+  })
+
+  it('mantém os totais consolidados depois que as sessões da semana foram apagadas', async () => {
+    await metricas.registrarSessão(ID_A, '2027-03-01')
+    await metricas.registrarSessão(ID_A, '2027-03-09')
+    await metricas.consolidar('2027-03-22')
+
+    // Em 30/06, todas as sessões de março têm mais de 60 dias.
+    const depois = await metricas.consolidar('2027-06-30')
+
+    expect(depois).toEqual({ semanasConsolidadas: [], sessõesApagadas: 2 })
+    const { recorrência } = await metricas.relatório('2027-03-01', '2027-03-31')
+    expect(recorrência).toEqual([
+      { semana: '2027-03-01', motoristas: 1, voltaramNaSemanaSeguinte: 1 },
+      { semana: '2027-03-08', motoristas: 1, voltaramNaSemanaSeguinte: 0 },
+    ])
+  })
+
+  it('recusa um período de relatório invertido, fora do formato ou com mais de 366 dias', async () => {
+    await expect(metricas.relatório('2027-05-31', '2027-05-01')).rejects.toThrow(PeríodoInválido)
+    await expect(metricas.relatório('31/05/2027', '2027-06-01')).rejects.toThrow(PeríodoInválido)
+    await expect(metricas.relatório('2027-01-01', '2028-01-03')).rejects.toThrow(PeríodoInválido)
   })
 })
