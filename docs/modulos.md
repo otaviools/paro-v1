@@ -58,15 +58,19 @@ Proposta de módulos derivada do `CONTEXT.md` e das ADRs 0001 a 0024. Usa o voca
 ### 6. Métricas de uso
 
 - **Responsabilidade:** acompanhar as metas do plano (seção 12.6): recorrência, utilidade percebida e total de registros por noite.
-- **Interface:** `registrarSessão(idMensal)`, `responderAjudou(resposta)` e `consolidar(data)`
-- **Esconde:** a retenção de 60 dias das sessões e a consolidação em totais (ADRs 0004 e 0021). Os totais de registros chegam pelo `fecharNoite` do módulo 4. Este módulo não lê registros de vaga.
+- **Interface:** `registrarSessão(idMensal, data)`, `responderAjudou(ajudou, data)`, `consolidar(data) → { semanasConsolidadas, sessõesApagadas }` (a rotina diária) e `relatório(de, até) → { recorrência: [{ semana, motoristas, voltaramNaSemanaSeguinte }], ajudou: [{ data, sim, não }], registrosPorNoite: [{ noite, total, porRuaEFaixaHorária }] }`, para a equipe.
+- **Esconde:**
+  - a recorrência por semana: o total de uma semana é gravado quando a semana seguinte termina;
+  - a retenção de 60 dias das sessões e a consolidação em totais (ADRs 0004 e 0021);
+  - a recusa de identificador fora do formato sorteado pelo celular.
+- **Dependências:** usa Postgres (PGLite nos testes) e, de Registros de vaga, só `totaisDaNoite`: os totais de registros por noite são os que o `fecharNoite` gravou. Este módulo não lê registros de vaga e não guarda cópia dos totais.
 
 ## Módulos do celular (cliente)
 
 ### 7. Dados do celular
 
 - **Responsabilidade:** guardar tudo que nunca sai do aparelho: rotina, ponto do carro, códigos dos registros abertos, histórico e identificador mensal de sessão.
-- **Interface:** `rotina` (ler e definir), `pontoDoCarro` (guardar ao registrar, apagar no "Saí"), `códigoDoRegistroAtual`, `idDeSessãoDoMês()` e `apagarHistórico()`
+- **Interface:** `rotina` (ler e definir), `pontoDoCarro` (guardar ao registrar, apagar no "Saí"), `códigoDoRegistroAtual`, `idDeSessãoDoMês(mês)`, `respondeuAjudou(noite)` / `marcarRespostaAjudou(noite)` e `apagarHistórico()`
 - **Garante:** que esses dados nunca vão para o servidor (ADRs 0003, 0004 e 0015). Concentrar isso num módulo só deixa a regra de privacidade verificável num único lugar.
 - **Dependências:** usa `localStorage`, com substituto local. Os testes usam um armazenamento em memória.
 
@@ -93,7 +97,7 @@ Telas ──► Panorama da noite ──► Chance          (puro)
                 └──► Área coberta       (configuração)
 Telas ──► Dados do celular ──► localStorage
 Telas ──► Mapa da área ──► MapLibre + PMTiles
-Registros de vaga.fecharNoite ──► Métricas de uso
+Métricas de uso ──► Registros de vaga.totaisDaNoite (gravados por fecharNoite)
 ```
 
 Seams que valem a pena:
