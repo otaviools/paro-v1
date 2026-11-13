@@ -1,63 +1,5 @@
 <script setup lang="ts">
-import type { EstadoDaChance } from '~/components/AmostraDeFaixaDeChance.vue'
-import { dadosDoCelularDoAparelho } from '~/dados-do-celular'
-
-/** Faixas horárias fixas das abas do Início, além de Agora. */
-const FAIXAS_HORARIAS_DAS_ABAS = ['19:00', '21:00', '22:00']
-
-/** Rotina do celular; lida só no navegador, depois de montar. */
-const rotina = ref<string | null>(null)
-
-/** Agora, 19h, 21h e 22h; a rotina ganha a sua aba quando não é uma delas. */
-const abas = computed(() => {
-  const faixasHorarias = rotina.value && !FAIXAS_HORARIAS_DAS_ABAS.includes(rotina.value)
-    ? [...FAIXAS_HORARIAS_DAS_ABAS, rotina.value].sort()
-    : FAIXAS_HORARIAS_DAS_ABAS
-  return [
-    { valor: 'agora', rotulo: 'Agora' },
-    ...faixasHorarias.map((f) => ({ valor: f, rotulo: rotuloDaFaixaHoraria(f) })),
-  ]
-})
-
-/** Null até ler a rotina; depois, a faixa horária da aba escolhida. */
-const faixaHoraria = ref<string | null>(null)
-
-// A faixa horária inicial depende da rotina, que só existe no celular: a
-// busca roda no navegador, depois de ler a rotina.
-const { data: panorama, status, error, execute } = useFetch('/api/panorama', {
-  query: { faixaHoraria },
-  server: false,
-  immediate: false,
-})
-
-onMounted(() => {
-  rotina.value = dadosDoCelularDoAparelho().rotina()
-  faixaHoraria.value = rotina.value ?? 'agora'
-  execute()
-})
-
-// Uma rotina guardada que deixou de ser faixa horária da área coberta (o
-// servidor recusa com 400) vale como sem rotina: o Início volta para Agora.
-watch(error, (erro) => {
-  if (erro?.statusCode === 400 && rotina.value !== null && faixaHoraria.value === rotina.value) {
-    rotina.value = null
-    faixaHoraria.value = 'agora'
-  }
-})
-
-const carregando = computed(() => status.value === 'idle' || status.value === 'pending')
-
-type Estimativa = NonNullable<typeof panorama.value>['ruas'][number]['estimativa']
-
-function estadoDe(estimativa: Estimativa): EstadoDaChance {
-  return estimativa.tipo === 'chance' ? estimativa.faixaDeChance : 'Sem dado'
-}
-
-/** Base, ou o texto obrigatório de Sem dado (design system). */
-function subtitulo(estimativa: Estimativa) {
-  if (estimativa.tipo !== 'chance') return 'Ainda não temos observações suficientes nesta faixa horária'
-  return textoDaBase(estimativa.base)
-}
+const { abas, faixaHoraria, panorama, error, carregando } = usePanoramaDaNoite()
 </script>
 
 <template>
@@ -93,35 +35,12 @@ function subtitulo(estimativa: Estimativa) {
         Ruas cobertas<template v-if="!carregando && panorama?.faixaHorária"> · {{ rotuloDaFaixaHoraria(panorama.faixaHorária) }}</template>
       </h2>
 
-      <ul v-if="carregando" class="lista" aria-busy="true" aria-label="Carregando ruas cobertas">
-        <li v-for="n in 5" :key="n" class="linha esqueleto" />
-      </ul>
-
-      <p v-else-if="error" class="mensagem">
-        Não foi possível carregar a chance agora. Tente de novo em instantes.
-      </p>
-
-      <p v-else-if="panorama && panorama.faixaHorária === null" class="mensagem">
-        Agora está fora da área coberta, que vai das 17h às 23h. Escolha 19h, 21h ou 22h para ver a chance.
-      </p>
-
-      <ul v-else class="lista">
-        <li v-for="{ rua, estimativa, distânciaAoDestino } in panorama?.ruas" :key="rua.id">
-          <NuxtLink
-            class="linha"
-            :to="{ path: `/ruas/${rua.id}`, query: { faixaHoraria: panorama?.faixaHorária } }"
-          >
-            <AmostraDeFaixaDeChance :estado="estadoDe(estimativa)" />
-            <div class="texto">
-              <span class="nome">{{ rua.nome }}</span>
-              <span class="subtitulo">
-                <strong class="rotulo">{{ estadoDe(estimativa) }}</strong> · {{ subtitulo(estimativa) }}
-              </span>
-            </div>
-            <span class="distancia">{{ distanciaAPe(distânciaAoDestino) }}</span>
-          </NuxtLink>
-        </li>
-      </ul>
+      <ListaDeRuasCobertas
+        class="lista"
+        :panorama="panorama"
+        :carregando="carregando"
+        :erro="Boolean(error)"
+      />
     </section>
   </main>
 </template>
@@ -174,67 +93,6 @@ function subtitulo(estimativa: Estimativa) {
 }
 
 .lista {
-  display: grid;
-  gap: var(--paro-esp-3);
   margin-top: var(--paro-esp-3);
-}
-
-.linha {
-  display: flex;
-  align-items: center;
-  gap: var(--paro-esp-3);
-  min-height: 56px;
-  padding: var(--paro-esp-3) var(--paro-esp-4);
-  background: var(--paro-superficie);
-  border: 1px solid var(--paro-borda);
-  border-radius: var(--paro-raio-linha);
-}
-
-.texto {
-  display: grid;
-  flex: 1;
-  min-width: 0;
-}
-
-.nome {
-  font-size: var(--paro-texto-corpo);
-  font-weight: 600;
-}
-
-.subtitulo {
-  font-size: var(--paro-texto-legenda);
-  font-weight: 500;
-  font-variant-numeric: tabular-nums;
-  color: var(--paro-texto-fraco);
-}
-
-.rotulo {
-  font-weight: 600;
-  color: var(--paro-texto);
-}
-
-.distancia {
-  flex: none;
-  padding: var(--paro-esp-1) var(--paro-esp-3);
-  font-size: var(--paro-texto-legenda);
-  font-weight: 500;
-  font-variant-numeric: tabular-nums;
-  color: var(--paro-texto-fraco);
-  background: var(--paro-superficie-suave);
-  border-radius: var(--paro-raio-pilula);
-}
-
-.mensagem {
-  margin-top: var(--paro-esp-3);
-  padding: var(--paro-esp-4);
-  font-size: var(--paro-texto-corpo);
-  background: var(--paro-superficie);
-  border: 1px solid var(--paro-borda);
-  border-radius: var(--paro-raio-linha);
-}
-
-.esqueleto {
-  background: var(--paro-superficie-suave);
-  border-color: transparent;
 }
 </style>
