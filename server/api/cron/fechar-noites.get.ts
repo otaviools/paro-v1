@@ -1,25 +1,19 @@
-import { createHash, timingSafeEqual } from 'node:crypto'
+import { areaCoberta } from '../../area-coberta'
+import { metricasDeUsoDoApp } from '../../metricas-de-uso/do-app'
 import { registrosDeVagaDoApp } from '../../registros-de-vaga/do-app'
-
-/** Compara pelo hash, em tempo constante, para não vazar o segredo pelo tempo de resposta. */
-function mesmoSegredo(recebido: string, esperado: string): boolean {
-  const hash = (texto: string) => createHash('sha256').update(texto).digest()
-  return timingSafeEqual(hash(recebido), hash(esperado))
-}
+import { exigirSegredo } from '../../utils/segredo'
 
 /**
- * Fechamento diário (Vercel Cron, agendado em `nitro.vercel.config` no
- * `nuxt.config.ts`): fecha as noites anteriores à noite de agora que ainda
- * têm registros de vaga (ADR 0021). A Vercel manda
- * `Authorization: Bearer <CRON_SECRET>`; sem o segredo configurado, ou com
- * outro valor, a rota recusa.
+ * Rotina diária (Vercel Cron, agendada em `nitro.vercel.config` no
+ * `nuxt.config.ts`), protegida por `CRON_SECRET`; a Vercel manda
+ * `Authorization: Bearer <CRON_SECRET>` (ADR 0021):
+ * 1. fecha as noites anteriores à noite de agora que ainda têm registros de vaga;
+ * 2. consolida as sessões em totais por semana e apaga as com mais de 60 dias.
  */
 export default defineEventHandler(async (event) => {
-  const segredo = process.env.CRON_SECRET
-  const autorização = getHeader(event, 'authorization') ?? ''
-  if (!segredo || !mesmoSegredo(autorização, `Bearer ${segredo}`)) {
-    throw createError({ statusCode: 401, message: 'Não autorizado' })
-  }
-  const noitesFechadas = await registrosDeVagaDoApp.fecharNoitesAnteriores(new Date())
-  return { noitesFechadas }
+  exigirSegredo(event, process.env.CRON_SECRET)
+  const agora = new Date()
+  const noitesFechadas = await registrosDeVagaDoApp.fecharNoitesAnteriores(agora)
+  const { semanasConsolidadas, sessõesApagadas } = await metricasDeUsoDoApp.consolidar(areaCoberta.noiteDe(agora))
+  return { noitesFechadas, semanasConsolidadas, sessõesApagadas }
 })
