@@ -24,6 +24,14 @@
   --paro-alerta: #FBF3DB;
   --paro-alerta-texto: #8A5A00;
 
+  /* Mapa (o Mapa da área lê estes tokens para o estilo do MapLibre) */
+  --paro-mapa-fundo: #F3F2EE;
+  --paro-mapa-quadra: #EBEAE5;
+  --paro-mapa-parque: #E8EEE6;
+  --paro-mapa-via: #FFFFFF;
+  --paro-mapa-meio-fio: #E0DED8;
+  --paro-mapa-rotulo: #6F6E6A;
+
   /* Tipografia (tamanhos do design system) */
   --paro-texto-titulo: 26px;
   --paro-texto-stat: 22px;
@@ -60,6 +68,9 @@
   /* Largura máxima do conteúdo das telas do celular */
   --paro-largura-conteudo: 640px;
 
+  /* Largura da barra lateral do desktop */
+  --paro-largura-lateral: 280px;
+
   /* Nuxt UI lê estas variáveis */
   --ui-bg: var(--paro-fundo);
   --ui-bg-elevated: var(--paro-superficie);
@@ -86,6 +97,12 @@
   --paro-foco: #A9D3F2;
   --paro-alerta: #3A2F14;
   --paro-alerta-texto: #EBCB82;
+  --paro-mapa-fundo: #1E1E1E;
+  --paro-mapa-quadra: #252525;
+  --paro-mapa-parque: #1F2620;
+  --paro-mapa-via: #2E2E2E;
+  --paro-mapa-meio-fio: #363636;
+  --paro-mapa-rotulo: #9B9A97;
 }
 
 @media (min-width: 1024px) {

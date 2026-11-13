@@ -3,16 +3,18 @@
  * Amostra do padrão de uma faixa de chance (ADR 0006 e design system,
  * "Faixas de chance"): sólido, hachura, pontilhado ou contorno tracejado,
  * sempre em --paro-texto. Decorativa: o rótulo vai sempre ao lado, em texto.
+ * Tem 12 px nas listas e no card e 32 px na legenda do mapa; o traço e o
+ * espaçamento dos padrões não mudam com o tamanho.
  */
 export type EstadoDaChance = 'Tranquilo' | 'Apertado' | 'Difícil' | 'Sem dado'
 
-defineProps<{ estado: EstadoDaChance }>()
+withDefaults(defineProps<{ estado: EstadoDaChance, tamanho?: 12 | 32 }>(), { tamanho: 12 })
 
 const id = useId()
 </script>
 
 <template>
-  <svg class="amostra" viewBox="0 0 12 12" aria-hidden="true" focusable="false">
+  <svg class="amostra" :class="{ grande: tamanho === 32 }" :viewBox="`0 0 ${tamanho} ${tamanho}`" aria-hidden="true" focusable="false">
     <defs>
       <pattern
         :id="`${id}-hachura`"
@@ -28,15 +30,15 @@ const id = useId()
       </pattern>
     </defs>
 
-    <rect v-if="estado === 'Tranquilo'" width="12" height="12" rx="3" fill="currentColor" />
-    <rect v-else-if="estado === 'Apertado'" width="12" height="12" rx="3" :fill="`url(#${id}-hachura)`" />
-    <rect v-else-if="estado === 'Difícil'" width="12" height="12" rx="3" :fill="`url(#${id}-pontilhado)`" />
+    <rect v-if="estado === 'Tranquilo'" :width="tamanho" :height="tamanho" rx="3" fill="currentColor" />
+    <rect v-else-if="estado === 'Apertado'" :width="tamanho" :height="tamanho" rx="3" :fill="`url(#${id}-hachura)`" />
+    <rect v-else-if="estado === 'Difícil'" :width="tamanho" :height="tamanho" rx="3" :fill="`url(#${id}-pontilhado)`" />
     <rect
       v-else
       x="0.75"
       y="0.75"
-      width="10.5"
-      height="10.5"
+      :width="tamanho - 1.5"
+      :height="tamanho - 1.5"
       rx="3"
       fill="none"
       stroke="currentColor"
@@ -47,11 +49,16 @@ const id = useId()
 </template>
 
 <style scoped>
-/* Amostra de 12 px nas listas e no card (design system). */
+/* Amostra de 12 px nas listas e no card; 32 px na legenda do mapa (design system). */
 .amostra {
   flex: none;
   width: var(--paro-esp-3);
   height: var(--paro-esp-3);
   color: var(--paro-texto);
+}
+
+.amostra.grande {
+  width: var(--paro-esp-8);
+  height: var(--paro-esp-8);
 }
 </style>
