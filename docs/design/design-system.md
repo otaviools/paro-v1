@@ -1,6 +1,6 @@
 # Design system do Parô
 
-Regras de interface para o app Parô: cores, tipografia, espaçamentos, componentes base e padrões de navegação. Paleta **Papel**: base quase monocromática em tons quentes, com cor pastel só em pontos pequenos.
+Regras de interface para o app Parô: cores, raios, componentes base e padrões de navegação. Paleta **Papel**: base quase monocromática em tons quentes, com cor pastel só em pontos pequenos.
 
 ## Fontes de verdade
 
@@ -8,12 +8,15 @@ Regras de interface para o app Parô: cores, tipografia, espaçamentos, componen
 |---|---|
 | Regras de produto (faixas de chance, base, Sem dado, privacidade) | `docs/adr/` e `CONTEXT.md` |
 | Padrões de layout e componente | `docs/design/referencias.md` (Waymo, Pangea e Lime em destaque) |
-| Cores, tipografia, espaçamentos e componentes | Este documento |
+| Cores, raios e componentes | Este documento |
+| Estilo no código | ADR 0027 (Tailwind, variáveis do Nuxt UI e três raios próprios) |
 | Logotipo e símbolo | Os arquivos atuais do logotipo do Parô, sem alteração |
 
 As referências do Mobbin entram só como padrão de layout, navegação e comportamento de componente. Nada de marca, logotipo, ilustração, cor ou texto dos apps de referência entra no Parô.
 
-Os componentes usam sempre os tokens deste documento (variáveis CSS `--paro-*`), nunca o valor hexadecimal direto.
+O design system define só **cores e raios** (ADR 0027). As cores ficam nas variáveis do Nuxt UI (`--ui-*`), declaradas em `app/assets/css/main.css`. Os componentes usam as classes semânticas do Tailwind e do Nuxt UI (`bg-default`, `bg-elevated`, `text-muted`, `border-default`, `text-primary`, `bg-inverted`...), nunca o valor hexadecimal direto. Os únicos tokens próprios são os três raios. Tamanhos de texto, espaçamentos, alturas e larguras vêm da escala do Tailwind, escritos como classes nos componentes.
+
+Os tokens `--paro-*` que ainda aparecem no `main.css` são apelidos temporários. Saem nos tickets de cada tela (#36 a #39).
 
 ## Princípios
 
@@ -26,45 +29,51 @@ Os componentes usam sempre os tokens deste documento (variáveis CSS `--paro-*`)
 
 ## Cores
 
-### Tokens
+### Base
 
-| Token | Claro | Escuro | Uso |
-|---|---|---|---|
-| `--paro-fundo` | `#F7F6F3` | `#191919` | Fundo da página |
-| `--paro-superficie` | `#FFFFFF` | `#202020` | Cards, gavetas, campos, barra de abas |
-| `--paro-superficie-suave` | `#F3F2EE` | `#262626` | Botão secundário, chips inativos, esqueleto |
-| `--paro-borda` | `#EAEAEA` | `#2C2C2C` | Contorno de cards, campos e separadores |
-| `--paro-texto` | `#2F3437` | `#E8E7E4` | Texto principal; traço dos padrões de faixa de chance |
-| `--paro-texto-fraco` | `#6F6E6A` | `#9B9A97` | Texto secundário, base, distância |
-| `--paro-acao` | `#111111` | `#E8E7E4` | Fundo do botão principal |
-| `--paro-acao-texto` | `#FFFFFF` | `#191919` | Texto do botão principal |
-| `--paro-acao-hover` | `#333333` | `#D6D5D1` | Botão principal pressionado ou com cursor |
-| `--paro-destaque` | `#E1F3FE` | `#1C3446` | Chip ativo, item selecionado, fundo de aviso |
-| `--paro-destaque-texto` | `#1F6C9F` | `#A9D3F2` | Texto sobre o destaque; links |
-| `--paro-foco` | `#1F6C9F` | `#A9D3F2` | Anel de foco |
+| Variável do Nuxt UI | Classe | Claro | Escuro | Uso |
+|---|---|---|---|---|
+| `--ui-bg` | `bg-default` | `#F7F6F3` | `#191919` | Fundo da página |
+| `--ui-bg-elevated` | `bg-elevated` | `#FFFFFF` | `#202020` | Cards, gavetas, campos, barra de abas |
+| `--ui-bg-muted` | `bg-muted` | `#F3F2EE` | `#262626` | Botão secundário, chips inativos, esqueleto |
+| `--ui-bg-accented` | `bg-accented` | `#EAEAEA` | `#2C2C2C` | Fundo mais forte; mesmo valor da borda |
+| `--ui-border`, `--ui-border-muted`, `--ui-border-accented` | `border-default`, `border-muted`, `border-accented` | `#EAEAEA` | `#2C2C2C` | Contorno de cards, campos e separadores |
+| `--ui-text`, `--ui-text-highlighted`, `--ui-text-toned` | `text-default`, `text-highlighted`, `text-toned` | `#2F3437` | `#E8E7E4` | Texto principal; traço dos padrões de faixa de chance |
+| `--ui-text-muted`, `--ui-text-dimmed` | `text-muted`, `text-dimmed` | `#6F6E6A` | `#9B9A97` | Texto secundário, base, distância |
+| `--ui-bg-inverted`, `--ui-border-inverted` | `bg-inverted`, `border-inverted` | `#111111` | `#E8E7E4` | Fundo do botão principal |
+| `--ui-text-inverted` | `text-inverted` | `#FFFFFF` | `#191919` | Texto do botão principal |
+| `--ui-color-neutral-800` | `bg-neutral-800` | `#333333` | `#D6D5D1` | Botão principal pressionado ou com cursor |
+| `--ui-primary` | `text-primary`, `ring-primary` | `#1F6C9F` | `#A9D3F2` | Texto sobre o destaque, links, anel de foco |
+| `--ui-color-primary-100` | `bg-primary-100` | `#E1F3FE` | `#1C3446` | Chip ativo, item selecionado, fundo de aviso |
+
+`--ui-text-dimmed` recebe o mesmo valor de `--ui-text-muted`: a paleta tem um só tom de texto secundário, e o cinza mais claro do Nuxt UI não passa no AA.
+
+Os tons `--ui-color-*-100` e `--ui-color-neutral-800` são redefinidos no tema escuro. Por isso `bg-primary-100` já troca de valor com o tema, sem `dark:`.
 
 ### Sinais
 
-Usados só em mensagens, ícones e etiquetas. Nunca nas faixas de chance.
+Usados só em mensagens, ícones e etiquetas. Nunca nas faixas de chance. A cor do sinal (`--ui-success`, `--ui-warning`, `--ui-error`) é o texto do par; o fundo pastel é o tom 100 da mesma cor.
 
-| Token | Fundo claro | Texto claro | Fundo escuro | Texto escuro | Uso |
+| Variáveis do Nuxt UI | Fundo claro | Texto claro | Fundo escuro | Texto escuro | Uso |
 |---|---|---|---|---|---|
-| `--paro-perigo` | `#FDEBEC` | `#9F2F2D` | `#3B1E1D` | `#F2B8B5` | Apagar histórico, erros |
-| `--paro-sucesso` | `#EDF3EC` | `#346538` | `#1F3321` | `#B6D7B3` | Confirmação de registro e de "Saí" |
-| `--paro-alerta` | `#FBF3DB` | `#8A5A00` | `#3A2F14` | `#EBCB82` | Aviso "Dados de demonstração" |
+| `--ui-color-error-100` e `--ui-error` | `#FDEBEC` | `#9F2F2D` | `#3B1E1D` | `#F2B8B5` | Apagar histórico, erros |
+| `--ui-color-success-100` e `--ui-success` | `#EDF3EC` | `#346538` | `#1F3321` | `#B6D7B3` | Confirmação de registro e de "Saí" |
+| `--ui-color-warning-100` e `--ui-warning` | `#FBF3DB` | `#8A5A00` | `#3A2F14` | `#EBCB82` | Aviso "Dados de demonstração" |
 
 ### Mapa
 
-| Token | Claro | Escuro | Uso |
-|---|---|---|---|
-| `--paro-mapa-fundo` | `#F3F2EE` | `#1E1E1E` | Fundo do mapa |
-| `--paro-mapa-quadra` | `#EBEAE5` | `#252525` | Quadras |
-| `--paro-mapa-parque` | `#E8EEE6` | `#1F2620` | Praças e parques |
-| `--paro-mapa-via` | `#FFFFFF` | `#2E2E2E` | Vias |
-| `--paro-mapa-meio-fio` | `#E0DED8` | `#363636` | Contorno das vias |
-| `--paro-mapa-rotulo` | `#6F6E6A` | `#9B9A97` | Nome de rua, com halo na cor da via |
+O Nuxt UI não tem variável para o mapa. As cores do mapa continuam em `--paro-mapa-*` (temporário), lidas pelo Mapa da área para o estilo do MapLibre, até o ticket do mapa.
 
-As ruas cobertas são desenhadas por cima com o padrão da sua faixa de chance, em `--paro-texto`.
+| Cor | Claro | Escuro | Uso |
+|---|---|---|---|
+| Fundo do mapa | `#F3F2EE` | `#1E1E1E` | Fundo do mapa |
+| Quadra | `#EBEAE5` | `#252525` | Quadras |
+| Parque | `#E8EEE6` | `#1F2620` | Praças e parques |
+| Via | `#FFFFFF` | `#2E2E2E` | Vias |
+| Meio-fio | `#E0DED8` | `#363636` | Contorno das vias |
+| Rótulo (`--ui-text-muted`) | `#6F6E6A` | `#9B9A97` | Nome de rua, com halo na cor da via |
+
+As ruas cobertas são desenhadas por cima com o padrão da sua faixa de chance, na cor `--ui-text`.
 
 ### Contraste (WCAG 2.1, nível AA)
 
@@ -72,81 +81,64 @@ AA exige 4,5:1 para texto normal. Todas as combinações de texto da paleta pass
 
 | Texto sobre fundo | Claro | Escuro |
 |---|---|---|
-| texto sobre fundo | 11,65 | 14,22 |
-| texto sobre superfície | 12,60 | 13,18 |
-| texto fraco sobre fundo | 4,72 | 6,25 |
-| texto fraco sobre superfície | 5,10 | 5,79 |
-| texto fraco sobre superfície suave | 4,56 | 5,38 |
-| texto do botão sobre ação | 18,88 | 14,22 |
-| link sobre superfície | 5,67 | 10,31 |
-| link sobre fundo | 5,25 | — |
-| texto de destaque sobre destaque | 4,98 | 8,16 |
-| perigo | 6,26 | 8,85 |
-| sucesso | 6,08 | 8,60 |
-| alerta | 5,35 | 8,39 |
+| `text-default` sobre `bg-default` | 11,65 | 14,22 |
+| `text-default` sobre `bg-elevated` | 12,60 | 13,18 |
+| `text-muted` sobre `bg-default` | 4,72 | 6,25 |
+| `text-muted` sobre `bg-elevated` | 5,10 | 5,79 |
+| `text-muted` sobre `bg-muted` | 4,56 | 5,38 |
+| `text-inverted` sobre `bg-inverted` | 18,88 | 14,22 |
+| `text-inverted` sobre `bg-primary` | 5,67 | 11,12 |
+| `text-primary` sobre `bg-elevated` | 5,67 | 10,31 |
+| `text-primary` sobre `bg-default` | 5,25 | 11,12 |
+| `text-primary` sobre `bg-primary-100` | 4,98 | 8,16 |
+| `text-error` sobre `bg-error-100` | 6,26 | 8,85 |
+| `text-success` sobre `bg-success-100` | 6,08 | 8,60 |
+| `text-warning` sobre `bg-warning-100` | 5,35 | 8,39 |
 | rótulo do mapa sobre fundo do mapa | 4,56 | 5,92 |
 
-Regra: texto fraco nunca sobre `--paro-destaque` nem sobre os fundos de sinal. Nesses fundos, só o texto do próprio par.
+Regras:
 
-## Tipografia
+- `text-muted` nunca sobre `bg-primary-100`, sobre os fundos de sinal nem sobre `bg-accented` (4,24 no claro). Nesses fundos, só o texto do próprio par ou `text-default`.
+- Texto principal nunca em preto puro: sempre `text-default`.
 
-| Papel | Família | Observação |
+## Raios
+
+Três raios próprios, no `@theme` do `main.css` (ADR 0027). As classes são `rounded-paro-sm`, `rounded-paro-md` e `rounded-paro-lg`.
+
+| Token | Valor | Onde |
 |---|---|---|
-| Interface e texto | **Figtree** | Amigável, aberta, legível em tamanhos pequenos. Servida localmente pelo app, para funcionar offline no PWA |
-| Dados monoespaçados | **JetBrains Mono** | Só nas telas da equipe (observações, totais) |
-
-As duas são fontes livres (SIL Open Font License).
-
-| Token | Tamanho | Peso | Uso no app |
-|---|---|---|---|
-| `--paro-texto-titulo` | 26 px | 700 | Título de tela |
-| `--paro-texto-stat` | 22 px | 700 | Nome da rua no detalhe; saída prevista no registro de vaga |
-| `--paro-texto-botao` | 17 px | 600 | Botão principal |
-| `--paro-texto-card` | 16 px | 600 | Nome da rua no card de melhor chance; título de card |
-| `--paro-texto-corpo` | 15 px | 500 | Linha da lista de ruas, corpo |
-| `--paro-texto-interface` | 14 px | 500 | Abas, campos, botão secundário |
-| `--paro-texto-legenda` | 13 px | 500 | Base, distância, legenda |
-| `--paro-texto-nota` | 12 px | 400 | Eixo do gráfico, notas |
-| `--paro-texto-etiqueta` | 11 px | 600, caixa alta, tracking 0,08em | Títulos de seção, chips de horário, etiquetas |
-
-- Altura de linha de 1,5 no corpo e 1,2 em títulos.
-- Texto principal nunca em preto puro: sempre `--paro-texto`.
-- Sem texto corrido centralizado; no máximo 70 caracteres por linha.
-- Algarismos tabulares (`font-variant-numeric: tabular-nums`) em horários, distâncias e na base.
-- O número da chance só aparece no detalhe da rua, junto com a base (ADR 0006).
-
-## Espaçamento, raios e alturas
-
-Escala de 4 px: 4, 8, 12, 16, 20, 24, 32, 48, 64 (`--paro-esp-1` a `--paro-esp-16`). Nenhum valor fora dela.
-
-| Medida | Mobile | Desktop |
-|---|---|---|
-| Margem lateral | 20 px | 32 px |
-| Padding interno de card | 16 px | 24 px |
-| Espaço entre cards | 12 px | 16 px |
-| Espaço entre seções | 32 px | 48 px |
-| Botão principal | 52 px | 44 px |
-| Botão de ícone | 40 px | 36 px |
-| Campo | 48 px | 40 px |
-| Chip de horário | 44 px | 44 px |
-| Barra de abas | 64 px + área segura | — |
-| Barra lateral (`--paro-largura-lateral`) | — | 280 px |
-| Painel da direita (`--paro-largura-painel`) | — | 360 px |
-
-| Raio | Onde |
-|---|---|
-| 3 px | Amostra de padrão de faixa de chance |
-| 10 px | Botões, campos |
-| 12 px | Linha da lista de ruas, avisos |
-| 16 px | Cards, gavetas, container do mapa |
-| 20 px | Barra de abas |
-| pílula | Só chips de horário e etiquetas pequenas |
+| `--radius-paro-sm` | 6 px | Amostras de padrão de faixa de chance |
+| `--radius-paro-md` | 12 px | Botões, campos, linhas da lista de ruas, avisos, itens de menu |
+| `--radius-paro-lg` | 24 px | Cards, gavetas, barra de abas, painéis |
+| pílula (`rounded-full`) | — | Só chips de horário e etiquetas |
 
 Botões e cards nunca são pílula.
 
+## Texto e medidas
+
+Tamanhos de texto, espaçamentos, alturas e larguras usam a escala padrão do Tailwind, sem tokens próprios. Cada medida é uma classe no componente, como a largura da barra lateral do desktop.
+
+Conversão dos tamanhos de texto antigos para a escala do Tailwind (ADR 0027):
+
+| Antes | Classe | Tamanho |
+|---|---|---|
+| 26 px | `text-2xl` | 24 px |
+| 22 px | `text-xl` | 20 px |
+| 17 px | `text-lg` | 18 px |
+| 16 px | `text-base` | 16 px |
+| 15 px | `text-sm` | 14 px |
+| 13 px e 11 px | `text-xs` | 12 px |
+
+Fontes: **Figtree** na interface e no texto, servida pelo próprio app para funcionar offline no PWA; **JetBrains Mono** só nos dados das telas da equipe. As duas são livres (SIL Open Font License).
+
+- Sem texto corrido centralizado; no máximo 70 caracteres por linha.
+- Algarismos tabulares (`tabular-nums`) em horários, distâncias e na base.
+- O número da chance só aparece no detalhe da rua, junto com a base (ADR 0006).
+- Alvo de toque mínimo de 44 × 44 px.
+
 ## Faixas de chance
 
-Regra de produto da ADR 0006. Sempre rótulo **e** padrão, desenhados em `--paro-texto`. A cor não muda entre faixas.
+Regra de produto da ADR 0006. Sempre rótulo **e** padrão, desenhados em `text-default`. A cor não muda entre faixas.
 
 | Faixa de chance | Chance | Padrão |
 |---|---|---|
@@ -165,16 +157,16 @@ Regra de produto da ADR 0006. Sempre rótulo **e** padrão, desenhados em `--par
 
 | Variante | Visual | Uso | Referência de layout |
 |---|---|---|---|
-| Principal | Fundo `--paro-acao`, texto `--paro-acao-texto`, raio 10 px, 52 px, largura total, fixo no rodapé | Uma por tela: "Registrar vaga", "Saí", "Continuar" | Lime: botão grande fixo no rodapé |
-| Secundário | Fundo `--paro-superficie`, borda `--paro-borda`, texto `--paro-texto`, raio 10 px | Ao lado da principal: "Mudar saída" | Lime: dois botões lado a lado |
-| De ícone | Quadrado de 40 px com raio 10 px, fundo `--paro-superficie`, borda `--paro-borda` | Controles do mapa, fechar gaveta, compartilhar | Lime e Pangea: botões flutuantes |
-| Link | Texto `--paro-destaque-texto`, sem fundo | "Como a chance é calculada", "Cancelar" | Lime: link de cancelar |
-| Destrutivo | Texto `--paro-perigo` (texto), sem fundo, sempre com confirmação | "Apagar histórico" | Grok: ação de apagar no fim da lista |
+| Principal | Fundo `bg-inverted`, texto `text-inverted`, raio `rounded-paro-md`, 52 px, largura total, fixo no rodapé | Uma por tela: "Registrar vaga", "Saí", "Continuar" | Lime: botão grande fixo no rodapé |
+| Secundário | Fundo `bg-elevated`, borda `border-default`, texto `text-default`, raio `rounded-paro-md` | Ao lado da principal: "Mudar saída" | Lime: dois botões lado a lado |
+| De ícone | Quadrado de 40 px com raio `rounded-paro-md`, fundo `bg-elevated`, borda `border-default` | Controles do mapa, fechar gaveta, compartilhar | Lime e Pangea: botões flutuantes |
+| Link | Texto `text-primary`, sem fundo | "Como a chance é calculada", "Cancelar" | Lime: link de cancelar |
+| Destrutivo | Texto `text-error`, sem fundo, sempre com confirmação | "Apagar histórico" | Grok: ação de apagar no fim da lista |
 
 Estados:
 
-- **Pressionado:** fundo `--paro-acao-hover` e `transform: scale(0.98)`.
-- **Foco:** anel de 2 px em `--paro-foco`, afastado 2 px.
+- **Pressionado:** fundo `bg-neutral-800` e `transform: scale(0.98)`.
+- **Foco:** anel de 2 px em `--ui-primary`, afastado 2 px.
 - **Desativado:** evitar. Quando inevitável, opacidade 0,4 e o motivo escrito ao lado.
 - **Carregando:** indicador no lugar do texto, mesma largura.
 
@@ -184,37 +176,37 @@ Alvo de toque mínimo de 44 × 44 px.
 
 | Componente | Visual | Onde |
 |---|---|---|
-| Chips de faixa horária | Pílula de 44 px (alvo de toque mínimo), texto em etiqueta (11 px, caixa alta); inativo com fundo `--paro-superficie` e borda; ativo com fundo `--paro-destaque` e texto `--paro-destaque-texto` | Abas Agora, 19h, 21h e 22h; saída prevista no registro (referência Waymo) |
-| Seletor de opção com ícone | Botões lado a lado, raio 10 px; o selecionado com fundo `--paro-destaque` e borda de 1,5 px em `--paro-destaque-texto` | Escolha da rua coberta no registro manual (referência Pangea) |
-| Linha com seletor liga/desliga | Título, parágrafo explicativo em `--paro-texto-fraco` e seletor à direita; ligado em `--paro-acao` | Ajustes: usar localização, forma de colaborar (referência Grok) |
-| Card de escolha única | Card com título e descrição; o escolhido com borda de 1,5 px em `--paro-texto` | Primeira visita: forma de colaborar |
-| Campo de texto | 48 px, fundo `--paro-superficie`, borda `--paro-borda`, raio 10 px, rótulo sempre visível acima | Sugestão de rua; telas da equipe |
+| Chips de faixa horária | Pílula de 44 px (alvo de toque mínimo), texto em etiqueta (`text-xs`, caixa alta); inativo com fundo `bg-elevated` e borda; ativo com fundo `bg-primary-100` e texto `text-primary` | Abas Agora, 19h, 21h e 22h; saída prevista no registro (referência Waymo) |
+| Seletor de opção com ícone | Botões lado a lado, raio `rounded-paro-md`; o selecionado com fundo `bg-primary-100` e borda de 1,5 px na cor `--ui-primary` | Escolha da rua coberta no registro manual (referência Pangea) |
+| Linha com seletor liga/desliga | Título, parágrafo explicativo em `text-muted` e seletor à direita; ligado em `bg-inverted` | Ajustes: usar localização, forma de colaborar (referência Grok) |
+| Card de escolha única | Card com título e descrição; o escolhido com borda de 1,5 px na cor `--ui-text` | Primeira visita: forma de colaborar |
+| Campo de texto | 48 px, fundo `bg-elevated`, borda `border-default`, raio `rounded-paro-md`, rótulo sempre visível acima | Sugestão de rua; telas da equipe |
 
 Regras:
 
 - Nenhum campo de nome, CPF, telefone, e-mail ou placa (ADR 0004).
 - Rótulo sempre visível; o placeholder nunca substitui o rótulo.
-- Erro em texto `--paro-perigo` abaixo do campo, com ícone. Nunca só cor.
+- Erro em `text-error` abaixo do campo, com ícone. Nunca só cor.
 - A forma de colaborar começa desligada (ADR 0010).
 
 ### Cards
 
-Todos com fundo `--paro-superficie`, borda de 1 px em `--paro-borda`, raio de 16 px e sem sombra.
+Todos com fundo `bg-elevated`, borda de 1 px em `border-default`, raio `rounded-paro-lg` e sem sombra.
 
 | Card | Conteúdo | Referência de layout |
 |---|---|---|
-| Melhor chance | Etiqueta "MELHOR CHANCE · 19H" em `--paro-texto-fraco`, nome da rua, amostra do padrão com rótulo, base, distância a pé e "Previsão, não garantia." | Pangea: card de destaque no topo |
-| Linha de rua coberta | Amostra do padrão, nome da rua, rótulo e base no subtítulo, distância numa etiqueta à direita; raio 12 px | Pangea: linha com distância; Waymo: valor à direita |
-| Seu registro de vaga | Saída prevista em 22 px como título, rua coberta abaixo, linha de ações com ícone e rótulo (Mudar saída, Voltar até o carro) | Waymo: viagem em andamento |
-| Bloco de dado | Título com ícone e linhas de dado separadas por `--paro-borda` | Pangea: blocos agrupados no detalhe |
-| Aviso | Fundo do sinal correspondente, texto do mesmo par, ícone, link opcional; raio 12 px | Lime: faixa informativa |
+| Melhor chance | Etiqueta "MELHOR CHANCE · 19H" em `text-muted`, nome da rua, amostra do padrão com rótulo, base, distância a pé e "Previsão, não garantia." | Pangea: card de destaque no topo |
+| Linha de rua coberta | Amostra do padrão, nome da rua, rótulo e base no subtítulo, distância numa etiqueta à direita; raio `rounded-paro-md` | Pangea: linha com distância; Waymo: valor à direita |
+| Seu registro de vaga | Saída prevista em `text-xl` como título, rua coberta abaixo, linha de ações com ícone e rótulo (Mudar saída, Voltar até o carro) | Waymo: viagem em andamento |
+| Bloco de dado | Título com ícone e linhas de dado separadas por `border-default` | Pangea: blocos agrupados no detalhe |
+| Aviso | Fundo do sinal correspondente, texto do mesmo par, ícone, link opcional; raio `rounded-paro-md` | Lime: faixa informativa |
 
 ### Tabelas
 
 Só no painel desktop e nas telas da equipe. No mobile, toda tabela vira lista de linhas.
 
-- Sem caixa em volta: linhas separadas por 1 px em `--paro-borda`.
-- Cabeçalho em etiqueta (11 px, caixa alta) em `--paro-texto-fraco`; linhas de 48 px.
+- Sem caixa em volta: linhas separadas por 1 px em `border-default`.
+- Cabeçalho em etiqueta (`text-xs`, caixa alta) em `text-muted`; linhas de 48 px.
 - Números alinhados à direita, com algarismos tabulares.
 - Coluna de faixa de chance sempre com amostra de padrão e rótulo.
 - Sem listras alternadas e sem bordas verticais.
@@ -223,23 +215,23 @@ Só no painel desktop e nas telas da equipe. No mobile, toda tabela vira lista d
 
 No detalhe da rua (referência Swarm):
 
-- Uma barra por faixa horária, das 17h às 23h, preenchida com o padrão da sua faixa de chance em `--paro-texto`. A altura é a chance; Sem dado aparece como barra baixa com contorno tracejado.
-- A faixa horária selecionada ganha fundo `--paro-destaque` atrás da barra.
+- Uma barra por faixa horária, das 17h às 23h, preenchida com o padrão da sua faixa de chance na cor `--ui-text`. A altura é a chance; Sem dado aparece como barra baixa com contorno tracejado.
+- A faixa horária selecionada ganha fundo `bg-primary-100` atrás da barra.
 - Exceção ao alvo de toque de 44 px: as 12 barras têm cerca de 25 px de largura no celular, porque não cabem com 44 px em 375 px. O Bloco de dado abaixo do gráfico mostra a faixa horária selecionada por texto.
 - Resumo no canto: "Melhor faixa: 18h–18h30".
-- Eixo X em `--paro-texto-nota`, `--paro-texto-fraco`.
+- Eixo X em `text-xs`, `text-muted`.
 
 ### Gavetas, avisos flutuantes e carregamento
 
 | Componente | Regra | Referência |
 |---|---|---|
-| Gaveta sobre o mapa | Raio de 16 px no topo, alça de 32 × 4 px, botão de fechar; dois pontos de parada (resumo e expandida) | Lime: gaveta da rua |
+| Gaveta sobre o mapa | Raio `rounded-paro-lg` no topo, alça de 32 × 4 px, botão de fechar; dois pontos de parada (resumo e expandida) | Lime: gaveta da rua |
 | Gaveta de escolha | Título à esquerda, "Salvar" como link à direita, grupos de chips | Pangea: ajustes do mapa |
-| Aviso flutuante | Fundo `--paro-texto`, texto `--paro-fundo`, raio 12 px, some em 3 s | Waymo: confirmação |
-| Esqueleto | Blocos em `--paro-superficie-suave` no formato do conteúdo, sem brilho animado | Waymo e Lime: carregamento |
-| Etiqueta sobre o mapa | Fundo `--paro-superficie`, borda, ícone de pegadas e a distância em metros em linha reta ("140 m em linha reta"). Sem minutos, porque o Parô não calcula rota (ADR 0020) | Lime: tempo a pé |
+| Aviso flutuante | Fundo na cor `--ui-text`, texto na cor `--ui-bg`, raio `rounded-paro-md`, some em 3 s | Waymo: confirmação |
+| Esqueleto | Blocos em `bg-muted` no formato do conteúdo, sem brilho animado | Waymo e Lime: carregamento |
+| Etiqueta sobre o mapa | Fundo `bg-elevated`, borda, ícone de pegadas e a distância em metros em linha reta ("140 m em linha reta"). Sem minutos, porque o Parô não calcula rota (ADR 0020) | Lime: tempo a pé |
 
-O aviso "Dados de demonstração" (ADR 0012) usa o card Aviso com o sinal `--paro-alerta`, fixo no topo do Início, do Mapa e do Detalhe da rua, sem botão de fechar.
+O aviso "Dados de demonstração" (ADR 0012) usa o card Aviso com o sinal `warning`, fixo no topo do Início, do Mapa e do Detalhe da rua, sem botão de fechar.
 
 ### Movimento
 
@@ -270,7 +262,7 @@ O Lucide não tem uma pessoa andando; `footprints` (pegadas) é o ícone mais pr
 
 ### Mobile
 
-- **Barra de abas flutuante** (referência Waymo), com raio de 20 px, fundo `--paro-superficie` e borda. Quatro abas com ícone e rótulo: Início, Mapa, Minha vaga e Ajustes. A aba ativa ganha fundo `--paro-destaque` e texto `--paro-destaque-texto`. A barra some em Registrar vaga e na Primeira visita.
+- **Barra de abas flutuante** (referência Waymo), com raio `rounded-paro-lg`, fundo `bg-elevated` e borda. Quatro abas com ícone e rótulo: Início, Mapa, Minha vaga e Ajustes. A aba ativa ganha fundo `bg-primary-100` e texto `text-primary`. A barra some em Registrar vaga e na Primeira visita.
 - **Mapa em tela cheia com gaveta** (referência Lime): botões de ícone flutuam no canto direito; tocar num trecho abre a gaveta de resumo; expandir abre o Detalhe da rua.
 - **Detalhe da rua** abre por cima, com botão de voltar no topo esquerdo.
 - **Ação principal fixa no rodapé** em toda tela que tem uma.
@@ -280,9 +272,9 @@ O Lucide não tem uma pessoa andando; `footprints` (pegadas) é o ícone mais pr
 
 A partir de 1024 px, o Parô é um painel único de três colunas (referência Turo). Início e Mapa viram uma tela só: a aba Mapa não aparece e não há barra de abas flutuante.
 
-- **Barra lateral de 280 px** (`--paro-largura-lateral`), fundo `--paro-fundo` e borda à direita, com rolagem própria e margem lateral de 24 px. No topo, o nome "Parô" em texto, Figtree 22 px (`--paro-texto-stat`, 700), provisório até os arquivos do logotipo entrarem no repositório. Depois, a navegação (Início, Minha vaga e Ajustes, com ícone e rótulo; o item ativo segue a aba ativa da barra de abas), o aviso "Dados de demonstração", as abas de faixa horária, o card de melhor chance, a lista de ruas cobertas e a pergunta "A previsão ajudou hoje?".
+- **Barra lateral de 280 px**, fundo `bg-default` e borda à direita, com rolagem própria e margem lateral de 24 px. No topo, o nome "Parô" em texto, Figtree `text-xl`, negrito, provisório até os arquivos do logotipo entrarem no repositório. Depois, a navegação (Início, Minha vaga e Ajustes, com ícone e rótulo; o item ativo segue a aba ativa da barra de abas), o aviso "Dados de demonstração", as abas de faixa horária, o card de melhor chance, a lista de ruas cobertas e a pergunta "A previsão ajudou hoje?".
 - **Centro:** o mapa da área, com o botão de centralizar no canto superior direito e a legenda no canto inferior direito.
-- **Painel à direita de 360 px** (`--paro-largura-painel`), fundo `--paro-fundo`, borda à esquerda e margem lateral de 24 px. Começa fechado e tem botão de fechar (botão de ícone, no topo direito); Esc também fecha. Abre com o Detalhe da rua completo (ao escolher uma rua no mapa ou na lista), com Minha vaga (incluindo Registrar vaga e Seu registro de vaga) ou com Ajustes. O mapa continua visível, entre a barra lateral e o painel. A ação principal fica fixa no rodapé do painel.
+- **Painel à direita de 360 px**, fundo `bg-default`, borda à esquerda e margem lateral de 24 px. Começa fechado e tem botão de fechar (botão de ícone, no topo direito); Esc também fecha. Abre com o Detalhe da rua completo (ao escolher uma rua no mapa ou na lista), com Minha vaga (incluindo Registrar vaga e Seu registro de vaga) ou com Ajustes. O mapa continua visível, entre a barra lateral e o painel. A ação principal fica fixa no rodapé do painel.
 - **Voltar até o carro** abre no centro, no lugar do mapa da área, com a barra lateral ao lado.
 - Os endereços continuam os mesmos do celular (`/ruas/[id]`, `/minha-vaga`, `/ajustes`): no desktop, cada um abre o painel com o conteúdo certo.
 - A Primeira visita e as telas da equipe ficam fora do painel e continuam como no celular.
@@ -299,11 +291,11 @@ A partir de 1024 px, o Parô é um painel único de três colunas (referência T
 
 ## Tema escuro
 
-O tema segue o sistema por padrão e pode ser forçado nos Ajustes. Todos os tokens têm valor escuro nas tabelas acima. O fundo é um carvão quente (`#191919`), nunca preto puro; o botão principal inverte para claro com texto escuro; os pastéis viram tons profundos com texto claro.
+O tema segue o sistema por padrão e pode ser forçado nos Ajustes. Todas as cores têm valor escuro nas tabelas acima. O fundo é um carvão quente (`#191919`), nunca preto puro; o botão principal inverte para claro com texto escuro; os pastéis viram tons profundos com texto claro.
 
 ## Logotipo
 
-O logotipo e o símbolo continuam os mesmos, usados a partir dos arquivos originais, sem recriar em código e sem recolorir. Sobre `--paro-fundo` claro usa a versão para fundo claro; no tema escuro, a versão para fundo escuro.
+O logotipo e o símbolo continuam os mesmos, usados a partir dos arquivos originais, sem recriar em código e sem recolorir. Sobre `bg-default` claro usa a versão para fundo claro; no tema escuro, a versão para fundo escuro.
 
 ## Pendências
 
