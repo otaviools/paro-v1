@@ -1,20 +1,8 @@
-import type { Data, FaixaHoraria } from '../area-coberta'
+import type { Data, FaixaHoraria } from '#shared/types/area-coberta'
+import type { Estimativa, FaixaDeChance } from '#shared/types/chance'
 import type { Observacao } from '../observacoes'
 import { configuracaoDaChance } from './configuracao'
 import type { ConfiguracaoDaChance } from './configuracao'
-
-export type FaixaDeChance = 'Tranquilo' | 'Apertado' | 'Difícil'
-
-export interface Base {
-  /** Número de observações que sustentam a chance. */
-  observacoes: number
-  /** Data da observação mais recente. */
-  ultima: Data
-}
-
-export type Estimativa
-  = | { tipo: 'chance', faixaDeChance: FaixaDeChance, /** Em %, de 0 a 100. */ chance: number, base: Base }
-    | { tipo: 'sem-dado' }
 
 /** Chave do mapa de estimativas para uma rua coberta numa faixa horária. */
 function chave(ruaCoberta: string, faixaHoraria: FaixaHoraria): string {

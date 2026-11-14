@@ -1,11 +1,11 @@
-import { MAXIMO_DA_SUGESTAO, MINIMO_DA_SUGESTAO } from '#shared/sugestao-de-rua'
+import { areaCoberta } from '#shared/utils/area-coberta'
 
 /**
  * Sugestão de rua (ADR 0013): grava só o texto e a data, sem identificador.
  * Não altera a área coberta nem o mapa; a equipe lê e apaga (ADR 0021).
  */
-export default defineEventHandler(async (event) => {
-  const corpo = await readBody<{ texto?: unknown }>(event)
+export default defineEventHandler(async (event): Promise<SemConteudo> => {
+  const corpo = await readBody<EntradaNaoValidada<CorpoDaSugestao>>(event)
   const texto = typeof corpo?.texto === 'string' ? corpo.texto.trim() : ''
   if (texto.length < MINIMO_DA_SUGESTAO || texto.length > MAXIMO_DA_SUGESTAO) {
     throw createError({

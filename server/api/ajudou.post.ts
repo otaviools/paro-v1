@@ -1,9 +1,11 @@
+import { areaCoberta } from '#shared/utils/area-coberta'
+
 /**
  * Resposta a "A previsão ajudou hoje?": só sim ou não. Sem identificador; a
  * data é a de agora, no servidor.
  */
-export default defineEventHandler(async (event) => {
-  const corpo = await readBody<{ ajudou?: unknown }>(event)
+export default defineEventHandler(async (event): Promise<SemConteudo> => {
+  const corpo = await readBody<EntradaNaoValidada<CorpoDoAjudou>>(event)
   if (typeof corpo?.ajudou !== 'boolean') {
     throw createError({ statusCode: 400, message: 'Responda sim ou não' })
   }

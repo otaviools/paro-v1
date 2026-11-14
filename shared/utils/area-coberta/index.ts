@@ -1,9 +1,5 @@
+import type { Data, FaixaHoraria, Ponto } from '../../types/area-coberta'
 import { configuracaoDaAreaCoberta } from './configuracao'
-
-export interface Ponto {
-  lat: number
-  lon: number
-}
 
 export interface RuaCoberta {
   id: string
@@ -26,9 +22,6 @@ export interface ConfiguracaoDaAreaCoberta {
   calendarioLetivo: SemestreLetivo[]
 }
 
-/** Data local no formato "AAAA-MM-DD". */
-export type Data = string
-
 export interface Periodo {
   de: Data
   ate: Data
@@ -46,9 +39,6 @@ export interface SemestreLetivo extends Periodo {
 function dentroDe(periodo: Periodo, data: Data): boolean {
   return periodo.de <= data && data <= periodo.ate
 }
-
-/** Início de uma faixa horária de 30 minutos, no formato "HH:MM" (ex.: "19:30"). */
-export type FaixaHoraria = string
 
 /** Área coberta das 17h às 23h, em faixas horárias de 30 minutos (ADR 0001). */
 const INICIO_EM_MINUTOS = 17 * 60

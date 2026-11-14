@@ -4,8 +4,8 @@
  * no celular (ADR 0003). A chegada é a faixa horária de agora. Devolve o
  * código, que fica só no celular.
  */
-export default defineEventHandler(async (event) => {
-  const corpo = await readBody<{ ruaCoberta?: unknown, saidaPrevista?: unknown }>(event)
+export default defineEventHandler(async (event): Promise<Registrado> => {
+  const corpo = await readBody<EntradaNaoValidada<CorpoDoRegistro>>(event)
   if (typeof corpo?.ruaCoberta !== 'string' || typeof corpo.saidaPrevista !== 'string') {
     throw createError({ statusCode: 400, message: 'Informe a rua coberta e a saída prevista' })
   }
