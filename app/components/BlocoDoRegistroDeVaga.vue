@@ -26,120 +26,48 @@ watch(agora, (valor) => {
 
 <template>
   <!-- Card Seu registro de vaga (design system, "Cards"; referência Waymo). -->
-  <section
+  <UCard
     v-if="registro"
-    class="card"
+    as="section"
     aria-labelledby="titulo-registro-de-vaga"
+    :ui="{ body: 'grid gap-1' }"
   >
-    <p class="etiqueta">
+    <p class="text-xs font-semibold uppercase tracking-wider text-muted">
       Seu registro de vaga
     </p>
     <h2
       id="titulo-registro-de-vaga"
-      class="saida"
+      class="mt-1 text-xl font-bold leading-tight tabular-nums"
     >
       Saída prevista: {{ rotuloDaFaixaHoraria(registro.saidaPrevista) }}
     </h2>
-    <p class="rua">
+    <p class="text-sm font-semibold">
       {{ registro.ruaCoberta.nome }}
     </p>
 
-    <div class="acoes">
-      <NuxtLink
+    <!-- Linha de ações com ícone e rótulo, separada por uma borda. -->
+    <div class="mt-3 flex flex-wrap gap-2 border-t border-default pt-3">
+      <UButton
         v-if="temPontoDoCarro"
         to="/minha-vaga/carro"
-        class="secundario"
-      >
-        <UIcon
-          name="i-lucide-map-pin"
-          class="icone"
-          aria-hidden="true"
-        />
-        Voltar até o carro
-      </NuxtLink>
-      <NuxtLink
+        color="neutral"
+        variant="outline"
+        size="lg"
+        class="min-h-11 font-medium"
+        icon="i-lucide-map-pin"
+        label="Voltar até o carro"
+        :ui="{ leadingIcon: 'size-4' }"
+      />
+      <UButton
         to="/minha-vaga"
-        class="secundario"
-      >
-        <UIcon
-          name="i-lucide-car"
-          class="icone"
-          aria-hidden="true"
-        />
-        Ver minha vaga
-      </NuxtLink>
+        color="neutral"
+        variant="outline"
+        size="lg"
+        class="min-h-11 font-medium"
+        icon="i-lucide-car"
+        label="Ver minha vaga"
+        :ui="{ leadingIcon: 'size-4' }"
+      />
     </div>
-  </section>
+  </UCard>
 </template>
-
-<style scoped>
-.card {
-  display: grid;
-  gap: var(--paro-esp-1);
-  padding: var(--paro-esp-4);
-  background: var(--paro-superficie);
-  border: 1px solid var(--paro-borda);
-  border-radius: var(--paro-raio-card);
-}
-
-@media (min-width: 1024px) {
-  .card { padding: var(--paro-esp-6); }
-}
-
-.etiqueta {
-  font-size: var(--paro-texto-etiqueta);
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--paro-texto-fraco);
-}
-
-.saida {
-  margin-top: var(--paro-esp-1);
-  font-size: var(--paro-texto-stat);
-  font-weight: 700;
-  line-height: 1.2;
-  font-variant-numeric: tabular-nums;
-}
-
-.rua {
-  font-size: var(--paro-texto-corpo);
-  font-weight: 600;
-}
-
-/* Linha de ações com ícone e rótulo, separada por --paro-borda. */
-.acoes {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--paro-esp-2);
-  margin-top: var(--paro-esp-3);
-  padding-top: var(--paro-esp-3);
-  border-top: 1px solid var(--paro-borda);
-}
-
-/* Botão secundário (design system, "Botões"). */
-.secundario {
-  display: flex;
-  align-items: center;
-  gap: var(--paro-esp-2);
-  min-height: calc(var(--paro-esp-8) + var(--paro-esp-3));
-  padding: 0 var(--paro-esp-4);
-  font-size: var(--paro-texto-interface);
-  font-weight: 500;
-  color: var(--paro-texto);
-  background: var(--paro-superficie);
-  border: 1px solid var(--paro-borda);
-  border-radius: var(--paro-raio-botao);
-  cursor: pointer;
-}
-
-.secundario:active {
-  transform: scale(0.98);
-}
-
-.icone {
-  flex: none;
-  width: var(--paro-esp-4);
-  height: var(--paro-esp-4);
-}
-</style>
