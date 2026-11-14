@@ -130,7 +130,8 @@ Escala de 4 px: 4, 8, 12, 16, 20, 24, 32, 48, 64 (`--paro-esp-1` a `--paro-esp-1
 | Campo | 48 px | 40 px |
 | Chip de horário | 44 px | 44 px |
 | Barra de abas | 64 px + área segura | — |
-| Barra lateral | — | 280 px |
+| Barra lateral (`--paro-largura-lateral`) | — | 280 px |
+| Painel da direita (`--paro-largura-painel`) | — | 360 px |
 
 | Raio | Onde |
 |---|---|
@@ -277,7 +278,14 @@ O Lucide não tem uma pessoa andando; `footprints` (pegadas) é o ícone mais pr
 
 ### Desktop
 
-Três colunas (referência Turo): barra lateral de 280 px com a navegação, o card de melhor chance e a lista de ruas cobertas; o mapa no centro, com a legenda no canto inferior; o painel de Detalhe da rua à direita, que abre ao selecionar uma rua.
+A partir de 1024 px, o Parô é um painel único de três colunas (referência Turo). Início e Mapa viram uma tela só: a aba Mapa não aparece e não há barra de abas flutuante.
+
+- **Barra lateral de 280 px** (`--paro-largura-lateral`), fundo `--paro-fundo` e borda à direita, com rolagem própria e margem lateral de 24 px. No topo, o nome "Parô" em texto, Figtree 22 px (`--paro-texto-stat`, 700), provisório até os arquivos do logotipo entrarem no repositório. Depois, a navegação (Início, Minha vaga e Ajustes, com ícone e rótulo; o item ativo segue a aba ativa da barra de abas), o aviso "Dados de demonstração", as abas de faixa horária, o card de melhor chance, a lista de ruas cobertas e a pergunta "A previsão ajudou hoje?".
+- **Centro:** o mapa da área, com o botão de centralizar no canto superior direito e a legenda no canto inferior direito.
+- **Painel à direita de 360 px** (`--paro-largura-painel`), fundo `--paro-fundo`, borda à esquerda e margem lateral de 24 px. Começa fechado e tem botão de fechar (botão de ícone, no topo direito); Esc também fecha. Abre com o Detalhe da rua completo (ao escolher uma rua no mapa ou na lista), com Minha vaga (incluindo Registrar vaga e Seu registro de vaga) ou com Ajustes. O mapa continua visível, entre a barra lateral e o painel. A ação principal fica fixa no rodapé do painel.
+- **Voltar até o carro** abre no centro, no lugar do mapa da área, com a barra lateral ao lado.
+- Os endereços continuam os mesmos do celular (`/ruas/[id]`, `/minha-vaga`, `/ajustes`): no desktop, cada um abre o painel com o conteúdo certo.
+- A Primeira visita e as telas da equipe ficam fora do painel e continuam como no celular.
 
 ### Fluxos
 
