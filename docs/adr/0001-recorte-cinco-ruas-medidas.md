@@ -9,4 +9,4 @@ O plano (docs/projeto.md) definia o recorte de três jeitos: 5 ruas das 17h às 
 ## Consequences
 
 - O trabalho de campo passa de 3 para 5 ruas, com 10 faixas horárias medidas por noite em cada rua. O cronograma da etapa "Medir" (semanas 1 a 4) precisa caber nisso.
-- As abas Agora, 19h, 21h e 22h são atalhos para essa grade de faixas horárias. Elas não definem o recorte.
+- As abas Agora, 18h, 19h e 20h são atalhos para essa grade de faixas horárias. Elas não definem o recorte.
