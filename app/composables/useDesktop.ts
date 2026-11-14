@@ -5,6 +5,18 @@
  */
 export const CONSULTA_DO_DESKTOP = '(min-width: 1024px)'
 
+/** Onde a página da rota abre no painel desktop. */
+export type LugarNoPainelDesktop = 'direita' | 'centro'
+
+declare module '#app' {
+  interface PageMeta {
+    /** No desktop, a página abre no painel da direita ou no centro; sem isso, o painel fica fechado. */
+    painelDesktop?: LugarNoPainelDesktop
+    /** A página fica fora do painel desktop e continua como no celular (Primeira visita, equipe). */
+    foraDoPainelDesktop?: boolean
+  }
+}
+
 /**
  * Se a janela está na largura do desktop. Falso no servidor e até o app
  * montar, porque só o navegador sabe a largura; o `app.vue` acompanha a

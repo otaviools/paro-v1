@@ -21,7 +21,7 @@ onMounted(() => {
 })
 
 const noPainelDesktop = computed(() => !route.meta.foraDoPainelDesktop)
-const painel = computed(() => route.meta.painelDesktop as 'direita' | 'centro' | undefined)
+const painel = computed(() => route.meta.painelDesktop)
 
 /** Fechar o painel da direita volta ao Início, onde ele começa fechado. */
 function fecharPainel() {
@@ -32,6 +32,9 @@ function fecharPainel() {
 function aoTeclar(evento: KeyboardEvent) {
   if (evento.key !== 'Escape' || !desktop.value || painel.value !== 'direita') return
   if (document.querySelector('dialog[open]')) return
+  // Em campo de texto, o Esc é do campo; não fecha o painel no meio do que a pessoa escreve.
+  const alvo = evento.target as HTMLElement | null
+  if (alvo?.closest('input, textarea, select, [contenteditable="true"]')) return
   fecharPainel()
 }
 </script>
