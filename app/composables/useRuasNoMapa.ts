@@ -7,7 +7,7 @@ import type { RuaNoMapa } from '~/components/MapaDaArea.vue'
  * Usado pelo Mapa do celular e pelo mapa do painel desktop.
  */
 export function useRuasNoMapa(panorama: Ref<Pick<Panorama, 'ruas'> | null | undefined>) {
-  const { data: trechos } = useFetch<RespostaDosTrechos>('/api/trechos', { key: 'trechos', server: false })
+  const { trechos } = useTrechos()
 
   return computed<RuaNoMapa[]>(() => {
     const linhas = new Map((trechos.value ?? []).map(t => [t.id, t.linha]))

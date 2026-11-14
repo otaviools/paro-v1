@@ -40,7 +40,7 @@ const carregando = ref(false)
 const erroDaChave = ref<string | null>(null)
 const erroDaLista = ref<string | null>(null)
 
-const cabecalho = (valor: string) => ({ authorization: `Bearer ${valor}` })
+const { lerSugestoes, apagarSugestao } = useSugestoesDeRua()
 
 function sair(motivo: string | null = null) {
   guardarChaveNaSessao(null)
@@ -49,28 +49,21 @@ function sair(motivo: string | null = null) {
   erroDaChave.value = motivo
 }
 
-function statusDoErro(erro: unknown) {
-  return (erro as { statusCode?: number })?.statusCode
-}
-
 async function carregar(valor: string) {
   carregando.value = true
   erroDaChave.value = null
   erroDaLista.value = null
-  try {
-    sugestoes.value = await $fetch<RespostaDasSugestoes>('/api/equipe/sugestoes', { headers: cabecalho(valor) })
+  const resultado = await lerSugestoes(valor)
+  carregando.value = false
+  if (resultado.tipo === 'lidas') {
+    sugestoes.value = resultado.sugestoes
     chave.value = valor
     guardarChaveNaSessao(valor)
     digitada.value = ''
   }
-  catch (erro) {
-    if (statusDoErro(erro) === 401) sair('Chave da equipe incorreta.')
-    else if (chave.value) erroDaLista.value = 'Não foi possível carregar. Tente de novo.'
-    else erroDaChave.value = 'Não foi possível carregar. Tente de novo.'
-  }
-  finally {
-    carregando.value = false
-  }
+  else if (resultado.tipo === 'chave-incorreta') sair('Chave da equipe incorreta.')
+  else if (chave.value) erroDaLista.value = 'Não foi possível carregar. Tente de novo.'
+  else erroDaChave.value = 'Não foi possível carregar. Tente de novo.'
 }
 
 function entrar() {
@@ -104,20 +97,15 @@ async function apagar() {
   const sugestao = aApagar.value
   if (!sugestao || !chave.value || apagando.value) return
   apagando.value = true
-  try {
-    await $fetch<SemConteudo>(`/api/equipe/sugestoes/${sugestao.id}`, { method: 'DELETE', headers: cabecalho(chave.value) })
+  const resultado = await apagarSugestao(chave.value, sugestao.id)
+  apagando.value = false
+  confirmacao.value?.fechar()
+  if (resultado === 'apagada') {
     sugestoes.value = sugestoes.value.filter(s => s.id !== sugestao.id)
-    confirmacao.value?.fechar()
     avisar('Sugestão apagada.')
   }
-  catch (erro) {
-    confirmacao.value?.fechar()
-    if (statusDoErro(erro) === 401) sair('Chave da equipe incorreta.')
-    else erroDaLista.value = 'Não foi possível apagar. Tente de novo.'
-  }
-  finally {
-    apagando.value = false
-  }
+  else if (resultado === 'chave-incorreta') sair('Chave da equipe incorreta.')
+  else erroDaLista.value = 'Não foi possível apagar. Tente de novo.'
 }
 
 /** "AAAA-MM-DD" → "DD/MM/AAAA". */

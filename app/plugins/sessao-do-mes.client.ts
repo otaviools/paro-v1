@@ -12,5 +12,5 @@ export default defineNuxtPlugin(() => {
   const agora = new Date()
   const mes = `${agora.getFullYear()}-${String(agora.getMonth() + 1).padStart(2, '0')}`
   const idMensal = dadosDoCelularDoAparelho().idDeSessaoDoMes(mes)
-  $fetch('/api/sessoes', { method: 'POST', body: { idMensal } satisfies CorpoDaSessao }).catch(() => {})
+  useSessao().contarVisita(idMensal)
 })

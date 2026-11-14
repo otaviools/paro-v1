@@ -15,15 +15,8 @@ definePageMeta({ semBarraDeAbas: true, painelDesktop: 'direita' })
 const route = useRoute()
 const router = useRouter()
 
-const { data: rua, error, refresh } = await useFetch<RuaAoLongoDaNoite>(() => `/api/ruas/${route.params.id}`)
-
-/** As saídas previstas mudam ao longo da noite; o app consulta o servidor de novo (ADR 0018). */
-const INTERVALO_DE_ATUALIZACAO = 90_000
-let atualizacao: ReturnType<typeof setInterval> | undefined
-onMounted(() => {
-  atualizacao = setInterval(() => refresh(), INTERVALO_DE_ATUALIZACAO)
-})
-onBeforeUnmount(() => clearInterval(atualizacao))
+/** Atualiza sozinha enquanto a tela está aberta, porque as saídas previstas mudam (ADR 0018). */
+const { data: rua, error } = await useRuaCoberta(() => String(route.params.id))
 
 /** "1 saída prevista", "3 saídas previstas". */
 function textoDasSaidas(quantidade: number) {

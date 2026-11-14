@@ -9,6 +9,7 @@
 const emit = defineEmits<{ enviada: [] }>()
 
 const id = useId()
+const { enviarSugestao } = useSugestoesDeRua()
 const texto = ref('')
 const enviando = ref(false)
 const erro = ref<string | null>(null)
@@ -28,17 +29,14 @@ async function enviar() {
   }
   enviando.value = true
   erro.value = null
-  try {
-    await $fetch('/api/sugestoes', { method: 'POST', body: { texto: texto.value } satisfies CorpoDaSugestao })
-    limpar()
-    emit('enviada')
-  }
-  catch {
+  const enviada = await enviarSugestao(texto.value)
+  enviando.value = false
+  if (!enviada) {
     erro.value = 'Não foi possível enviar. Tente de novo.'
+    return
   }
-  finally {
-    enviando.value = false
-  }
+  limpar()
+  emit('enviada')
 }
 </script>
 

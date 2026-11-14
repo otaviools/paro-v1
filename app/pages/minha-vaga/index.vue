@@ -15,8 +15,9 @@ import type { DadosDoCelular, FormaDeColaborar, RegistroNoCelular } from '~/dado
 definePageMeta({ painelDesktop: 'direita' })
 
 /** Noite e faixa horária de agora; lidas no navegador, na hora de abrir a tela. */
-const { data: agora, error: erroDoAgora } = useFetch<RespostaDeAgora>('/api/agora', { key: 'agora-minha-vaga', server: false })
-const { data: faixasHorarias } = useFetch<RespostaDasFaixasHorarias>('/api/faixas-horarias', { server: false })
+const { agora, erro: erroDoAgora } = useAgora()
+const { data: faixasHorarias } = useFaixasHorarias()
+const { alterarSaida, encerrar } = useRegistroDeVaga()
 
 let dados: DadosDoCelular | undefined
 const registro = ref<RegistroNoCelular | null>(null)
@@ -54,10 +55,6 @@ function esquecerRegistro() {
   avisar('Este registro não vale mais nesta noite. Registre a vaga de novo se precisar.')
 }
 
-function statusDo(erro: unknown) {
-  return (erro as { statusCode?: number }).statusCode
-}
-
 // --- Mudar saída -------------------------------------------------------------
 
 const gaveta = ref<{ abrir: () => void, fechar: () => void }>()
@@ -74,24 +71,14 @@ const grupos = computed(() => {
 async function mudarSaida(saidaPrevista: string) {
   if (!registro.value || mudandoSaida.value) return
   mudandoSaida.value = true
-  try {
-    await $fetch<RespostaDaSaida>('/api/registros/saida', {
-      method: 'PATCH',
-      body: { codigo: registro.value.codigo, saidaPrevista: saidaPrevista } satisfies CorpoDaSaida,
-    })
-    dados?.mudarSaidaDoRegistro(saidaPrevista)
-    registro.value = { ...registro.value, saidaPrevista: saidaPrevista }
-    gaveta.value?.fechar()
-    avisar(`Saída prevista mudada para ${rotuloDaFaixaHoraria(saidaPrevista)}.`)
-  }
-  catch (erro) {
-    gaveta.value?.fechar()
-    if (statusDo(erro) === 404) esquecerRegistro()
-    else avisar('Não foi possível mudar a saída agora. Tente de novo em instantes.')
-  }
-  finally {
-    mudandoSaida.value = false
-  }
+  const resultado = await alterarSaida(registro.value.codigo, saidaPrevista)
+  mudandoSaida.value = false
+  gaveta.value?.fechar()
+  if (resultado === 'registro-invalido') return esquecerRegistro()
+  if (resultado === 'falha') return avisar('Não foi possível mudar a saída agora. Tente de novo em instantes.')
+  dados?.mudarSaidaDoRegistro(saidaPrevista)
+  if (registro.value) registro.value = { ...registro.value, saidaPrevista: saidaPrevista }
+  avisar(`Saída prevista mudada para ${rotuloDaFaixaHoraria(saidaPrevista)}.`)
 }
 
 // --- Saí -----------------------------------------------------------------------
@@ -101,19 +88,11 @@ const saindo = ref(false)
 async function sair() {
   if (!registro.value || saindo.value) return
   saindo.value = true
-  try {
-    await $fetch<RespostaDoEncerramento>('/api/registros/encerrar', {
-      method: 'POST',
-      body: { codigo: registro.value.codigo } satisfies CorpoDoEncerramento,
-    })
-  }
-  catch (erro) {
-    // Código recusado: o registro já não conta, então o "Saí" vale do mesmo jeito.
-    if (statusDo(erro) !== 404) {
-      saindo.value = false
-      avisar('Não foi possível avisar a saída agora. Tente de novo em instantes.')
-      return
-    }
+  // Código recusado conta como encerrado: o registro já não conta, então o "Saí" vale do mesmo jeito.
+  if (await encerrar(registro.value.codigo) === 'falha') {
+    saindo.value = false
+    avisar('Não foi possível avisar a saída agora. Tente de novo em instantes.')
+    return
   }
   dados?.apagarRegistro()
   avisar('Saída registrada. Obrigado por avisar quem está chegando.')
