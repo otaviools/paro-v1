@@ -114,20 +114,24 @@ let maplibreGl: typeof import('maplibre-gl') | null = null
 
 // --- Cores do tema -------------------------------------------------------
 
-/** Tokens do design system lidos do CSS; mudam com o tema claro ou escuro. */
+/**
+ * Cores lidas do CSS; mudam com o tema claro ou escuro. As do mapa ficam em
+ * --paro-mapa-* (o Nuxt UI não tem variável de mapa); o texto, a superfície e
+ * a borda vêm das variáveis do Nuxt UI (ADR 0027).
+ */
 function coresDoTema() {
   const estilo = getComputedStyle(recipiente.value ?? document.documentElement)
-  const token = (nome: string) => estilo.getPropertyValue(`--paro-${nome}`).trim()
+  const variavel = (nome: string) => estilo.getPropertyValue(`--${nome}`).trim()
   return {
-    fundo: token('mapa-fundo'),
-    quadra: token('mapa-quadra'),
-    parque: token('mapa-parque'),
-    via: token('mapa-via'),
-    meioFio: token('mapa-meio-fio'),
-    rotulo: token('mapa-rotulo'),
-    texto: token('texto'),
-    superficie: token('superficie'),
-    borda: token('borda'),
+    fundo: variavel('paro-mapa-fundo'),
+    quadra: variavel('paro-mapa-quadra'),
+    parque: variavel('paro-mapa-parque'),
+    via: variavel('paro-mapa-via'),
+    meioFio: variavel('paro-mapa-meio-fio'),
+    rotulo: variavel('ui-text-muted'),
+    texto: variavel('ui-text'),
+    superficie: variavel('ui-bg-elevated'),
+    borda: variavel('ui-border'),
   }
 }
 
@@ -148,7 +152,7 @@ function desenhar(largura: number, altura: number, pintar: (ctx: CanvasRendering
 }
 
 /**
- * Padrão de linha de cada faixa de chance, em --paro-texto. O MapLibre repete
+ * Padrão de linha de cada faixa de chance, na cor do texto. O MapLibre repete
  * a imagem ao longo do trecho; a altura dela é a largura do trecho.
  */
 function padrao(estado: EstadoDaChance, cor: string) {
@@ -195,7 +199,7 @@ function padrao(estado: EstadoDaChance, cor: string) {
 }
 
 /**
- * Fundo esticável da etiqueta com o rótulo: pílula em --paro-superficie com
+ * Fundo esticável da etiqueta com o rótulo: pílula em bg-elevated com
  * borda. O MapLibre estica só o miolo (stretchX e stretchY), sem deformar as pontas.
  */
 function etiqueta(cores: Cores) {
@@ -297,15 +301,15 @@ const CORES_DAS_CAMADAS: [string, Parameters<MapaMapLibre['setPaintProperty']>[1
   ['trechos-etiqueta', 'text-color', 'texto'],
 ]
 
-/** Tamanho de um token de texto do design system (--paro-texto-nota, --paro-texto-legenda), em px. */
-function tamanhoDoTexto(nome: 'nota' | 'legenda') {
-  const estilo = getComputedStyle(recipiente.value ?? document.documentElement)
-  return Number.parseFloat(estilo.getPropertyValue(`--paro-texto-${nome}`))
-}
+/**
+ * Tamanho dos textos do mapa, em px: o text-xs do Tailwind (12 px), para os
+ * nomes de rua e para as etiquetas dos trechos (ADR 0027).
+ */
+const TAMANHO_DO_TEXTO = 12
 
 /**
  * Estilo próprio sobre o esquema de camadas do Protomaps (ADR 0019), com os
- * tokens --paro-mapa-*: fundo, quadras (edificações), parques, vias com meio-fio
+ * cores --paro-mapa-*: fundo, quadras (edificações), parques, vias com meio-fio
  * e nomes de rua com halo na cor da via. Sem ícones de pontos de interesse.
  */
 function estilo(urlDosTiles: string, cores: Cores): StyleSpecification {
@@ -352,12 +356,12 @@ function estilo(urlDosTiles: string, cores: Cores): StyleSpecification {
           'symbol-placement': 'line',
           'text-field': ['get', 'name'],
           'text-font': ['Noto Sans Regular'],
-          'text-size': tamanhoDoTexto('nota'),
+          'text-size': TAMANHO_DO_TEXTO,
           'text-max-angle': 30,
         },
         'paint': { 'text-halo-width': 1.5 },
       },
-      // Ruas cobertas por cima, com o padrão da faixa de chance em --paro-texto.
+      // Ruas cobertas por cima, com o padrão da faixa de chance na cor do texto.
       {
         id: 'trechos-fundo', type: 'line', source: 'trechos', filter: daGeometria('LineString'),
         layout: { 'line-cap': 'butt', 'line-join': 'round' },
@@ -379,7 +383,7 @@ function estilo(urlDosTiles: string, cores: Cores): StyleSpecification {
         layout: {
           'text-field': ['get', 'estado'],
           'text-font': ['Noto Sans Medium'],
-          'text-size': tamanhoDoTexto('legenda'),
+          'text-size': TAMANHO_DO_TEXTO,
           'text-variable-anchor': ['top', 'bottom', 'left', 'right'],
           'text-radial-offset': 1.4,
           'icon-image': 'etiqueta',
@@ -584,47 +588,64 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="mapa-da-area">
+  <!--
+    Feito à mão (ADR 0028): o MapLibre desenha o mapa no recipiente. As
+    classes com [&_.maplibregl-...] ajustam os créditos do MapLibre: acima do
+    que flutua no rodapé (--mapa-margem-inferior), em text-xs e bg-elevated.
+    Levam ! porque o CSS do MapLibre fica fora das camadas do Tailwind.
+    Quem usa posiciona a raiz (por exemplo, absolute inset-0) e informa o
+    que fica por cima do mapa em --mapa-margem-superior,
+    --mapa-margem-inferior e --mapa-margem-esquerda.
+  -->
+  <div
+    class="overflow-hidden bg-muted [&_.maplibregl-ctrl-attrib]:bg-elevated! [&_.maplibregl-ctrl-attrib]:font-sans! [&_.maplibregl-ctrl-attrib]:text-xs! [&_.maplibregl-ctrl-attrib]:text-muted! [&_.maplibregl-ctrl-attrib_a]:text-primary! [&_.maplibregl-ctrl-bottom-left]:bottom-(--mapa-margem-inferior,0)! [&_.maplibregl-ctrl-bottom-right]:bottom-(--mapa-margem-inferior,0)!"
+  >
     <div
       ref="recipiente"
-      class="recipiente"
+      class="size-full"
       role="region"
       aria-label="Mapa das ruas cobertas"
     />
+    <!-- A sonda tem as margens como padding, que o navegador já devolve em px. -->
     <div
       ref="sonda"
-      class="sonda"
+      class="invisible absolute pt-(--mapa-margem-superior,0) pb-(--mapa-margem-inferior,0) pl-(--mapa-margem-esquerda,0)"
       aria-hidden="true"
     />
     <!-- Marcadores: ficam aqui, escondidos, até o MapLibre levá-los para o mapa. -->
-    <div class="marcadores">
+    <div class="hidden">
+      <!-- Ponto do carro: ícone do carro em bg-inverted, com contorno bg-default. -->
       <div
         ref="elementoDoCarro"
-        class="marcador-carro"
+        class="grid size-8 place-items-center rounded-paro-md border-2 border-bg bg-inverted text-inverted"
         role="img"
         aria-label="Ponto do carro"
       >
         <UIcon
           name="i-lucide-car"
-          class="icone-carro"
+          class="size-4"
           aria-hidden="true"
         />
       </div>
+      <!-- Posição atual: ponto em text-primary, com contorno bg-default. -->
       <div
         ref="elementoDaPosicao"
-        class="marcador-posicao"
+        class="size-5 rounded-full border-4 border-bg bg-primary"
         role="img"
         aria-label="Sua posição atual"
       />
-      <!-- Etiqueta sobre o mapa (design system, "Gavetas, avisos flutuantes e carregamento"). -->
+      <!--
+        Etiqueta sobre o mapa (design system, "Gavetas, avisos flutuantes e
+        carregamento"), acima do ponto do carro, com folga para o ícone dele.
+      -->
       <div
         ref="elementoDaEtiqueta"
-        class="marcador-etiqueta"
+        class="pointer-events-none pb-6"
       >
-        <span class="etiqueta-do-carro">
+        <span class="flex items-center gap-1 whitespace-nowrap rounded-full border border-default bg-elevated px-2 py-1 font-sans text-xs font-semibold tabular-nums text-default">
           <UIcon
             name="i-lucide-footprints"
-            class="icone-etiqueta"
+            class="size-4 shrink-0"
             aria-hidden="true"
           />
           {{ etiquetaDoCarro }}
@@ -633,117 +654,9 @@ onBeforeUnmount(() => {
     </div>
     <p
       v-if="falhou"
-      class="falha"
+      class="absolute inset-x-5 top-1/2 -translate-y-1/2 rounded-paro-md border border-default bg-elevated p-4 text-sm lg:inset-x-8"
     >
       Não foi possível abrir o mapa. A lista das ruas cobertas continua disponível.
     </p>
   </div>
 </template>
-
-<style scoped>
-.mapa-da-area {
-  position: relative;
-  overflow: hidden;
-  background: var(--paro-mapa-fundo);
-}
-
-.sonda {
-  position: absolute;
-  visibility: hidden;
-  padding: var(--mapa-margem-superior, 0) 0 var(--mapa-margem-inferior, 0) var(--mapa-margem-esquerda, 0);
-}
-
-.recipiente {
-  position: absolute;
-  inset: 0;
-}
-
-.falha {
-  position: absolute;
-  top: 50%;
-  right: var(--paro-margem);
-  left: var(--paro-margem);
-  padding: var(--paro-esp-4);
-  font-size: var(--paro-texto-corpo);
-  background: var(--paro-superficie);
-  border: 1px solid var(--paro-borda);
-  border-radius: var(--paro-raio-linha);
-  transform: translateY(-50%);
-}
-
-/* Fora do mapa, os marcadores ficam escondidos. */
-.marcadores {
-  display: none;
-}
-
-/* Ponto do carro: ícone do carro no fundo da ação, com contorno de superfície. */
-.marcador-carro {
-  display: grid;
-  place-items: center;
-  width: var(--paro-esp-8);
-  height: var(--paro-esp-8);
-  color: var(--paro-acao-texto);
-  background: var(--paro-acao);
-  border: calc(var(--paro-esp-1) / 2) solid var(--paro-superficie);
-  border-radius: var(--paro-raio-botao);
-}
-
-.icone-carro {
-  width: var(--paro-esp-4);
-  height: var(--paro-esp-4);
-}
-
-/* Posição atual: ponto na cor de destaque, com contorno de superfície. */
-.marcador-posicao {
-  width: var(--paro-esp-5);
-  height: var(--paro-esp-5);
-  background: var(--paro-destaque-texto);
-  border: var(--paro-esp-1) solid var(--paro-superficie);
-  border-radius: var(--paro-raio-pilula);
-}
-
-/* A etiqueta fica acima do ponto do carro, com folga para o ícone dele. */
-.marcador-etiqueta {
-  padding-bottom: var(--paro-esp-6);
-  pointer-events: none;
-}
-
-.etiqueta-do-carro {
-  display: flex;
-  align-items: center;
-  gap: var(--paro-esp-1);
-  padding: var(--paro-esp-1) var(--paro-esp-2);
-  font-family: var(--font-sans);
-  font-size: var(--paro-texto-legenda);
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-  color: var(--paro-texto);
-  background: var(--paro-superficie);
-  border: 1px solid var(--paro-borda);
-  border-radius: var(--paro-raio-pilula);
-}
-
-.icone-etiqueta {
-  flex: none;
-  width: var(--paro-esp-4);
-  height: var(--paro-esp-4);
-}
-
-/* Créditos do mapa acima do que flutua no rodapé (barra de abas, gaveta). */
-.mapa-da-area :deep(.maplibregl-ctrl-bottom-right),
-.mapa-da-area :deep(.maplibregl-ctrl-bottom-left) {
-  bottom: var(--mapa-margem-inferior, 0);
-}
-
-.mapa-da-area :deep(.maplibregl-ctrl-attrib) {
-  font-family: var(--font-sans);
-  font-size: var(--paro-texto-nota);
-  color: var(--paro-texto-fraco);
-  background: var(--paro-superficie);
-}
-
-.mapa-da-area :deep(.maplibregl-ctrl-attrib a) {
-  color: var(--paro-destaque-texto);
-}
-</style>

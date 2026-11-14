@@ -15,48 +15,20 @@ const itens: { estado: EstadoDaChance, explicacao: string }[] = [
 </script>
 
 <template>
-  <ul class="legenda">
+  <ul class="grid gap-3">
     <li
       v-for="item in itens"
       :key="item.estado"
-      class="item"
+      class="flex items-center gap-3"
     >
       <AmostraDeFaixaDeChance
         :estado="item.estado"
         :tamanho="32"
       />
-      <p class="texto">
-        <strong class="rotulo">{{ item.estado }}</strong>
-        <span class="explicacao">{{ item.explicacao }}</span>
+      <p class="grid">
+        <strong class="text-sm font-semibold">{{ item.estado }}</strong>
+        <span class="text-xs font-medium text-muted">{{ item.explicacao }}</span>
       </p>
     </li>
   </ul>
 </template>
-
-<style scoped>
-.legenda {
-  display: grid;
-  gap: var(--paro-esp-3);
-}
-
-.item {
-  display: flex;
-  align-items: center;
-  gap: var(--paro-esp-3);
-}
-
-.texto {
-  display: grid;
-}
-
-.rotulo {
-  font-size: var(--paro-texto-corpo);
-  font-weight: 600;
-}
-
-.explicacao {
-  font-size: var(--paro-texto-legenda);
-  font-weight: 500;
-  color: var(--paro-texto-fraco);
-}
-</style>
