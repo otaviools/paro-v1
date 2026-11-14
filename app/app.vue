@@ -11,6 +11,7 @@ const route = useRoute()
 // equipe (`foraDoPainelDesktop`) continuam como no celular.
 
 const desktop = useDesktop()
+const lateralAberta = useLateralAberta()
 
 onMounted(() => {
   const consulta = window.matchMedia(CONSULTA_DO_DESKTOP)
@@ -48,6 +49,7 @@ function aoTeclar(evento: KeyboardEvent) {
         'painel-direita': painel === 'direita',
         'painel-centro': painel === 'centro',
         'painel-fechado': !painel,
+        'sem-lateral': !lateralAberta,
       }"
     >
       <!-- Só aparece no desktop, com o painel da direita aberto. -->
@@ -127,6 +129,11 @@ function aoTeclar(evento: KeyboardEvent) {
     left: var(--paro-largura-lateral);
     padding-bottom: 0;
     contain: layout;
+  }
+
+  /* Com a barra lateral fechada, o centro ocupa o espaço dela. */
+  .painel-centro.sem-lateral {
+    left: 0;
   }
 }
 

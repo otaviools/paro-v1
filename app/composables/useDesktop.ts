@@ -26,3 +26,11 @@ declare module '#app' {
 export function useDesktop() {
   return useState('desktop', () => false)
 }
+
+/**
+ * Se a barra lateral do desktop está aberta. O botão no canto do mapa abre e
+ * fecha; o mapa e o centro ocupam o espaço dela quando fechada.
+ */
+export function useLateralAberta() {
+  return useState('lateral-aberta', () => true)
+}
