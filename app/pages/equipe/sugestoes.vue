@@ -85,7 +85,7 @@ onMounted(() => {
 const confirmacao = ref<{ abrir: () => void, fechar: () => void }>()
 const aApagar = ref<SugestaoDeRua | null>(null)
 const apagando = ref(false)
-const { avisar } = useAvisoFlutuante()
+const { avisar } = useAvisoFlutuanteStore()
 
 function pedirConfirmacao(sugestao: SugestaoDeRua) {
   aApagar.value = sugestao

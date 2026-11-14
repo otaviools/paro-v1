@@ -22,7 +22,7 @@ watch(agora, (valor) => {
   visivel.value = !dadosDoCelularDoAparelho().respondeuAjudou(valor.noite)
 }, { immediate: true })
 
-const { avisar } = useAvisoFlutuante()
+const { avisar } = useAvisoFlutuanteStore()
 
 async function responder(ajudou: boolean) {
   if (!agora.value || enviando.value !== null) return
