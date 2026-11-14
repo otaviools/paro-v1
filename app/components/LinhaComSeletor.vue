@@ -5,7 +5,7 @@
 
   Interface:
   - prop `titulo`: nome do seletor; é o rótulo acessível do USwitch.
-  - prop `explicacao`: parágrafo abaixo do título; descreve o USwitch.
+  - prop `explicacao`: parágrafo abaixo do título; descreve o USwitch. Vazia, não aparece.
   - prop `icone`: nome do ícone Lucide (`i-lucide-...`).
   - prop `ligado`: estado atual. A linha não guarda estado próprio.
   - evento `mudar(ligado)`: a pessoa tocou no seletor; quem usa decide.
@@ -24,6 +24,7 @@ const id = useId()
 </script>
 
 <template>
+  <!-- Ícone (20 px com 2 px no topo), título (linha de 24 px) e chave (24 px) com o centro na mesma altura. -->
   <div class="grid grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-3">
     <UIcon
       :name="icone"
@@ -33,11 +34,12 @@ const id = useId()
     <div class="grid gap-1">
       <p
         :id="`${id}-titulo`"
-        class="text-sm font-semibold leading-tight"
+        class="text-sm/6 font-semibold"
       >
         {{ titulo }}
       </p>
       <p
+        v-if="explicacao"
         :id="`${id}-explicacao`"
         class="max-w-[70ch] text-xs text-muted"
       >
@@ -51,7 +53,7 @@ const id = useId()
       size="xl"
       :ui="{ base: 'relative after:absolute after:inset-x-0 after:-inset-y-2.5' }"
       :aria-labelledby="`${id}-titulo`"
-      :aria-describedby="`${id}-explicacao`"
+      :aria-describedby="explicacao ? `${id}-explicacao` : undefined"
       @update:model-value="emit('mudar', $event)"
     />
   </div>

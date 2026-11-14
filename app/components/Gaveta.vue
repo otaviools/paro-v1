@@ -7,7 +7,8 @@
 
   Interface (a mesma de antes do UDrawer):
   - prop `titulo`: título da gaveta.
-  - slot padrão: o conteúdo, com rolagem própria.
+  - slot padrão: o conteúdo, com rolagem própria. A folga de 4 px (p-1, com -m-1)
+    deixa o anel de foco dos campos aparecer sem ser cortado pela rolagem.
   - evento `fechada`: a gaveta fechou, por qualquer caminho.
   - métodos pelo ref: `abrir()` e `fechar()`.
 -->
@@ -38,7 +39,7 @@ defineExpose({ abrir, fechar })
     v-model:open="aberta"
     :title="titulo"
     :close="{ color: 'neutral', variant: 'outline', class: 'size-10 justify-center lg:size-9' }"
-    :ui="{ container: 'min-h-0 overflow-hidden', body: 'min-h-0 overflow-y-auto' }"
+    :ui="{ container: 'min-h-0 overflow-hidden', body: '-m-1 min-h-0 overflow-y-auto p-1' }"
   >
     <template #body>
       <slot />

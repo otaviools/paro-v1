@@ -28,7 +28,7 @@ const estado = computed(() => estadoDaEstimativa(props.estimativa))
 const subtitulo = computed(() =>
   props.estimativa.tipo === 'chance'
     ? textoDaBase(props.estimativa.base)
-    : 'Ainda não temos observações suficientes nesta faixa horária',
+    : 'Não temos observações suficientes nesta faixa horária',
 )
 </script>
 
@@ -36,7 +36,7 @@ const subtitulo = computed(() =>
   <div class="@container">
     <NuxtLink
       :to="{ path: `/ruas/${rua.id}`, query: { faixaHoraria: faixaHoraria ?? undefined } }"
-      class="flex min-h-14 items-center gap-3 rounded-paro-md border border-default bg-elevated px-4 py-3 transition-colors hover:bg-muted @max-[20rem]:flex-wrap"
+      class="flex min-h-14 items-center gap-3 vidro rounded-paro-md px-4 py-3 transition-[filter] hover:brightness-105 @max-[20rem]:flex-wrap"
     >
       <AmostraDeFaixaDeChance :estado="estado" />
       <span class="grid min-w-0 flex-1 @max-[20rem]:basis-[calc(100%-1.5rem)]">
