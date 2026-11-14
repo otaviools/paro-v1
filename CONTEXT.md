@@ -107,7 +107,7 @@ Informação voluntária de que um motorista estacionou numa rua coberta, com a 
 _Avoid_: check-in, vaga ativa, estacionei
 
 **Forma de colaborar**:
-Maneira como um motorista faz registros de vaga: com a localização ligada, em que o celular propõe a rua coberta mais próxima, ou manual, em que ele escolhe a rua numa lista.
+Maneira como um motorista faz registros de vaga: com a localização ligada, em que o celular propõe a rua coberta mais próxima, ou manual, em que ele escolhe a rua numa lista. Sem forma de colaborar ("nenhuma", o padrão), o motorista só consulta a chance e não faz registros de vaga.
 _Avoid_: modo de consentimento, ajudar a previsão, contribuir
 
 **Saída prevista**:
