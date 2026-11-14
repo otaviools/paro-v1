@@ -4,7 +4,12 @@
  * momento em que o celular pergunta. Todas as telas usam a mesma chave.
  */
 export function useAgora() {
-  const { data: agora, error } = useFetch<RespostaDeAgora>('/api/agora', { key: 'agora', server: false })
+  const { data: agora, error, status, refresh } = useFetch<RespostaDeAgora>('/api/agora', { key: 'agora', server: false })
+
+  // Com a chave compartilhada, a tela que abre encontra a leitura da tela
+  // anterior, e o Nuxt não busca de novo. Cada tela lê a hora de agora ao
+  // abrir, então uma leitura já concluída é refeita.
+  if (status.value === 'success') refresh()
 
   /**
    * Noite de agora, mesmo se a leitura da tela ainda não terminou. Sem

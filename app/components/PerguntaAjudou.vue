@@ -28,15 +28,21 @@ async function responder(ajudou: boolean) {
   if (!agora.value || enviando.value !== null) return
   enviando.value = ajudou
   erro.value = false
-  const recebida = await responderAjudou(ajudou)
-  enviando.value = null
-  if (!recebida) {
-    erro.value = true
-    return
+  try {
+    if (!await responderAjudou(ajudou)) {
+      erro.value = true
+      return
+    }
+    if (agora.value) dadosDoCelularDoAparelho().marcarRespostaAjudou(agora.value.noite)
+    visivel.value = false
+    avisar('Obrigado pela resposta.')
   }
-  dadosDoCelularDoAparelho().marcarRespostaAjudou(agora.value.noite)
-  visivel.value = false
-  avisar('Obrigado pela resposta.')
+  catch {
+    erro.value = true
+  }
+  finally {
+    enviando.value = null
+  }
 }
 </script>
 

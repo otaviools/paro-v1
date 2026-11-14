@@ -111,27 +111,28 @@ async function registrar() {
 
   enviando.value = true
   erroDoEnvio.value = null
-  const saida = saidaPrevista.value
-  const resultado = await registrarVaga({ ruaCoberta: rua.id, saidaPrevista: saida })
-  if (resultado.tipo === 'falha') {
-    enviando.value = false
-    erroDoEnvio.value = resultado.motivo
-      ? `${resultado.motivo}.`
-      : 'Não foi possível registrar agora. Tente de novo em instantes.'
-    return
-  }
-  const { registrado } = resultado
-  dados ??= dadosDoCelularDoAparelho()
-  dados.guardarRegistro({
-    codigo: registrado.codigo,
-    noite: registrado.noite,
-    ruaCoberta: { id: rua.id, nome: rua.nome },
-    chegada: registrado.chegada,
-    saidaPrevista: saida,
-  }, pontoDoCarro.value ?? undefined)
-  vagaRecemRegistrada.value = true
   try {
+    const resultado = await registrarVaga({ ruaCoberta: rua.id, saidaPrevista: saidaPrevista.value })
+    if (resultado.tipo === 'falha') {
+      erroDoEnvio.value = resultado.motivo
+        ? `${resultado.motivo}.`
+        : 'Não foi possível registrar agora. Tente de novo em instantes.'
+      return
+    }
+    const { registrado } = resultado
+    dados ??= dadosDoCelularDoAparelho()
+    dados.guardarRegistro({
+      codigo: registrado.codigo,
+      noite: registrado.noite,
+      ruaCoberta: { id: rua.id, nome: rua.nome },
+      chegada: registrado.chegada,
+      saidaPrevista: saidaPrevista.value,
+    }, pontoDoCarro.value ?? undefined)
+    vagaRecemRegistrada.value = true
     await navigateTo('/minha-vaga', { replace: true })
+  }
+  catch {
+    erroDoEnvio.value = 'Não foi possível registrar agora. Tente de novo em instantes.'
   }
   finally {
     enviando.value = false

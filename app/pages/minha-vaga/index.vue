@@ -71,14 +71,22 @@ const grupos = computed(() => {
 async function mudarSaida(saidaPrevista: string) {
   if (!registro.value || mudandoSaida.value) return
   mudandoSaida.value = true
-  const resultado = await alterarSaida(registro.value.codigo, saidaPrevista)
-  mudandoSaida.value = false
-  gaveta.value?.fechar()
-  if (resultado === 'registro-invalido') return esquecerRegistro()
-  if (resultado === 'falha') return avisar('Não foi possível mudar a saída agora. Tente de novo em instantes.')
-  dados?.mudarSaidaDoRegistro(saidaPrevista)
-  if (registro.value) registro.value = { ...registro.value, saidaPrevista: saidaPrevista }
-  avisar(`Saída prevista mudada para ${rotuloDaFaixaHoraria(saidaPrevista)}.`)
+  try {
+    const resultado = await alterarSaida(registro.value.codigo, saidaPrevista)
+    gaveta.value?.fechar()
+    if (resultado === 'registro-invalido') return esquecerRegistro()
+    if (resultado === 'falha') return avisar('Não foi possível mudar a saída agora. Tente de novo em instantes.')
+    dados?.mudarSaidaDoRegistro(saidaPrevista)
+    if (registro.value) registro.value = { ...registro.value, saidaPrevista: saidaPrevista }
+    avisar(`Saída prevista mudada para ${rotuloDaFaixaHoraria(saidaPrevista)}.`)
+  }
+  catch {
+    gaveta.value?.fechar()
+    avisar('Não foi possível mudar a saída agora. Tente de novo em instantes.')
+  }
+  finally {
+    mudandoSaida.value = false
+  }
 }
 
 // --- Saí -----------------------------------------------------------------------
