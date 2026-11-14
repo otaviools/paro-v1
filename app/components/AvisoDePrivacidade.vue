@@ -5,14 +5,14 @@
   0004, 0013, 0014) e por quanto tempo (0021). Mudou uma dessas ADRs, muda o texto.
 -->
 <template>
-  <div class="aviso">
+  <div class="grid gap-6 text-sm">
     <section
-      class="bloco"
+      class="grid max-w-[70ch] gap-2"
       aria-labelledby="privacidade-cadastro"
     >
       <h3
         id="privacidade-cadastro"
-        class="etiqueta"
+        class="text-xs font-semibold uppercase tracking-wider text-muted"
       >
         Sem cadastro
       </h3>
@@ -22,16 +22,16 @@
     </section>
 
     <section
-      class="bloco"
+      class="grid max-w-[70ch] gap-2"
       aria-labelledby="privacidade-celular"
     >
       <h3
         id="privacidade-celular"
-        class="etiqueta"
+        class="text-xs font-semibold uppercase tracking-wider text-muted"
       >
         O que fica só no seu celular
       </h3>
-      <ul class="lista">
+      <ul class="grid list-disc gap-1 pl-5">
         <li>A sua rotina, o horário em que você costuma chegar.</li>
         <li>A forma de colaborar que você escolheu.</li>
         <li>O código do seu registro de vaga, que permite mudar a saída prevista e tocar em "Saí". Ele vale só naquela noite.</li>
@@ -45,12 +45,12 @@
     </section>
 
     <section
-      class="bloco"
+      class="grid max-w-[70ch] gap-2"
       aria-labelledby="privacidade-servidor"
     >
       <h3
         id="privacidade-servidor"
-        class="etiqueta"
+        class="text-xs font-semibold uppercase tracking-wider text-muted"
       >
         O que vai ao servidor
       </h3>
@@ -73,16 +73,16 @@
     </section>
 
     <section
-      class="bloco"
+      class="grid max-w-[70ch] gap-2"
       aria-labelledby="privacidade-retencao"
     >
       <h3
         id="privacidade-retencao"
-        class="etiqueta"
+        class="text-xs font-semibold uppercase tracking-wider text-muted"
       >
         Por quanto tempo
       </h3>
-      <ul class="lista">
+      <ul class="grid list-disc gap-1 pl-5">
         <li>
           Registros de vaga: apagados no fim de cada noite. Fica só o total de registros por rua coberta e faixa
           horária, sem código e sem nada que identifique alguém.
@@ -97,32 +97,3 @@
     </section>
   </div>
 </template>
-
-<style scoped>
-.aviso {
-  display: grid;
-  gap: var(--paro-esp-6);
-  font-size: var(--paro-texto-corpo);
-}
-
-.bloco {
-  display: grid;
-  gap: var(--paro-esp-2);
-  max-width: 70ch;
-}
-
-.etiqueta {
-  font-size: var(--paro-texto-etiqueta);
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--paro-texto-fraco);
-}
-
-.lista {
-  display: grid;
-  gap: var(--paro-esp-1);
-  padding-left: var(--paro-esp-5);
-  list-style: disc;
-}
-</style>
