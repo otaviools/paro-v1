@@ -1,7 +1,7 @@
 <!--
   Gráfico de chance por faixa horária (design system; referência Swarm):
-  uma barra por faixa horária das 17h às 23h, com o padrão da faixa de chance
-  em text-default. A altura é a chance; Sem dado é uma barra baixa com
+  uma barra por faixa horária das 17h às 23h, na cor da faixa de chance
+  (verde, amarelo ou vermelho, ADR 0033). A altura é a chance; Sem dado é uma barra baixa com
   contorno tracejado. A faixa horária selecionada ganha fundo bg-primary-100.
   Feito à mão (ADR 0028), com classes do Tailwind e cores do Nuxt UI.
   Tocar numa barra seleciona a faixa horária (v-model).
@@ -25,17 +25,11 @@ function estadoDe(estimativa: Estimativa): EstadoDaChance {
   return estimativa.tipo === 'chance' ? estimativa.faixaDeChance : 'Sem dado'
 }
 
-/** Altura da barra: a chance; um mínimo para o padrão aparecer em 0%. */
+/** Altura da barra: a chance; um mínimo para a cor aparecer em 0%. */
 function alturaDe(estimativa: Estimativa) {
   return estimativa.tipo === 'chance'
     ? `max(var(--spacing), ${estimativa.chance}%)`
     : 'calc(var(--spacing) * 2)'
-}
-
-function preenchimentoDe(estado: EstadoDaChance) {
-  if (estado === 'Tranquilo') return 'currentColor'
-  if (estado === 'Apertado') return `url(#${id}-hachura)`
-  return `url(#${id}-pontilhado)`
 }
 
 /** Só as horas cheias ganham rótulo no eixo, para caber no celular. */
@@ -65,45 +59,6 @@ const horasDoEixo = computed(() =>
         </template>
       </p>
     </header>
-
-    <!-- Padrões das faixas de chance, iguais aos da amostra. -->
-    <svg
-      class="absolute size-0 text-default"
-      aria-hidden="true"
-      focusable="false"
-    >
-      <defs>
-        <pattern
-          :id="`${id}-hachura`"
-          width="3.5"
-          height="3.5"
-          patternUnits="userSpaceOnUse"
-          patternTransform="rotate(45)"
-        >
-          <line
-            x1="0"
-            y1="0"
-            x2="0"
-            y2="3.5"
-            stroke="currentColor"
-            stroke-width="1.2"
-          />
-        </pattern>
-        <pattern
-          :id="`${id}-pontilhado`"
-          width="4"
-          height="4"
-          patternUnits="userSpaceOnUse"
-        >
-          <circle
-            cx="2"
-            cy="2"
-            r="0.8"
-            fill="currentColor"
-          />
-        </pattern>
-      </defs>
-    </svg>
 
     <div class="grid h-32 auto-cols-fr grid-flow-col">
       <button
@@ -139,7 +94,7 @@ const horasDoEixo = computed(() =>
             width="100%"
             height="100%"
             rx="3"
-            :fill="preenchimentoDe(estimativa.faixaDeChance)"
+            :fill="corDaFaixaDeChance(estimativa.faixaDeChance)"
           />
         </svg>
       </button>
