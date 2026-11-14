@@ -114,7 +114,7 @@ function voltar() {
 
       <div
         v-if="!lido && !erroDoAgora"
-        class="h-16 rounded-paro-md bg-muted"
+        class="h-16 rounded-paro-md bg-muted brilho"
         aria-busy="true"
         aria-label="Carregando"
       />

@@ -18,33 +18,29 @@ const id = useId()
 </script>
 
 <template>
-  <div
-    class="mt-6 flex flex-wrap gap-2"
-    role="tablist"
-    aria-label="Faixa horária"
-  >
-    <ChipDeFaixaHoraria
-      v-for="aba in abas"
-      :key="aba.valor"
-      role="tab"
-      :aria-selected="faixaHoraria === aba.valor"
-      :ativo="faixaHoraria === aba.valor"
-      :aria-controls="`${id}-ruas`"
-      @click="faixaHoraria = aba.valor"
-    >
-      {{ aba.rotulo }}
-    </ChipDeFaixaHoraria>
-  </div>
+  <AbasDeFaixaHoraria
+    v-model="faixaHoraria"
+    class="mt-6"
+    :abas="abas"
+    :controla="`${id}-ruas`"
+  />
 
-  <!-- Esqueleto no formato do card de melhor chance. -->
+  <!-- Esqueleto no formato do card de melhor chance, com brilho (referências Google e Finimize). -->
   <div
     v-if="carregando"
-    class="mt-6 h-36 rounded-paro-lg bg-muted"
+    class="mt-6 grid gap-2.5 vidro rounded-paro-lg p-4 sm:p-6"
     aria-hidden="true"
-  />
+  >
+    <USkeleton class="brilho h-3 w-28 bg-muted" />
+    <USkeleton class="brilho h-4 w-1/2 bg-muted" />
+    <USkeleton class="brilho h-3 w-3/5 bg-muted" />
+    <USkeleton class="brilho h-3 w-1/4 bg-muted" />
+    <USkeleton class="brilho h-3 w-1/3 bg-muted" />
+  </div>
+  <!-- Ao chegar, o card aparece com esmaecer de 150 ms; com movimento reduzido, na hora. -->
   <CardDeMelhorChance
     v-else-if="panorama?.faixaHoraria"
-    class="mt-6"
+    class="mt-6 transition-opacity duration-150 ease-out starting:opacity-0 motion-reduce:transition-none"
     :faixa-horaria="panorama.faixaHoraria"
     :melhor-chance="panorama.melhorChance"
   />
