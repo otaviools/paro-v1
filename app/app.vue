@@ -27,7 +27,27 @@ onMounted(() => {
 })
 
 const noPainelDesktop = computed(() => !route.meta.foraDoPainelDesktop)
-const painel = computed(() => route.meta.painelDesktop)
+/**
+ * Onde a página abre no desktop. O `route` do app.vue só muda depois que a
+ * tela antiga termina de sair (pageTransition); a rota de destino já está no
+ * roteador. Ao fechar o painel da direita, ele começa a deslizar na hora, com
+ * o conteúdo antigo ainda dentro. Ao abrir, espera a tela nova estar pronta,
+ * para não entrar vazio enquanto os dados carregam.
+ */
+const rotaDeDestino = useRouter().currentRoute
+const painel = computed(() =>
+  route.meta.painelDesktop === 'direita' && !rotaDeDestino.value.meta.painelDesktop
+    ? undefined
+    : route.meta.painelDesktop)
+
+/**
+ * Painel da direita no desktop. Aberto ou fechado, ele continua no lugar
+ * (fixo à direita): fechado, só desliza para fora e fica invisível. Assim a
+ * abertura e o fechamento animam em 300 ms com desaceleração (referências
+ * Whop e Contra), e não só a abertura. Com movimento reduzido, troca na hora.
+ */
+const CLASSE_DO_PAINEL_DA_DIREITA = 'lg:fixed lg:inset-y-0 lg:right-0 lg:z-3 lg:grid lg:w-108 lg:grid-rows-[auto_minmax(0,1fr)] lg:border-l lg:border-default lg:bg-default lg:pb-0 lg:[contain:layout] lg:transition-[translate,visibility] lg:duration-300 lg:ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none'
+const CLASSE_DO_PAINEL_FECHADO = 'lg:pointer-events-none lg:invisible lg:translate-x-full'
 
 /** Fechar o painel da direita volta ao Início, onde ele começa fechado. */
 function fecharPainel() {
@@ -72,24 +92,30 @@ const lugarDosAvisos: ToasterProps = {
     />
     <!--
       Embaixo, espaço para a barra de abas flutuante ou para a ação principal
-      fixa no rodapé não cobrir o fim da página. No desktop (lg), a página vira
-      o painel da direita (360 px), o centro (Voltar até o carro) ou some
+      fixa no rodapé não cobrir o fim da página. Telas fora do painel e sem barra de
+      abas (Primeira visita, Sugestões da equipe) não reservam esse espaço:
+      cada uma cuida do próprio rodapé. No desktop (lg), a página vira
+      o painel da direita (432 px), o centro (Voltar até o carro) ou some
       (painel fechado). O [contain:layout] faz dos elementos fixos da página
-      (a ação principal no rodapé) filhos do painel, e não da janela.
+      (a ação principal no rodapé) filhos do painel, e não da janela. O
+      painel da direita entra e sai deslizando pela direita, sem escurecer o
+      mapa (CLASSE_DO_PAINEL_DA_DIREITA).
     -->
     <div
-      class="pb-[calc(--spacing(19)+env(safe-area-inset-bottom))]"
-      :class="noPainelDesktop && {
-        'lg:fixed lg:inset-y-0 lg:right-0 lg:z-3 lg:grid lg:w-90 lg:grid-rows-[auto_minmax(0,1fr)] lg:border-l lg:border-default lg:bg-default lg:pb-0 lg:[contain:layout]': painel === 'direita',
-        'lg:fixed lg:inset-y-0 lg:right-0 lg:pb-0 lg:[contain:layout]': painel === 'centro',
-        'lg:left-100': painel === 'centro' && lateralAberta,
-        'lg:left-0': painel === 'centro' && !lateralAberta,
-        'lg:hidden': !painel,
-      }"
+      :class="[
+        !noPainelDesktop && route.meta.semBarraDeAbas ? '' : 'pb-[calc(--spacing(19)+env(safe-area-inset-bottom))]',
+        !noPainelDesktop ? 'lg:pb-0' : {
+          [CLASSE_DO_PAINEL_DA_DIREITA]: painel !== 'centro',
+          [CLASSE_DO_PAINEL_FECHADO]: !painel,
+          'lg:fixed lg:inset-y-0 lg:right-0 lg:pb-0 lg:[contain:layout]': painel === 'centro',
+          'lg:left-85': painel === 'centro' && lateralAberta,
+          'lg:left-0': painel === 'centro' && !lateralAberta,
+        },
+      ]"
     >
-      <!-- Só aparece no desktop, com o painel da direita aberto. -->
+      <!-- Só no desktop: fechar o painel da direita (continua no lugar enquanto ele desliza para fora). -->
       <header
-        v-if="noPainelDesktop && painel === 'direita'"
+        v-if="noPainelDesktop && painel !== 'centro'"
         class="hidden justify-end px-6 pt-4 lg:flex"
       >
         <UButton
@@ -101,7 +127,7 @@ const lugarDosAvisos: ToasterProps = {
           @click="fecharPainel"
         />
       </header>
-      <div :class="noPainelDesktop && painel === 'direita' && 'lg:overflow-y-auto lg:pb-19'">
+      <div :class="noPainelDesktop && painel !== 'centro' && 'lg:overflow-y-auto lg:pb-19'">
         <NuxtPage />
       </div>
     </div>
