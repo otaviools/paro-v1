@@ -19,7 +19,7 @@ const id = useId()
 
 <template>
   <div
-    class="abas"
+    class="mt-6 flex flex-wrap gap-2"
     role="tablist"
     aria-label="Faixa horária"
   >
@@ -36,14 +36,15 @@ const id = useId()
     </ChipDeFaixaHoraria>
   </div>
 
+  <!-- Esqueleto no formato do card de melhor chance. -->
   <div
     v-if="carregando"
-    class="card-esqueleto"
+    class="mt-6 h-36 rounded-paro-lg bg-muted"
     aria-hidden="true"
   />
   <CardDeMelhorChance
     v-else-if="panorama?.faixaHoraria"
-    class="melhor-chance"
+    class="mt-6"
     :faixa-horaria="panorama.faixaHoraria"
     :melhor-chance="panorama.melhorChance"
   />
@@ -55,7 +56,7 @@ const id = useId()
   >
     <h2
       :id="`${id}-titulo`"
-      class="etiqueta"
+      class="mt-8 text-xs font-semibold uppercase tracking-wider tabular-nums text-muted"
     >
       Ruas cobertas<template v-if="!carregando && panorama?.faixaHoraria">
         · {{ rotuloDaFaixaHoraria(panorama.faixaHoraria) }}
@@ -63,45 +64,10 @@ const id = useId()
     </h2>
 
     <ListaDeRuasCobertas
-      class="lista"
+      class="mt-3"
       :panorama="panorama"
       :carregando="carregando"
       :erro="erro"
     />
   </section>
 </template>
-
-<style scoped>
-.abas {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--paro-esp-2);
-  margin-top: var(--paro-esp-6);
-}
-
-.melhor-chance,
-.card-esqueleto {
-  margin-top: var(--paro-esp-6);
-}
-
-/* Esqueleto no formato do card de melhor chance. */
-.card-esqueleto {
-  height: calc(var(--paro-esp-16) * 2 + var(--paro-esp-4));
-  background: var(--paro-superficie-suave);
-  border-radius: var(--paro-raio-card);
-}
-
-.etiqueta {
-  margin-top: var(--paro-esp-8);
-  font-size: var(--paro-texto-etiqueta);
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  font-variant-numeric: tabular-nums;
-  color: var(--paro-texto-fraco);
-}
-
-.lista {
-  margin-top: var(--paro-esp-3);
-}
-</style>
