@@ -1,62 +1,38 @@
 <!--
   Aviso flutuante (design system, "Gavetas, avisos flutuantes e carregamento";
-  referência Waymo): fundo --paro-texto, texto --paro-fundo, raio de 12 px,
-  some em 3 s. Fica acima da barra de abas e da ação principal fixa no
-  rodapé, para não cobrir "Saí" em Minha vaga.
+  referência Waymo): UToast em bg-inverted com text-inverted, raio de 12 px,
+  some em 3 s. O <UApp> do app.vue põe os toasts embaixo, no centro, acima da
+  barra de abas e da ação principal fixa no rodapé, para não cobrir "Saí" em
+  Minha vaga; um aviso novo troca o anterior.
+
+  Interface: sem props, slots nem eventos; fica uma vez só, no app.vue. As
+  telas avisam pela store: `useAvisoFlutuanteStore().avisar('Texto.')`.
 -->
 <script setup lang="ts">
-const { texto } = storeToRefs(useAvisoFlutuanteStore())
+import { DURACAO_DO_AVISO } from '~/stores/aviso-flutuante'
+
+const toast = useToast()
+const store = useAvisoFlutuanteStore()
+
+// Cada `avisar` vira um toast, mesmo quando o texto repete o do aviso anterior.
+const parar = store.$onAction(({ name, args }) => {
+  if (name !== 'avisar') return
+  toast.add({
+    title: args[0] as string,
+    duration: DURACAO_DO_AVISO,
+    close: false,
+    progress: false,
+    ui: {
+      root: 'rounded-paro-md bg-inverted px-4 py-3 shadow-none ring-0',
+      title: 'text-sm font-medium text-inverted',
+    },
+  })
+})
+
+onBeforeUnmount(parar)
 </script>
 
+<!-- Não desenha nada: o <UApp> desenha os toasts. -->
 <template>
-  <div
-    class="regiao"
-    role="status"
-    aria-live="polite"
-  >
-    <Transition name="aviso">
-      <p
-        v-if="texto"
-        class="aviso"
-      >
-        {{ texto }}
-      </p>
-    </Transition>
-  </div>
+  <span hidden />
 </template>
-
-<style scoped>
-.regiao {
-  position: fixed;
-  right: var(--paro-margem);
-  /* Barra de abas (64 + 12) + botão principal (52) + espaços de 12. */
-  bottom: calc(var(--paro-esp-16) + var(--paro-esp-12) + var(--paro-esp-1) + var(--paro-esp-3) * 3 + env(safe-area-inset-bottom));
-  left: var(--paro-margem);
-  z-index: 30;
-  max-width: calc(var(--paro-largura-conteudo) - 2 * var(--paro-margem));
-  margin: 0 auto;
-  pointer-events: none;
-}
-
-.aviso {
-  padding: var(--paro-esp-3) var(--paro-esp-4);
-  font-size: var(--paro-texto-interface);
-  font-weight: 500;
-  color: var(--paro-fundo);
-  background: var(--paro-texto);
-  border-radius: var(--paro-raio-linha);
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .aviso-enter-active,
-  .aviso-leave-active {
-    transition: opacity 300ms cubic-bezier(0.16, 1, 0.3, 1), transform 300ms cubic-bezier(0.16, 1, 0.3, 1);
-  }
-
-  .aviso-enter-from,
-  .aviso-leave-to {
-    opacity: 0;
-    transform: translateY(var(--paro-esp-2));
-  }
-}
-</style>
