@@ -8,8 +8,8 @@ Proposta de módulos derivada do `CONTEXT.md` e das ADRs 0001 a 0024. Usa o voca
 
 - **Responsabilidade:** responder "como está cada rua coberta nesta faixa horária". É o módulo de leitura das telas Início, Mapa, Detalhe da rua e Visão geral desktop.
 - **Interface:**
-  - `panorama(faixaHorária, agora) → { ruas: [{ rua, estimativa, saídasPrevistas, distânciaAoDestino }], melhorChance, demonstração: boolean }`
-  - `ruaAoLongoDaNoite(rua, agora) → { rua, distânciaAoDestino, meioDoTrecho, faixasHorárias: [{ faixaHorária, estimativa }], melhorFaixaHorária, saídasPrevistas: [{ faixaHorária, quantidade }], demonstração }`, para o Detalhe da rua
+  - `panorama(faixaHoraria, agora) → { ruas: [{ rua, estimativa, saidasPrevistas, distanciaAoDestino }], melhorChance, demonstracao: boolean }`
+  - `ruaAoLongoDaNoite(rua, agora) → { rua, distanciaAoDestino, meioDoTrecho, faixasHorarias: [{ faixaHoraria, estimativa }], melhorFaixaHoraria, saidasPrevistas: [{ faixaHoraria, quantidade }], demonstracao }`, para o Detalhe da rua
 - **Esconde:**
   - a regra da melhor chance: desempate pela distância até o destino e ruas Sem dado fora da disputa;
   - a junção de Chance, Registros de vaga e Área coberta;
@@ -19,7 +19,7 @@ Proposta de módulos derivada do `CONTEXT.md` e das ADRs 0001 a 0024. Usa o voca
 ### 2. Chance
 
 - **Responsabilidade:** transformar observações em uma faixa de chance com base, ou em Sem dado. É o módulo com mais regras de negócio.
-- **Interface:** `estimar(observações, semestre, calendário) → Map<(ruaCoberta, faixaHorária), Estimativa>`, em que `Estimativa = { faixaDeChance, chance, base } | SemDado`
+- **Interface:** `estimar(observacoes, semestre, calendario) → Map<(ruaCoberta, faixaHoraria), Estimativa>`, em que `Estimativa = { faixaDeChance, chance, base } | SemDado`
 - **Esconde:**
   - a rua cheia, com ocupação de 85% ou mais (ADR 0005);
   - o filtro por semestre e por dia letivo normal (ADRs 0007 e 0008);
@@ -30,7 +30,7 @@ Proposta de módulos derivada do `CONTEXT.md` e das ADRs 0001 a 0024. Usa o voca
 ### 3. Observações
 
 - **Responsabilidade:** guardar e entregar as observações, e dizer se são reais ou fictícias.
-- **Interface:** `doSemestre(semestre) → Observação[]`, `registrar(observação)` (usado pela equipe em campo) e `éDemonstração() → boolean`
+- **Interface:** `doSemestre(semestre) → Observacao[]`, `registrar(observacao)` (usado pela equipe em campo) e `eDemonstracao() → boolean`
 - **Seam:** é real, com dois adapters:
   - Postgres, para as observações reais;
   - gerador de observações fictícias (ADR 0012).
@@ -41,7 +41,7 @@ Proposta de módulos derivada do `CONTEXT.md` e das ADRs 0001 a 0024. Usa o voca
 ### 4. Registros de vaga
 
 - **Responsabilidade:** cuidar do ciclo de vida de um registro numa noite. Recebe o registro, permite alterá-lo ou encerrá-lo, conta as saídas previstas e fecha a noite.
-- **Interface:** `registrar({ rua, chegada, saídaPrevista }, agora) → { código, noite, chegada }`, `alterarSaída(código, faixa, agora)`, `encerrar(código, agora)` (o "Saí"), `saídasPrevistas(noite) → [{ ruaCoberta, faixaHorária, quantidade }]`, `fecharNoite(noite)`, `fecharNoitesAnteriores(agora) → [noite]` (o fechamento diário) e `totaisDaNoite(noite) → [{ ruaCoberta, faixaHorária, quantidade }]`, em que a faixa horária dos totais é a de chegada. A chegada pode ser `"agora"`, a faixa horária do instante.
+- **Interface:** `registrar({ rua, chegada, saidaPrevista }, agora) → { codigo, noite, chegada }`, `alterarSaida(codigo, faixa, agora)`, `encerrar(codigo, agora)` (o "Saí"), `saidasPrevistas(noite) → [{ ruaCoberta, faixaHoraria, quantidade }]`, `fecharNoite(noite)`, `fecharNoitesAnteriores(agora) → [noite]` (o fechamento diário) e `totaisDaNoite(noite) → [{ ruaCoberta, faixaHoraria, quantidade }]`, em que a faixa horária dos totais é a de chegada. A chegada pode ser `"agora"`, a faixa horária do instante.
 - **Esconde:**
   - o código de uso único, que expira no fim da noite (ADR 0014);
   - a ausência de identificador (ADR 0004);
@@ -51,14 +51,14 @@ Proposta de módulos derivada do `CONTEXT.md` e das ADRs 0001 a 0024. Usa o voca
 ### 5. Área coberta
 
 - **Responsabilidade:** guardar o espaço e o tempo do produto: ruas cobertas e seus trechos, destino, distâncias, faixas horárias das 17h às 23h e calendário letivo.
-- **Interface:** `ruasCobertas()`, `distânciaAoDestino(rua)`, `ruaMaisPróxima(ponto)`, `faixaHorária(instante)`, `noiteDe(instante)`, `éDiaLetivoNormal(data)` e `semestreDe(data)`
+- **Interface:** `ruasCobertas()`, `distanciaAoDestino(rua)`, `ruaMaisProxima(ponto)`, `faixaHoraria(instante)`, `noiteDe(instante)`, `eDiaLetivoNormal(data)` e `semestreDe(data)`
 - **Por que juntar espaço e calendário:** os dois são dados fixos, configurados pela equipe, e mudam pelo mesmo motivo, a virada do semestre (ADRs 0008, 0019 e 0024). Separar daria dois módulos rasos.
-- **Dependências:** é em memória, carregado de configuração. Recebe o instante como parâmetro e nunca lê o relógio sozinho. `ruaMaisPróxima(ponto)` roda no celular, na tela Registrar vaga, para que o ponto do carro nunca vá ao servidor (ADR 0003).
+- **Dependências:** é em memória, carregado de configuração. Recebe o instante como parâmetro e nunca lê o relógio sozinho. `ruaMaisProxima(ponto)` roda no celular, na tela Registrar vaga, para que o ponto do carro nunca vá ao servidor (ADR 0003).
 
 ### 6. Métricas de uso
 
 - **Responsabilidade:** acompanhar as metas do plano (seção 12.6): recorrência, utilidade percebida e total de registros por noite.
-- **Interface:** `registrarSessão(idMensal, data)`, `responderAjudou(ajudou, data)`, `consolidar(data) → { semanasConsolidadas, sessõesApagadas }` (a rotina diária) e `relatório(de, até)` (até 366 dias) `→ { recorrência: [{ semana, motoristas, voltaramNaSemanaSeguinte }], ajudou: [{ data, sim, não }], registrosPorNoite: [{ noite, total, porRuaEFaixaHorária }] }`, para a equipe.
+- **Interface:** `registrarSessao(idMensal, data)`, `responderAjudou(ajudou, data)`, `consolidar(data) → { semanasConsolidadas, sessoesApagadas }` (a rotina diária) e `relatorio(de, ate)` (até 366 dias) `→ { recorrencia: [{ semana, motoristas, voltaramNaSemanaSeguinte }], ajudou: [{ data, sim, nao }], registrosPorNoite: [{ noite, total, porRuaEFaixaHoraria }] }`, para a equipe.
 - **Esconde:**
   - a recorrência por semana: o total de uma semana é gravado quando a semana seguinte termina;
   - a retenção de 60 dias das sessões e a consolidação em totais (ADRs 0004 e 0021);
@@ -70,7 +70,7 @@ Proposta de módulos derivada do `CONTEXT.md` e das ADRs 0001 a 0024. Usa o voca
 ### 7. Dados do celular
 
 - **Responsabilidade:** guardar tudo que nunca sai do aparelho: rotina, ponto do carro, códigos dos registros abertos, histórico e identificador mensal de sessão.
-- **Interface:** `rotina` (ler e definir), `pontoDoCarro` (guardar ao registrar, apagar no "Saí"), `códigoDoRegistroAtual`, `idDeSessãoDoMês(mês)`, `respondeuAjudou(noite)` / `marcarRespostaAjudou(noite)` e `apagarHistórico()`
+- **Interface:** `rotina` (ler e definir), `pontoDoCarro` (guardar ao registrar, apagar no "Saí"), `codigoDoRegistroAtual`, `idDeSessaoDoMes(mes)`, `respondeuAjudou(noite)` / `marcarRespostaAjudou(noite)` e `apagarHistorico()`
 - **Garante:** que esses dados nunca vão para o servidor (ADRs 0003, 0004 e 0015). Concentrar isso num módulo só deixa a regra de privacidade verificável num único lugar.
 - **Dependências:** usa `localStorage`, com substituto local. Os testes usam um armazenamento em memória.
 
