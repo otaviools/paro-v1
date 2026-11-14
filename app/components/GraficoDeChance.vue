@@ -1,8 +1,9 @@
 <!--
   Gráfico de chance por faixa horária (design system; referência Swarm):
   uma barra por faixa horária das 17h às 23h, com o padrão da faixa de chance
-  em --paro-texto. A altura é a chance; Sem dado é uma barra baixa com
-  contorno tracejado. A faixa horária selecionada ganha fundo --paro-destaque.
+  em text-default. A altura é a chance; Sem dado é uma barra baixa com
+  contorno tracejado. A faixa horária selecionada ganha fundo bg-primary-100.
+  Feito à mão (ADR 0028), com classes do Tailwind e cores do Nuxt UI.
   Tocar numa barra seleciona a faixa horária (v-model).
 -->
 <script setup lang="ts">
@@ -27,8 +28,8 @@ function estadoDe(estimativa: Estimativa): EstadoDaChance {
 /** Altura da barra: a chance; um mínimo para o padrão aparecer em 0%. */
 function alturaDe(estimativa: Estimativa) {
   return estimativa.tipo === 'chance'
-    ? `max(var(--paro-esp-1), ${estimativa.chance}%)`
-    : 'var(--paro-esp-2)'
+    ? `max(var(--spacing), ${estimativa.chance}%)`
+    : 'calc(var(--spacing) * 2)'
 }
 
 function preenchimentoDe(estado: EstadoDaChance) {
@@ -43,18 +44,19 @@ const horasDoEixo = computed(() =>
 </script>
 
 <template>
-  <section
-    class="card"
+  <UCard
+    as="section"
     :aria-labelledby="`${id}-titulo`"
+    :ui="{ body: 'grid gap-3 p-4 sm:p-4 lg:p-6' }"
   >
-    <header class="cabecalho">
+    <header class="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
       <h2
         :id="`${id}-titulo`"
-        class="etiqueta"
+        class="text-xs font-semibold uppercase tracking-wider text-muted"
       >
         Chance ao longo da noite
       </h2>
-      <p class="resumo">
+      <p class="text-xs font-semibold tabular-nums">
         <template v-if="melhorFaixaHoraria">
           Melhor faixa: {{ intervaloDaFaixaHoraria(melhorFaixaHoraria) }}
         </template>
@@ -66,7 +68,7 @@ const horasDoEixo = computed(() =>
 
     <!-- Padrões das faixas de chance, iguais aos da amostra. -->
     <svg
-      class="definicoes"
+      class="absolute size-0 text-default"
       aria-hidden="true"
       focusable="false"
     >
@@ -103,19 +105,20 @@ const horasDoEixo = computed(() =>
       </defs>
     </svg>
 
-    <div class="barras">
+    <div class="grid h-32 auto-cols-fr grid-flow-col">
       <button
         v-for="{ faixaHoraria, estimativa } in faixasHorarias"
         :key="faixaHoraria"
         type="button"
-        class="coluna"
-        :class="{ selecionada: selecionada === faixaHoraria }"
+        class="relative cursor-pointer rounded-paro-sm text-default"
+        :class="{ 'bg-primary-100': selecionada === faixaHoraria }"
         :aria-pressed="selecionada === faixaHoraria"
         :aria-label="`${intervaloDaFaixaHoraria(faixaHoraria)}: ${estadoDe(estimativa)}`"
         @click="selecionada = faixaHoraria"
       >
+        <!-- Presa ao pé da coluna: a altura em % é da coluna, que tem altura fixa. -->
         <svg
-          class="barra"
+          class="absolute inset-x-1 bottom-0 w-[calc(100%---spacing(2))]"
           :style="{ height: alturaDe(estimativa) }"
           aria-hidden="true"
           focusable="false"
@@ -142,8 +145,9 @@ const horasDoEixo = computed(() =>
       </button>
     </div>
 
+    <!-- Cada hora cheia ocupa as duas colunas da hora. -->
     <div
-      class="eixo"
+      class="-mt-2 grid auto-cols-fr grid-flow-col text-xs tabular-nums text-muted *:pl-1"
       aria-hidden="true"
     >
       <span
@@ -153,7 +157,7 @@ const horasDoEixo = computed(() =>
     </div>
 
     <ul
-      class="legenda"
+      class="flex flex-wrap gap-x-4 gap-y-1 text-xs font-medium text-muted *:flex *:items-center *:gap-2"
       aria-label="Legenda"
     >
       <li
@@ -164,106 +168,5 @@ const horasDoEixo = computed(() =>
         {{ estado }}
       </li>
     </ul>
-  </section>
+  </UCard>
 </template>
-
-<style scoped>
-.card {
-  display: grid;
-  gap: var(--paro-esp-3);
-  padding: var(--paro-esp-4);
-  background: var(--paro-superficie);
-  border: 1px solid var(--paro-borda);
-  border-radius: var(--paro-raio-card);
-}
-
-@media (min-width: 1024px) {
-  .card { padding: var(--paro-esp-6); }
-}
-
-.cabecalho {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--paro-esp-1) var(--paro-esp-3);
-}
-
-.etiqueta {
-  font-size: var(--paro-texto-etiqueta);
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--paro-texto-fraco);
-}
-
-.resumo {
-  font-size: var(--paro-texto-legenda);
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-}
-
-.definicoes {
-  position: absolute;
-  width: 0;
-  height: 0;
-  color: var(--paro-texto);
-}
-
-.barras {
-  display: grid;
-  grid-auto-columns: 1fr;
-  grid-auto-flow: column;
-  height: calc(var(--paro-esp-16) * 2);
-}
-
-.coluna {
-  position: relative;
-  color: var(--paro-texto);
-  border-radius: var(--paro-raio-amostra);
-  cursor: pointer;
-}
-
-.coluna.selecionada {
-  background: var(--paro-destaque);
-}
-
-/* Presa ao pé da coluna: a altura em % é da coluna, que tem altura fixa. */
-.barra {
-  position: absolute;
-  right: var(--paro-esp-1);
-  bottom: 0;
-  left: var(--paro-esp-1);
-  width: calc(100% - 2 * var(--paro-esp-1));
-}
-
-/* Cada hora cheia ocupa as duas colunas da hora. */
-.eixo {
-  display: grid;
-  grid-auto-columns: 1fr;
-  grid-auto-flow: column;
-  margin-top: calc(-1 * var(--paro-esp-2));
-  font-size: var(--paro-texto-nota);
-  font-variant-numeric: tabular-nums;
-  color: var(--paro-texto-fraco);
-}
-
-.eixo span {
-  padding-left: var(--paro-esp-1);
-}
-
-.legenda {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--paro-esp-1) var(--paro-esp-4);
-  font-size: var(--paro-texto-legenda);
-  font-weight: 500;
-  color: var(--paro-texto-fraco);
-}
-
-.legenda li {
-  display: flex;
-  align-items: center;
-  gap: var(--paro-esp-2);
-}
-</style>
