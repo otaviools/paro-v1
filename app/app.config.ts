@@ -7,9 +7,10 @@
  *
  * Como cada peça do design system vira componente do Nuxt UI:
  *
- * - Botão principal: <UButton color="neutral" size="xl" block> (52 px com h-13).
- * - Botão secundário: <UButton color="neutral" variant="outline">.
- * - Botão de ícone: <UButton color="neutral" variant="outline" square icon="...">.
+ * - Botão principal: <UButton color="neutral" size="xl" block> (52 px com h-13), em pílula.
+ * - Botão secundário: <UButton color="neutral" variant="outline">, em pílula de vidro.
+ * - Botão de ícone: <UButton color="neutral" variant="outline" square icon="...">,
+ *   círculo de vidro (ADR 0034).
  * - Botão link: <UButton color="primary" variant="link">.
  * - Botão destrutivo: <UButton color="error" variant="link">.
  * - Card: <UCard> (variante outline, a padrão).
@@ -30,10 +31,10 @@ export default defineAppConfig({
       },
     },
 
-    // Botões (design system, "Botões"): raio de 12 px, sem pílula.
+    // Botões (design system, "Botões"; ADR 0034): pílula; os de ícone viram círculo.
     button: {
       slots: {
-        base: 'rounded-paro-md font-semibold',
+        base: 'rounded-full font-semibold',
       },
       compoundVariants: [
         {
@@ -43,15 +44,15 @@ export default defineAppConfig({
           class: 'hover:bg-neutral-800 active:bg-neutral-800 active:scale-[0.98]',
         },
         {
-          // Secundário e de ícone: superfície e borda da paleta.
+          // Secundário e de ícone: vidro (classe `vidro` do main.css; ADR 0034).
           color: 'neutral',
           variant: 'outline',
-          class: 'bg-elevated ring-default hover:bg-muted active:bg-muted active:scale-[0.98]',
+          class: 'vidro hover:brightness-105 active:scale-[0.98]',
         },
       ],
     },
 
-    // Cards (design system, "Cards"): bg-elevated, borda de 1 px, raio de 24 px, sem sombra.
+    // Cards (design system, "Cards"; ADR 0034): vidro (classe `vidro` do main.css), raio de 24 px.
     card: {
       slots: {
         root: 'rounded-paro-lg',
@@ -59,7 +60,7 @@ export default defineAppConfig({
       variants: {
         variant: {
           outline: {
-            root: 'bg-elevated ring-default',
+            root: 'vidro',
           },
         },
       },

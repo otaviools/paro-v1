@@ -45,27 +45,27 @@ watch(agora, (valor) => {
       {{ registro.ruaCoberta.nome }}
     </p>
 
-    <!-- Linha de ações com ícone e rótulo, separada por uma borda. -->
-    <div class="mt-3 flex flex-wrap gap-2 border-t border-default pt-3">
+    <!-- Ações em pílulas de vidro de largura total, uma por linha, ícone ao lado do texto. -->
+    <div class="mt-3 grid gap-2 border-t border-default pt-3">
       <UButton
         v-if="temPontoDoCarro"
         to="/minha-vaga/carro"
         color="neutral"
         variant="outline"
-        size="lg"
-        class="min-h-11 font-medium"
         icon="i-lucide-map-pin"
         label="Voltar até o carro"
+        block
+        class="min-h-11 px-4 text-sm font-medium"
         :ui="{ leadingIcon: 'size-4' }"
       />
       <UButton
         to="/minha-vaga"
         color="neutral"
         variant="outline"
-        size="lg"
-        class="min-h-11 font-medium"
         icon="i-lucide-car"
         label="Ver minha vaga"
+        block
+        class="min-h-11 px-4 text-sm font-medium"
         :ui="{ leadingIcon: 'size-4' }"
       />
     </div>

@@ -60,14 +60,13 @@ async function responder(ajudou: boolean) {
       A previsão ajudou hoje?
     </h2>
 
-    <!-- Dois botões secundários lado a lado (design system, "Botões"). -->
-    <div class="grid grid-cols-2 gap-2">
+    <!-- Duas pílulas de vidro pequenas lado a lado, ícone ao lado do texto. -->
+    <div class="flex flex-wrap gap-2">
       <UButton
         color="neutral"
         variant="outline"
-        size="lg"
-        block
-        class="min-h-11 font-medium"
+        class="min-h-11 px-4 text-sm font-medium"
+        :ui="{ leadingIcon: 'size-4' }"
         icon="i-lucide-thumbs-up"
         label="Sim"
         :loading="enviando === true"
@@ -77,9 +76,8 @@ async function responder(ajudou: boolean) {
       <UButton
         color="neutral"
         variant="outline"
-        size="lg"
-        block
-        class="min-h-11 font-medium"
+        class="min-h-11 px-4 text-sm font-medium"
+        :ui="{ leadingIcon: 'size-4' }"
         icon="i-lucide-thumbs-down"
         label="Não"
         :loading="enviando === false"

@@ -45,6 +45,15 @@ function estadoDe(estimativa: Estimativa): EstadoDaChance {
   return estimativa.tipo === 'chance' ? estimativa.faixaDeChance : 'Sem dado'
 }
 
+/**
+ * Tinta do fundo (ADR 0034): a cor da faixa de chance da faixa horária
+ * selecionada, num degradê suave do topo. Sem dado, sem tinta.
+ */
+const tinta = computed(() => {
+  const estimativa = selecionada.value?.estimativa
+  return estimativa?.tipo === 'chance' ? corDaFaixaDeChance(estimativa.faixaDeChance) : 'transparent'
+})
+
 /** Volta para a tela anterior; aberto direto pelo link, vai para o Início. */
 function voltar() {
   if (window.history.state?.back) router.back()
@@ -67,7 +76,18 @@ function fecharAviso() {
 </script>
 
 <template>
-  <main class="mx-auto max-w-160 px-5 pt-4 pb-8 lg:px-6">
+  <main class="relative isolate mx-auto max-w-160 px-5 pt-4 pb-8 lg:px-6">
+    <!--
+      Fundo tingido pela cor da faixa de chance selecionada (ADR 0034;
+      referência Luma, que tinge pelo cartaz do evento). Fica parado no topo
+      da tela e troca de cor em 500 ms quando muda a faixa horária.
+    -->
+    <div
+      class="pointer-events-none fixed inset-x-0 top-0 -z-10 h-112 opacity-25 transition-colors duration-500 [mask-image:linear-gradient(to_bottom,black,transparent)] motion-reduce:transition-none"
+      :style="{ backgroundColor: tinta }"
+      aria-hidden="true"
+    />
+
     <!-- No desktop, o painel da direita tem o próprio botão de fechar. -->
     <UButton
       color="neutral"
@@ -163,7 +183,7 @@ function fecharAviso() {
           v-if="selecionada.estimativa.tipo === 'sem-dado'"
           class="border-t border-default pt-3 text-sm"
         >
-          Ainda não temos observações suficientes nesta faixa horária
+          Não temos observações suficientes nesta faixa horária
         </p>
       </UCard>
 
