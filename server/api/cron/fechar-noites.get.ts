@@ -1,8 +1,3 @@
-import { areaCoberta } from '../../area-coberta'
-import { metricasDeUsoDoApp } from '../../metricas-de-uso/do-app'
-import { registrosDeVagaDoApp } from '../../registros-de-vaga/do-app'
-import { exigirSegredo } from '../../utils/segredo'
-
 /**
  * Rotina diária (Vercel Cron, agendada em `nitro.vercel.config` no
  * `nuxt.config.ts`), protegida por `CRON_SECRET`; a Vercel manda

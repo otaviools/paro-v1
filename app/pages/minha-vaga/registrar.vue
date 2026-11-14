@@ -15,7 +15,7 @@
   e a tela volta para Minha vaga.
 -->
 <script setup lang="ts">
-import { areaCoberta } from '~~/server/area-coberta'
+import { areaCoberta } from '~~/server/utils/area-coberta'
 import { dadosDoCelularDoAparelho } from '~/dados-do-celular'
 import type { DadosDoCelular, FormaDeColaborar, Ponto } from '~/dados-do-celular'
 

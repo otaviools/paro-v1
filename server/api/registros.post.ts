@@ -1,6 +1,3 @@
-import { RegistroInvalido } from '../registros-de-vaga'
-import { registrosDeVagaDoApp } from '../registros-de-vaga/do-app'
-
 /**
  * Registro de vaga: a rua coberta e a saída prevista, nos dois modos (manual ou
  * com localização ligada). Nunca recebe coordenadas: o ponto do carro fica só

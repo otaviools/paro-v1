@@ -1,6 +1,3 @@
-import { CodigoRecusado } from '../../registros-de-vaga'
-import { registrosDeVagaDoApp } from '../../registros-de-vaga/do-app'
-
 /** "Saí": encerra o registro do código. O código vai no corpo, nunca na URL. */
 export default defineEventHandler(async (event) => {
   const corpo = await readBody<{ codigo?: unknown }>(event)
