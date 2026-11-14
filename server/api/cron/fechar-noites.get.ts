@@ -1,5 +1,3 @@
-import { areaCoberta } from '#shared/utils/area-coberta'
-
 /**
  * Rotina diária (Vercel Cron, agendada em `nitro.vercel.config` no
  * `nuxt.config.ts`), protegida por `CRON_SECRET`; a Vercel manda

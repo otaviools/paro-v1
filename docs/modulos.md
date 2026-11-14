@@ -11,7 +11,7 @@ Os módulos do servidor ficam em `server/utils/`, uma pasta por módulo (ADR 002
 - ajudantes só de teste, como o banco PGLite dos testes, ficam em `server/testes/`, fora do auto-import;
 - os módulos importam uns aos outros pelo caminho do arquivo, e os testes também, porque o Vitest não tem o auto-import do Nitro.
 
-A Área coberta é a exceção: fica em `shared/utils/area-coberta/`, porque o celular também usa `ruaMaisProxima(ponto)` (ADR 0003). O servidor e o celular importam o mesmo código pelo alias `#shared/utils/area-coberta`. Subpastas de `shared/utils/` não têm auto-import.
+O código da Área coberta fica em `shared/utils/area-coberta/`, porque o celular também usa `ruaMaisProxima(ponto)` (ADR 0003). Como subpastas de `shared/utils/` não têm auto-import, `server/utils/area-coberta.ts` reexporta `areaCoberta`, e as rotas usam o módulo sem `import`, como os outros. O celular e os outros módulos importam pelo alias `#shared/utils/area-coberta`.
 
 ## Contratos da API
 

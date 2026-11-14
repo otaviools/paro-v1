@@ -1,5 +1,3 @@
-import { areaCoberta } from '#shared/utils/area-coberta'
-
 /**
  * Sugestão de rua (ADR 0013): grava só o texto e a data, sem identificador.
  * Não altera a área coberta nem o mapa; a equipe lê e apaga (ADR 0021).

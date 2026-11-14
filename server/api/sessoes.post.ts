@@ -1,5 +1,3 @@
-import { areaCoberta } from '#shared/utils/area-coberta'
-
 /**
  * Visita ao app, com o identificador mensal sorteado no celular (ADR 0004).
  * Só o identificador; a data é a de agora, no servidor.
