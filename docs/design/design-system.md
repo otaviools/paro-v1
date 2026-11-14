@@ -100,7 +100,7 @@ As duas são fontes livres (SIL Open Font License).
 | Token | Tamanho | Peso | Uso no app |
 |---|---|---|---|
 | `--paro-texto-titulo` | 26 px | 700 | Título de tela |
-| `--paro-texto-stat` | 22 px | 700 | Nome da rua no detalhe; saída prevista na vaga ativa |
+| `--paro-texto-stat` | 22 px | 700 | Nome da rua no detalhe; saída prevista no registro de vaga |
 | `--paro-texto-botao` | 17 px | 600 | Botão principal |
 | `--paro-texto-card` | 16 px | 600 | Nome da rua no card de melhor chance; título de card |
 | `--paro-texto-corpo` | 15 px | 500 | Linha da lista de ruas, corpo |
@@ -128,7 +128,7 @@ Escala de 4 px: 4, 8, 12, 16, 20, 24, 32, 48, 64 (`--paro-esp-1` a `--paro-esp-1
 | Botão principal | 52 px | 44 px |
 | Botão de ícone | 40 px | 36 px |
 | Campo | 48 px | 40 px |
-| Chip de horário | 32 px | 32 px |
+| Chip de horário | 44 px | 44 px |
 | Barra de abas | 64 px + área segura | — |
 | Barra lateral | — | 280 px |
 
@@ -183,7 +183,7 @@ Alvo de toque mínimo de 44 × 44 px.
 
 | Componente | Visual | Onde |
 |---|---|---|
-| Chips de faixa horária | Pílula de 32 px, texto em etiqueta (11 px, caixa alta); inativo com fundo `--paro-superficie` e borda; ativo com fundo `--paro-destaque` e texto `--paro-destaque-texto` | Abas Agora, 19h, 21h e 22h; saída prevista no registro (referência Waymo) |
+| Chips de faixa horária | Pílula de 44 px (alvo de toque mínimo), texto em etiqueta (11 px, caixa alta); inativo com fundo `--paro-superficie` e borda; ativo com fundo `--paro-destaque` e texto `--paro-destaque-texto` | Abas Agora, 19h, 21h e 22h; saída prevista no registro (referência Waymo) |
 | Seletor de opção com ícone | Botões lado a lado, raio 10 px; o selecionado com fundo `--paro-destaque` e borda de 1,5 px em `--paro-destaque-texto` | Escolha da rua coberta no registro manual (referência Pangea) |
 | Linha com seletor liga/desliga | Título, parágrafo explicativo em `--paro-texto-fraco` e seletor à direita; ligado em `--paro-acao` | Ajustes: usar localização, forma de colaborar (referência Grok) |
 | Card de escolha única | Card com título e descrição; o escolhido com borda de 1,5 px em `--paro-texto` | Primeira visita: forma de colaborar |
@@ -204,7 +204,7 @@ Todos com fundo `--paro-superficie`, borda de 1 px em `--paro-borda`, raio de 16
 |---|---|---|
 | Melhor chance | Etiqueta "MELHOR CHANCE · 19H" em `--paro-texto-fraco`, nome da rua, amostra do padrão com rótulo, base, distância a pé e "Previsão, não garantia." | Pangea: card de destaque no topo |
 | Linha de rua coberta | Amostra do padrão, nome da rua, rótulo e base no subtítulo, distância numa etiqueta à direita; raio 12 px | Pangea: linha com distância; Waymo: valor à direita |
-| Vaga ativa | Saída prevista em 22 px como título, rua coberta abaixo, linha de ações com ícone e rótulo (Mudar saída, Voltar até o carro) | Waymo: viagem em andamento |
+| Seu registro de vaga | Saída prevista em 22 px como título, rua coberta abaixo, linha de ações com ícone e rótulo (Mudar saída, Voltar até o carro) | Waymo: viagem em andamento |
 | Bloco de dado | Título com ícone e linhas de dado separadas por `--paro-borda` | Pangea: blocos agrupados no detalhe |
 | Aviso | Fundo do sinal correspondente, texto do mesmo par, ícone, link opcional; raio 12 px | Lime: faixa informativa |
 
@@ -224,6 +224,7 @@ No detalhe da rua (referência Swarm):
 
 - Uma barra por faixa horária, das 17h às 23h, preenchida com o padrão da sua faixa de chance em `--paro-texto`. A altura é a chance; Sem dado aparece como barra baixa com contorno tracejado.
 - A faixa horária selecionada ganha fundo `--paro-destaque` atrás da barra.
+- Exceção ao alvo de toque de 44 px: as 12 barras têm cerca de 25 px de largura no celular, porque não cabem com 44 px em 375 px. O Bloco de dado abaixo do gráfico mostra a faixa horária selecionada por texto.
 - Resumo no canto: "Melhor faixa: 18h–18h30".
 - Eixo X em `--paro-texto-nota`, `--paro-texto-fraco`.
 
@@ -235,7 +236,7 @@ No detalhe da rua (referência Swarm):
 | Gaveta de escolha | Título à esquerda, "Salvar" como link à direita, grupos de chips | Pangea: ajustes do mapa |
 | Aviso flutuante | Fundo `--paro-texto`, texto `--paro-fundo`, raio 12 px, some em 3 s | Waymo: confirmação |
 | Esqueleto | Blocos em `--paro-superficie-suave` no formato do conteúdo, sem brilho animado | Waymo e Lime: carregamento |
-| Etiqueta sobre o mapa | Fundo `--paro-superficie`, borda, ícone de pessoa a pé e minutos | Lime: tempo a pé |
+| Etiqueta sobre o mapa | Fundo `--paro-superficie`, borda, ícone de pegadas e a distância em metros em linha reta ("140 m em linha reta"). Sem minutos, porque o Parô não calcula rota (ADR 0020) | Lime: tempo a pé |
 
 O aviso "Dados de demonstração" (ADR 0012) usa o card Aviso com o sinal `--paro-alerta`, fixo no topo do Início, do Mapa e do Detalhe da rua, sem botão de fechar.
 
@@ -284,9 +285,9 @@ Três colunas (referência Turo): barra lateral de 280 px com a navegação, o c
 |---|---|
 | Consultar | Início → linha da rua → Detalhe da rua → Como chegar |
 | Pelo mapa | Mapa → toque no trecho → gaveta → Detalhe da rua |
-| Registrar | Minha vaga → Registrar vaga → escolher rua e saída prevista → Vaga ativa |
-| Encerrar | Vaga ativa → Saí → aviso flutuante → Início |
-| Voltar ao carro | Bloco da vaga ativa no Início (referência Rivian) → mapa com ponto do carro e posição atual |
+| Registrar | Minha vaga → Registrar vaga → escolher rua e saída prevista → Seu registro de vaga |
+| Encerrar | Seu registro de vaga → Saí → aviso flutuante → Início |
+| Voltar ao carro | Bloco do registro de vaga no Início (referência Rivian) → mapa com ponto do carro e posição atual |
 
 ## Tema escuro
 

@@ -396,7 +396,7 @@ O protótipo navegável está no Figma, nas páginas Produto Mobile e Produto De
 4. **Mapa:** mapa de ruas real (MapLibre) com a faixa de chance de cada rua coberta e a legenda dos padrões
 5. **Detalhe da rua:** faixa de chance ao longo da noite, com a base e as saídas previstas
 6. **Registrar vaga**
-7. **Vaga ativa:** saída prevista, "Saí" e "Voltar até o carro"
+7. **Seu registro de vaga:** saída prevista, "Saí" e "Voltar até o carro"
 
 *Figura 1 — Oito telas do protótipo mobile, tema claro. Arquivo no Figma: figma.com/design/bJ0BYMZVBRFfli4roAu0oq*
 
@@ -500,7 +500,7 @@ Cada funcionalidade do Parô parte de um dado de campo. A tabela liga o número 
 | # | Dado de campo | ➔ Funcionalidade | Tela no protótipo |
 |---|---|---|---|
 | 1 | 75% chegam entre 18h30 e 19h59 (P4) | Abas de horário (Agora, 19h, 21h e 22h) como atalhos para as faixas horárias de 30 minutos | Mapa · Visão geral e Início |
-| 2 | 85% saem entre 21h e 22h59 (P5) | Saída prevista e botão "Saí": quem chega vê as saídas previstas da noite, à parte da chance | Minha vaga · Vaga ativa |
+| 2 | 85% saem entre 21h e 22h59 (P5) | Saída prevista e botão "Saí": quem chega vê as saídas previstas da noite, à parte da chance | Minha vaga · Seu registro de vaga |
 | 3 | 54% acham a vaga pouco previsível (P9, n=85) | Faixa de chance com rótulo (Tranquilo, Apertado, Difícil), sempre com a base | Início · Melhor chance |
 | 4 | 96% têm horários sempre ou quase sempre iguais (P6) | Rotina: horário de chegada habitual, guardado só no celular, que define a faixa horária inicial | Minha vaga e Ajustes |
 | 5 | 47% citam a Av. Vasconcelos Costa; 31% e 30% citam as duas seguintes (P8, n=81) | O mapa começa nas cinco ruas citadas, com a lista ordenada por chance | Mapa · Ruas por perto |

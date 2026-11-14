@@ -62,7 +62,7 @@ A Waymo, a Pangea e a Lime são o destaque de UI e componentes.
 
 **Alternativas na coleção:** Setel (duração em botões e "Trocar" local), Fly Delta (salvar localização como opção).
 
-## 5. Vaga ativa
+## 5. Seu registro de vaga
 
 **Escolhida:** [Waymo, viagem em andamento](https://mobbin.com/screens/0bbf4773-7af0-447a-978a-2b2f8879a40b)
 
@@ -82,7 +82,7 @@ A Waymo, a Pangea e a Lime são o destaque de UI e componentes.
 
 **Escolhida:** [Rivian, fluxo de localização](https://mobbin.com/flows/9f0e10a5-ae6b-4268-837f-ce7fe2bbea2e)
 
-- Entrada por um bloco na tela inicial, modelo do bloco da vaga ativa no Início.
+- Entrada por um bloco na tela inicial, modelo do bloco do registro de vaga no Início.
 - Tela com o mapa do ponto do carro e a ação principal embaixo.
 
 **Complementos:**
