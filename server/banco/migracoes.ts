@@ -65,4 +65,17 @@ export const migracoes: Migracao[] = [
       create index respostas_ajudou_data on respostas_ajudou (data);
     `,
   },
+  {
+    // Sugestão de rua (ADRs 0013 e 0021): só o texto e a data. O id serve
+    // apenas para a equipe apagar a sugestão depois de lida; não identifica
+    // ninguém.
+    nome: '0004_sugestoes_de_rua',
+    sql: `
+      create table sugestoes_de_rua (
+        id integer generated always as identity primary key,
+        texto text not null,
+        data date not null
+      );
+    `,
+  },
 ]
