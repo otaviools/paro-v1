@@ -1,5 +1,5 @@
-import type { Data, FaixaHorária } from '../area-coberta'
-import type { Observação } from '../observacoes'
+import type { Data, FaixaHoraria } from '../area-coberta'
+import type { Observacao } from '../observacoes'
 import { configuracaoDaChance } from './configuracao'
 import type { ConfiguracaoDaChance } from './configuracao'
 
@@ -9,9 +9,9 @@ export type FaixaDeChance = 'Tranquilo' | 'Apertado' | 'Difícil'
 
 export interface Base {
   /** Número de observações que sustentam a chance. */
-  observações: number
+  observacoes: number
   /** Data da observação mais recente. */
-  última: Data
+  ultima: Data
 }
 
 export type Estimativa
@@ -19,14 +19,14 @@ export type Estimativa
     | { tipo: 'sem-dado' }
 
 /** Chave do mapa de estimativas para uma rua coberta numa faixa horária. */
-export function chave(ruaCoberta: string, faixaHorária: FaixaHorária): string {
-  return `${ruaCoberta}|${faixaHorária}`
+export function chave(ruaCoberta: string, faixaHoraria: FaixaHoraria): string {
+  return `${ruaCoberta}|${faixaHoraria}`
 }
 
 /** Calendário letivo de que a Chance precisa (a Área coberta satisfaz). */
-export interface Calendário {
+export interface Calendario {
   semestreDe(data: Data): string | null
-  éDiaLetivoNormal(data: Data): boolean
+  eDiaLetivoNormal(data: Data): boolean
 }
 
 /**
@@ -34,27 +34,27 @@ export interface Calendário {
  * Uma combinação ausente do mapa é Sem dado. Cálculo puro, sem banco nem relógio.
  */
 export function estimar(
-  observações: Observação[],
+  observacoes: Observacao[],
   semestre: string,
-  calendário: Calendário,
+  calendario: Calendario,
   configuracao: ConfiguracaoDaChance = configuracaoDaChance,
 ): Map<string, Estimativa> {
-  const grupos = new Map<string, Observação[]>()
+  const grupos = new Map<string, Observacao[]>()
   // Só contam observações do semestre atual em dias letivos normais (ADRs 0007 e 0008).
-  const consideradas = observações.filter(o =>
-    calendário.semestreDe(o.data) === semestre && calendário.éDiaLetivoNormal(o.data))
+  const consideradas = observacoes.filter(o =>
+    calendario.semestreDe(o.data) === semestre && calendario.eDiaLetivoNormal(o.data))
   for (const o of consideradas) {
-    const k = chave(o.ruaCoberta, o.faixaHorária)
+    const k = chave(o.ruaCoberta, o.faixaHoraria)
     grupos.set(k, [...(grupos.get(k) ?? []), o])
   }
 
   const estimativas = new Map<string, Estimativa>()
   for (const [k, grupo] of grupos) {
     const dias = new Set(grupo.map(o => o.data))
-    if (dias.size < configuracao.mínimoDeObservações) continue
+    if (dias.size < configuracao.minimoDeObservacoes) continue
 
-    const ruaCheia = (o: Observação) =>
-      o.vagasOcupadas * 100 >= configuracao.ocupaçãoDeRuaCheia * o.totalDeVagas
+    const ruaCheia = (o: Observacao) =>
+      o.vagasOcupadas * 100 >= configuracao.ocupacaoDeRuaCheia * o.totalDeVagas
     const naoCheias = grupo.filter(o => !ruaCheia(o)).length
     const chance = (naoCheias * 100) / grupo.length
 
@@ -62,7 +62,7 @@ export function estimar(
       tipo: 'chance',
       faixaDeChance: faixaDeChanceDe(naoCheias, grupo.length, configuracao.cortes),
       chance,
-      base: { observações: grupo.length, última: [...dias].sort().at(-1)! },
+      base: { observacoes: grupo.length, ultima: [...dias].sort().at(-1)! },
     })
   }
   return estimativas
@@ -76,6 +76,6 @@ function faixaDeChanceDe(naoCheias: number, total: number, cortes: ConfiguracaoD
 }
 
 /** Estimativa de uma rua coberta numa faixa horária; Sem dado quando não há. */
-export function estimativaDe(estimativas: Map<string, Estimativa>, ruaCoberta: string, faixaHorária: FaixaHorária): Estimativa {
-  return estimativas.get(chave(ruaCoberta, faixaHorária)) ?? { tipo: 'sem-dado' }
+export function estimativaDe(estimativas: Map<string, Estimativa>, ruaCoberta: string, faixaHoraria: FaixaHoraria): Estimativa {
+  return estimativas.get(chave(ruaCoberta, faixaHoraria)) ?? { tipo: 'sem-dado' }
 }

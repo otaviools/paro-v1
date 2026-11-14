@@ -40,7 +40,7 @@ const mapa = ref<{ centralizar: () => void }>()
 function abrirRua(id: string) {
   navigateTo({
     path: `/ruas/${id}`,
-    query: { faixaHoraria: panorama.value?.faixaHorária ?? undefined },
+    query: { faixaHoraria: panorama.value?.faixaHoraria ?? undefined },
   })
 }
 </script>
@@ -84,7 +84,7 @@ function abrirRua(id: string) {
       aria-label="Faixa horária e ruas cobertas"
     >
       <AvisoDeDemonstracao
-        v-if="panorama?.demonstração"
+        v-if="panorama?.demonstracao"
         class="aviso"
       />
 

@@ -1,4 +1,4 @@
-import { PeríodoInválido } from '../../metricas-de-uso'
+import { PeriodoInvalido } from '../../metricas-de-uso'
 import { metricasDeUsoDoApp } from '../../metricas-de-uso/do-app'
 import { exigirSegredo } from '../../utils/segredo'
 
@@ -11,11 +11,11 @@ export default defineEventHandler(async (event) => {
   exigirSegredo(event, process.env.NUXT_CHAVE_DA_EQUIPE)
   const { de, ate } = getQuery(event)
   try {
-    if (typeof de !== 'string' || typeof ate !== 'string') throw new PeríodoInválido()
-    return { de, ate, ...await metricasDeUsoDoApp.relatório(de, ate) }
+    if (typeof de !== 'string' || typeof ate !== 'string') throw new PeriodoInvalido()
+    return { de, ate, ...await metricasDeUsoDoApp.relatorio(de, ate) }
   }
   catch (erro) {
-    if (erro instanceof PeríodoInválido) throw createError({ statusCode: 400, message: erro.message })
+    if (erro instanceof PeriodoInvalido) throw createError({ statusCode: 400, message: erro.message })
     throw erro
   }
 })

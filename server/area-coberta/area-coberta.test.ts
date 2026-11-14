@@ -64,13 +64,13 @@ describe('Área coberta', () => {
   it('dá a distância a pé de uma rua coberta até o destino', () => {
     const area = criarAreaCoberta(configuracao)
 
-    expect(area.distânciaAoDestino('rua-b')).toBe(120)
+    expect(area.distanciaAoDestino('rua-b')).toBe(120)
   })
 
   it('recusa uma rua que não é coberta', () => {
     const area = criarAreaCoberta(configuracao)
 
-    expect(() => area.distânciaAoDestino('rua-z')).toThrow('rua-z')
+    expect(() => area.distanciaAoDestino('rua-z')).toThrow('rua-z')
   })
 
   describe('rua mais próxima', () => {
@@ -78,13 +78,13 @@ describe('Área coberta', () => {
 
     it('propõe a rua coberta cujo trecho fica mais perto do ponto', () => {
       // 0,0003° (cerca de 33 m) ao norte do trecho da Rua B e 0,0012° (cerca de 133 m) ao sul do da Rua A.
-      expect(area.ruaMaisPróxima({ lat: -18.9022, lon: -48.270 }).id).toBe('rua-b')
+      expect(area.ruaMaisProxima({ lat: -18.9022, lon: -48.270 }).id).toBe('rua-b')
     })
 
     it('mede até a linha do trecho, não só até o meio dele', () => {
       // Perto da ponta leste da Rua A: cerca de 22 m da linha dela, mas 473 m do meio.
       // O meio da Rua B fica a cerca de 154 m, e a linha dela a cerca de 145 m.
-      expect(area.ruaMaisPróxima({ lat: -18.9012, lon: -48.2705 }).id).toBe('rua-a')
+      expect(area.ruaMaisProxima({ lat: -18.9012, lon: -48.2705 }).id).toBe('rua-a')
     })
   })
 
@@ -97,7 +97,7 @@ describe('Área coberta', () => {
       ['2026-11-12T22:30:00Z', '19:30'], // 19h30
       ['2026-11-13T01:59:00Z', '22:30'], // 22h59, última faixa horária
     ])('o instante %s cai na faixa horária %s', (instante, faixa) => {
-      expect(area.faixaHorária(new Date(instante))).toBe(faixa)
+      expect(area.faixaHoraria(new Date(instante))).toBe(faixa)
     })
 
     it.each([
@@ -105,11 +105,11 @@ describe('Área coberta', () => {
       ['2026-11-13T02:00:00Z'], // 23h00
       ['2026-11-12T15:00:00Z'], // 12h00
     ])('o instante %s fica fora da área coberta', (instante) => {
-      expect(area.faixaHorária(new Date(instante))).toBeNull()
+      expect(area.faixaHoraria(new Date(instante))).toBeNull()
     })
 
     it('lista as doze faixas horárias da área coberta, das 17h às 23h', () => {
-      expect(area.faixasHorárias()).toEqual([
+      expect(area.faixasHorarias()).toEqual([
         '17:00', '17:30', '18:00', '18:30', '19:00', '19:30',
         '20:00', '20:30', '21:00', '21:30', '22:00', '22:30',
       ])
@@ -153,7 +153,7 @@ describe('Área coberta', () => {
       ['2027-02-17'], // quarta-feira de aula
       ['2027-04-19'], // segunda-feira depois da semana de provas
     ])('%s é dia letivo normal', (data) => {
-      expect(area.éDiaLetivoNormal(data)).toBe(true)
+      expect(area.eDiaLetivoNormal(data)).toBe(true)
     })
 
     it.each([
@@ -163,7 +163,7 @@ describe('Área coberta', () => {
       ['2027-03-03', 'férias no meio do semestre'],
       ['2027-07-14', 'fora de qualquer semestre'],
     ])('%s não é dia letivo normal (%s)', (data) => {
-      expect(area.éDiaLetivoNormal(data)).toBe(false)
+      expect(area.eDiaLetivoNormal(data)).toBe(false)
     })
   })
 
@@ -179,7 +179,7 @@ describe('Área coberta', () => {
         'R. Alexandre Marquez',
       ])
       for (const rua of areaCoberta.ruasCobertas()) {
-        expect(areaCoberta.distânciaAoDestino(rua.id)).toBeGreaterThan(0)
+        expect(areaCoberta.distanciaAoDestino(rua.id)).toBeGreaterThan(0)
       }
     })
   })

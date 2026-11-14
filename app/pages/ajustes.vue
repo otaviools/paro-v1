@@ -45,7 +45,7 @@ function mudarRegistro(ligado: boolean) {
 }
 
 function mudarLocalizacao(ligada: boolean) {
-  mudarForma(ligada ? 'localização-ligada' : 'manual')
+  mudarForma(ligada ? 'localizacao-ligada' : 'manual')
 }
 
 // --- Sugestão de rua (ADR 0013) -----------------------------------------------
@@ -80,7 +80,7 @@ async function pedirConfirmacao() {
 
 function apagarHistorico() {
   dados ??= dadosDoCelularDoAparelho()
-  dados.apagarHistórico()
+  dados.apagarHistorico()
   rotina.value = null
   confirmacao.value?.fechar()
   avisar('Histórico apagado deste celular.')
@@ -168,7 +168,7 @@ function apagarHistorico() {
           titulo="Usar localização"
           explicacao="Ao registrar, o celular lê a sua posição uma vez e propõe a rua coberta mais próxima. Desligada, você escolhe a rua numa lista e o Parô não lê a localização. A permissão do navegador se tira nos ajustes dele."
           icone="i-lucide-locate"
-          :ligado="forma === 'localização-ligada'"
+          :ligado="forma === 'localizacao-ligada'"
           @mudar="mudarLocalizacao"
         />
       </div>

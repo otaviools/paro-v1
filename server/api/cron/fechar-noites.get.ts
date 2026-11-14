@@ -14,6 +14,6 @@ export default defineEventHandler(async (event) => {
   exigirSegredo(event, process.env.CRON_SECRET)
   const agora = new Date()
   const noitesFechadas = await registrosDeVagaDoApp.fecharNoitesAnteriores(agora)
-  const { semanasConsolidadas, sessõesApagadas } = await metricasDeUsoDoApp.consolidar(areaCoberta.noiteDe(agora))
-  return { noitesFechadas, semanasConsolidadas, sessõesApagadas }
+  const { semanasConsolidadas, sessoesApagadas } = await metricasDeUsoDoApp.consolidar(areaCoberta.noiteDe(agora))
+  return { noitesFechadas, semanasConsolidadas, sessoesApagadas }
 })

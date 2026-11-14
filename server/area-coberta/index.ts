@@ -48,7 +48,7 @@ function dentroDe(periodo: Periodo, data: Data): boolean {
 }
 
 /** Início de uma faixa horária de 30 minutos, no formato "HH:MM" (ex.: "19:30"). */
-export type FaixaHorária = string
+export type FaixaHoraria = string
 
 /** Área coberta das 17h às 23h, em faixas horárias de 30 minutos (ADR 0001). */
 const INICIO_EM_MINUTOS = 17 * 60
@@ -88,18 +88,18 @@ const METROS_POR_GRAU = 111_320
  * Distância em metros do ponto até a linha do trecho (ou até o meio, sem
  * linha). Numa área de poucas quadras, um plano em volta do ponto basta.
  */
-function distânciaAoTrecho(ponto: Ponto, trecho: RuaCoberta['trecho']): number {
+function distanciaAoTrecho(ponto: Ponto, trecho: RuaCoberta['trecho']): number {
   const escalaDaLongitude = Math.cos((ponto.lat * Math.PI) / 180)
   const noPlano = (p: Ponto) => ({
     x: (p.lon - ponto.lon) * escalaDaLongitude * METROS_POR_GRAU,
     y: (p.lat - ponto.lat) * METROS_POR_GRAU,
   })
-  const vértices = (trecho.linha.length > 0 ? trecho.linha : [trecho.meio]).map(noPlano)
-  if (vértices.length === 1) return Math.hypot(vértices[0]!.x, vértices[0]!.y)
+  const vertices = (trecho.linha.length > 0 ? trecho.linha : [trecho.meio]).map(noPlano)
+  if (vertices.length === 1) return Math.hypot(vertices[0]!.x, vertices[0]!.y)
   let menor = Infinity
-  for (let i = 1; i < vértices.length; i++) {
-    const a = vértices[i - 1]!
-    const b = vértices[i]!
+  for (let i = 1; i < vertices.length; i++) {
+    const a = vertices[i - 1]!
+    const b = vertices[i]!
     const dx = b.x - a.x
     const dy = b.y - a.y
     const quadradoDoComprimento = dx * dx + dy * dy
@@ -126,7 +126,7 @@ export function criarAreaCoberta(configuracao: ConfiguracaoDaAreaCoberta) {
       return configuracao.ruasCobertas
     },
 
-    distânciaAoDestino(idDaRua: string): number {
+    distanciaAoDestino(idDaRua: string): number {
       return ruaCoberta(idDaRua).distanciaAoDestinoMetros
     },
 
@@ -134,29 +134,29 @@ export function criarAreaCoberta(configuracao: ConfiguracaoDaAreaCoberta) {
      * Rua coberta mais perto do ponto, proposta no registro com localização
      * ligada; o colaborador pode trocar. Só calcula: o ponto não é guardado.
      */
-    ruaMaisPróxima(ponto: Ponto): RuaCoberta {
-      const distância = (rua: RuaCoberta) => distânciaAoTrecho(ponto, rua.trecho)
-      return configuracao.ruasCobertas.reduce((maisPerto, rua) => (distância(rua) < distância(maisPerto) ? rua : maisPerto))
+    ruaMaisProxima(ponto: Ponto): RuaCoberta {
+      const distancia = (rua: RuaCoberta) => distanciaAoTrecho(ponto, rua.trecho)
+      return configuracao.ruasCobertas.reduce((maisPerto, rua) => (distancia(rua) < distancia(maisPerto) ? rua : maisPerto))
     },
 
     /** Todas as faixas horárias da área coberta, em ordem. */
-    faixasHorárias(): FaixaHorária[] {
-      const faixasHorárias: FaixaHorária[] = []
+    faixasHorarias(): FaixaHoraria[] {
+      const faixasHorarias: FaixaHoraria[] = []
       for (let minutos = INICIO_EM_MINUTOS; minutos < FIM_EM_MINUTOS; minutos += DURACAO_DA_FAIXA) {
-        faixasHorárias.push(formatarMinutos(minutos))
+        faixasHorarias.push(formatarMinutos(minutos))
       }
-      return faixasHorárias
+      return faixasHorarias
     },
 
     /** Faixa horária do instante, ou null fora da área coberta. */
-    faixaHorária(instante: Date): FaixaHorária | null {
+    faixaHoraria(instante: Date): FaixaHoraria | null {
       const { minutos } = horaLocal(instante, configuracao.fusoHorario)
       if (minutos < INICIO_EM_MINUTOS || minutos >= FIM_EM_MINUTOS) return null
       return formatarMinutos(minutos - (minutos % DURACAO_DA_FAIXA))
     },
 
     /** Dia de aula dentro do semestre, fora de provas, feriados e férias (ADR 0008). */
-    éDiaLetivoNormal(data: Data): boolean {
+    eDiaLetivoNormal(data: Data): boolean {
       const semestre = semestreLetivo(data)
       if (!semestre) return false
       return semestre.diasDeAula.includes(diaDaSemana(data))

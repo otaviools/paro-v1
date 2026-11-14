@@ -34,15 +34,15 @@ function textoDasSaidas(quantidade: number) {
 const escolhida = ref<string | null>(typeof route.query.faixaHoraria === 'string' ? route.query.faixaHoraria : null)
 
 const selecionada = computed(() => {
-  const faixasHorarias = rua.value?.faixasHorárias ?? []
-  return faixasHorarias.find(f => f.faixaHorária === escolhida.value)
-    ?? faixasHorarias.find(f => f.faixaHorária === rua.value?.melhorFaixaHorária)
+  const faixasHorarias = rua.value?.faixasHorarias ?? []
+  return faixasHorarias.find(f => f.faixaHoraria === escolhida.value)
+    ?? faixasHorarias.find(f => f.faixaHoraria === rua.value?.melhorFaixaHoraria)
     ?? faixasHorarias[0]
     ?? null
 })
 
 const faixaHorariaSelecionada = computed({
-  get: () => selecionada.value?.faixaHorária ?? null,
+  get: () => selecionada.value?.faixaHoraria ?? null,
   set: (faixaHoraria) => { escolhida.value = faixaHoraria },
 })
 
@@ -103,7 +103,7 @@ function fecharAviso() {
 
     <template v-else-if="rua">
       <AvisoDeDemonstracao
-        v-if="rua.demonstração"
+        v-if="rua.demonstracao"
         class="aviso"
       />
 
@@ -116,14 +116,14 @@ function fecharAviso() {
           class="icone"
           aria-hidden="true"
         />
-        {{ distanciaAPe(rua.distânciaAoDestino) }} até o destino
+        {{ distanciaAPe(rua.distanciaAoDestino) }} até o destino
       </p>
 
       <GraficoDeChance
         v-model="faixaHorariaSelecionada"
         class="grafico"
-        :faixas-horarias="rua.faixasHorárias"
-        :melhor-faixa-horaria="rua.melhorFaixaHorária"
+        :faixas-horarias="rua.faixasHorarias"
+        :melhor-faixa-horaria="rua.melhorFaixaHoraria"
       />
 
       <section
@@ -141,7 +141,7 @@ function fecharAviso() {
             class="icone"
             aria-hidden="true"
           />
-          {{ intervaloDaFaixaHoraria(selecionada.faixaHorária) }}
+          {{ intervaloDaFaixaHoraria(selecionada.faixaHoraria) }}
         </h2>
 
         <dl class="dados">
@@ -187,15 +187,15 @@ function fecharAviso() {
         </h2>
 
         <dl
-          v-if="rua.saídasPrevistas.length"
+          v-if="rua.saidasPrevistas.length"
           class="dados"
         >
           <div
-            v-for="saida in rua.saídasPrevistas"
-            :key="saida.faixaHorária"
+            v-for="saida in rua.saidasPrevistas"
+            :key="saida.faixaHoraria"
             class="dado"
           >
-            <dt>{{ intervaloDaFaixaHoraria(saida.faixaHorária) }}</dt>
+            <dt>{{ intervaloDaFaixaHoraria(saida.faixaHoraria) }}</dt>
             <dd>{{ textoDasSaidas(saida.quantidade) }}</dd>
           </div>
         </dl>

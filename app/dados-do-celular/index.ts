@@ -9,7 +9,7 @@ export interface Armazenamento {
 }
 
 /** Substituto do `localStorage` nos testes, com o mesmo comportamento. */
-export function armazenamentoEmMemória(): Armazenamento {
+export function armazenamentoEmMemoria(): Armazenamento {
   const itens = new Map<string, string>()
   return {
     getItem: chave => itens.get(chave) ?? null,
@@ -20,7 +20,7 @@ export function armazenamentoEmMemória(): Armazenamento {
 }
 
 /** Início de uma faixa horária, no formato "HH:MM" (ex.: "19:30"). */
-export type FaixaHorária = string
+export type FaixaHoraria = string
 
 /** Data local da noite, no formato "AAAA-MM-DD". */
 export type Noite = string
@@ -31,11 +31,11 @@ export type Noite = string
  * horárias ficam aqui para a tela Seu registro de vaga.
  */
 export interface RegistroNoCelular {
-  código: string
+  codigo: string
   noite: Noite
   ruaCoberta: { id: string, nome: string }
-  chegada: FaixaHorária
-  saídaPrevista: FaixaHorária
+  chegada: FaixaHoraria
+  saidaPrevista: FaixaHoraria
 }
 
 /**
@@ -51,18 +51,18 @@ export interface Ponto {
  * Forma de colaborar (ADR 0010): registro com a localização ligada, registro
  * manual, ou nenhuma. Não existe localização contínua.
  */
-export type FormaDeColaborar = 'localização-ligada' | 'manual' | 'nenhuma'
+export type FormaDeColaborar = 'localizacao-ligada' | 'manual' | 'nenhuma'
 
 const CHAVE_DA_ROTINA = 'paro:rotina'
 const CHAVE_DO_REGISTRO = 'paro:registro-de-vaga'
 const CHAVE_DO_PONTO_DO_CARRO = 'paro:ponto-do-carro'
 const CHAVE_DA_FORMA_DE_COLABORAR = 'paro:forma-de-colaborar'
 const CHAVE_DA_PRIMEIRA_VISITA = 'paro:primeira-visita-concluida'
-const CHAVE_DA_SESSÃO_DO_MÊS = 'paro:sessao-do-mes'
+const CHAVE_DA_SESSAO_DO_MES = 'paro:sessao-do-mes'
 const CHAVE_DA_RESPOSTA_AJUDOU = 'paro:respondeu-ajudou'
 
 /** Mês no formato "AAAA-MM". */
-export type Mês = string
+export type Mes = string
 
 /** 16 bytes aleatórios em hexadecimal: o formato que o servidor aceita. */
 function sortearId(): string {
@@ -75,7 +75,24 @@ function sortearId(): string {
  * de histórico entra aqui. A forma de colaborar e a Primeira visita não são
  * histórico, são escolhas da pessoa, e ficam.
  */
-const CHAVES_DO_HISTÓRICO = [CHAVE_DA_ROTINA, CHAVE_DO_REGISTRO, CHAVE_DO_PONTO_DO_CARRO]
+const CHAVES_DO_HISTORICO = [CHAVE_DA_ROTINA, CHAVE_DO_REGISTRO, CHAVE_DO_PONTO_DO_CARRO]
+
+/** Tira acento e cedilha: "saídaPrevista" vira "saidaPrevista" (ADR 0026). */
+function semAcento(texto: string): string {
+  return texto.normalize('NFD').replace(/\p{M}/gu, '')
+}
+
+/**
+ * Lê um JSON guardado no aparelho. Versões antigas do app guardavam chaves
+ * com acento ("código", "saídaPrevista", "mês"); elas são lidas com o nome
+ * novo, para quem já usa o app não perder o registro nem a sessão do mês.
+ * Só as chaves do primeiro nível mudam: nenhuma chave aninhada tinha acento.
+ */
+function lerJsonGuardado<T>(guardado: string): T {
+  const valor: unknown = JSON.parse(guardado)
+  if (typeof valor !== 'object' || valor === null || Array.isArray(valor)) return valor as T
+  return Object.fromEntries(Object.entries(valor).map(([chave, conteudo]) => [semAcento(chave), conteudo])) as T
+}
 
 /**
  * Dados do celular: o que fica no aparelho (ADRs 0003, 0004, 0014 e 0015).
@@ -86,7 +103,7 @@ const CHAVES_DO_HISTÓRICO = [CHAVE_DA_ROTINA, CHAVE_DO_REGISTRO, CHAVE_DO_PONTO
 export function criarDadosDoCelular(armazenamento: Armazenamento) {
   function registroGuardado(): RegistroNoCelular | null {
     const guardado = armazenamento.getItem(CHAVE_DO_REGISTRO)
-    return guardado === null ? null : JSON.parse(guardado) as RegistroNoCelular
+    return guardado === null ? null : lerJsonGuardado<RegistroNoCelular>(guardado)
   }
 
   /**
@@ -104,14 +121,14 @@ export function criarDadosDoCelular(armazenamento: Armazenamento) {
 
   return {
     /** Faixa horária de chegada habitual, ou null sem rotina. */
-    rotina(): FaixaHorária | null {
+    rotina(): FaixaHoraria | null {
       return armazenamento.getItem(CHAVE_DA_ROTINA)
     },
 
     /** Guarda a rotina; null tira a rotina, e o app volta a abrir em Agora. */
-    definirRotina(faixaHorária: FaixaHorária | null): void {
-      if (faixaHorária === null) armazenamento.removeItem(CHAVE_DA_ROTINA)
-      else armazenamento.setItem(CHAVE_DA_ROTINA, faixaHorária)
+    definirRotina(faixaHoraria: FaixaHoraria | null): void {
+      if (faixaHoraria === null) armazenamento.removeItem(CHAVE_DA_ROTINA)
+      else armazenamento.setItem(CHAVE_DA_ROTINA, faixaHoraria)
     },
 
     /**
@@ -140,7 +157,9 @@ export function criarDadosDoCelular(armazenamento: Armazenamento) {
     /** Forma de colaborar escolhida; desligada ('nenhuma') até a pessoa escolher (ADR 0010). */
     formaDeColaborar(): FormaDeColaborar {
       const guardada = armazenamento.getItem(CHAVE_DA_FORMA_DE_COLABORAR)
-      return guardada === 'localização-ligada' || guardada === 'manual' ? guardada : 'nenhuma'
+      // Versões antigas do app guardavam a forma com acento.
+      const forma = guardada === null ? null : semAcento(guardada)
+      return forma === 'localizacao-ligada' || forma === 'manual' ? forma : 'nenhuma'
     },
 
     /** Guarda a forma de colaborar escolhida na Primeira visita ou em Ajustes. */
@@ -149,7 +168,7 @@ export function criarDadosDoCelular(armazenamento: Armazenamento) {
     },
 
     /** Se a Primeira visita já foi feita neste aparelho; ela aparece só uma vez. */
-    primeiraVisitaConcluída(): boolean {
+    primeiraVisitaConcluida(): boolean {
       return armazenamento.getItem(CHAVE_DA_PRIMEIRA_VISITA) !== null
     },
 
@@ -158,10 +177,10 @@ export function criarDadosDoCelular(armazenamento: Armazenamento) {
     },
 
     /** Guarda a nova saída prevista do registro aberto, depois que o servidor aceitou. */
-    mudarSaídaDoRegistro(saídaPrevista: FaixaHorária): void {
+    mudarSaidaDoRegistro(saidaPrevista: FaixaHoraria): void {
       const registro = registroGuardado()
       if (registro === null) return
-      armazenamento.setItem(CHAVE_DO_REGISTRO, JSON.stringify({ ...registro, saídaPrevista }))
+      armazenamento.setItem(CHAVE_DO_REGISTRO, JSON.stringify({ ...registro, saidaPrevista }))
     },
 
     /**
@@ -174,16 +193,16 @@ export function criarDadosDoCelular(armazenamento: Armazenamento) {
     },
 
     /**
-     * Identificador de sessão do `mês` (ADR 0004): um número sorteado no
+     * Identificador de sessão do `mes` (ADR 0004): um número sorteado no
      * aparelho, que troca quando o mês muda. É a única coisa que vai ao
      * servidor a cada visita, nunca junto com um registro de vaga.
      */
-    idDeSessãoDoMês(mês: Mês): string {
-      const guardada = armazenamento.getItem(CHAVE_DA_SESSÃO_DO_MÊS)
-      const sessão = guardada === null ? null : JSON.parse(guardada) as { mês: Mês, id: string }
-      if (sessão?.mês === mês) return sessão.id
+    idDeSessaoDoMes(mes: Mes): string {
+      const guardada = armazenamento.getItem(CHAVE_DA_SESSAO_DO_MES)
+      const sessao = guardada === null ? null : lerJsonGuardado<{ mes: Mes, id: string }>(guardada)
+      if (sessao?.mes === mes) return sessao.id
       const id = sortearId()
-      armazenamento.setItem(CHAVE_DA_SESSÃO_DO_MÊS, JSON.stringify({ mês, id }))
+      armazenamento.setItem(CHAVE_DA_SESSAO_DO_MES, JSON.stringify({ mes, id }))
       return id
     },
 
@@ -206,8 +225,8 @@ export function criarDadosDoCelular(armazenamento: Armazenamento) {
      * aberto no servidor não pode mais ser alterado e expira no fim da noite
      * (ADR 0014).
      */
-    apagarHistórico(): void {
-      for (const chave of CHAVES_DO_HISTÓRICO) armazenamento.removeItem(chave)
+    apagarHistorico(): void {
+      for (const chave of CHAVES_DO_HISTORICO) armazenamento.removeItem(chave)
     },
   }
 }
@@ -226,6 +245,6 @@ export function dadosDoCelularDoAparelho(): DadosDoCelular {
     return criarDadosDoCelular(armazenamento)
   }
   catch {
-    return criarDadosDoCelular(armazenamentoEmMemória())
+    return criarDadosDoCelular(armazenamentoEmMemoria())
   }
 }

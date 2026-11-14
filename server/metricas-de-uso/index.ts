@@ -3,7 +3,7 @@ import type { Banco } from '../banco'
 import type { RegistrosDeVaga, TotalDeRegistros } from '../registros-de-vaga'
 
 /** Recorrência de uma semana (de segunda a domingo). */
-export interface RecorrênciaDaSemana {
+export interface RecorrenciaDaSemana {
   /** Segunda-feira da semana. */
   semana: Data
   /** Motoristas distintos na semana, pelo identificador mensal. */
@@ -16,30 +16,30 @@ export interface RecorrênciaDaSemana {
 export interface RespostasDoDia {
   data: Data
   sim: number
-  não: number
+  nao: number
 }
 
 /** Total de registros de vaga de uma noite fechada, gravado pelo fechamento da noite. */
 export interface RegistrosDaNoite {
   noite: Data
   total: number
-  porRuaEFaixaHorária: TotalDeRegistros[]
+  porRuaEFaixaHoraria: TotalDeRegistros[]
 }
 
-export interface Relatório {
-  recorrência: RecorrênciaDaSemana[]
+export interface Relatorio {
+  recorrencia: RecorrenciaDaSemana[]
   ajudou: RespostasDoDia[]
   registrosPorNoite: RegistrosDaNoite[]
 }
 
 /** O que uma consolidação fez. */
-export interface Consolidação {
+export interface Consolidacao {
   semanasConsolidadas: Data[]
-  sessõesApagadas: number
+  sessoesApagadas: number
 }
 
 /** Sessões com identificador mensal ficam no servidor por 60 dias (ADR 0021). */
-const DIAS_DE_RETENÇÃO_DAS_SESSÕES = 60
+const DIAS_DE_RETENCAO_DAS_SESSOES = 60
 
 /**
  * Formato do identificador mensal que Dados do celular sorteia: 16 bytes
@@ -49,32 +49,32 @@ const DIAS_DE_RETENÇÃO_DAS_SESSÕES = 60
 const FORMATO_DO_ID_MENSAL = /^[0-9a-f]{32}$/
 
 /** O identificador mensal não está no formato sorteado pelo celular. */
-export class IdMensalInválido extends Error {
+export class IdMensalInvalido extends Error {
   constructor() {
     super('O identificador de sessão precisa ser o número sorteado pelo celular')
   }
 }
 
 /** Maior período de um relatório, para a consulta não varrer anos de noites. */
-const MÁXIMO_DE_DIAS_DO_RELATÓRIO = 366
+const MAXIMO_DE_DIAS_DO_RELATORIO = 366
 
 /** Período de relatório invertido, fora do formato "AAAA-MM-DD" ou longo demais. */
-export class PeríodoInválido extends Error {
+export class PeriodoInvalido extends Error {
   constructor() {
-    super(`Informe de e ate no formato AAAA-MM-DD, com ate depois de de e no máximo ${MÁXIMO_DE_DIAS_DO_RELATÓRIO} dias`)
+    super(`Informe de e ate no formato AAAA-MM-DD, com ate depois de de e no máximo ${MAXIMO_DE_DIAS_DO_RELATORIO} dias`)
   }
 }
 
 const DIA_EM_MS = 24 * 60 * 60 * 1000
 
-/** Dias de `de` a `até`, ou NaN se uma das datas não está no formato "AAAA-MM-DD". */
-function diasEntre(de: Data, até: Data): number {
+/** Dias de `de` a `ate`, ou NaN se uma das datas não está no formato "AAAA-MM-DD". */
+function diasEntre(de: Data, ate: Data): number {
   const formato = /^\d{4}-\d{2}-\d{2}$/
-  if (!formato.test(de) || !formato.test(até)) return Number.NaN
-  return (Date.parse(`${até}T00:00:00Z`) - Date.parse(`${de}T00:00:00Z`)) / DIA_EM_MS
+  if (!formato.test(de) || !formato.test(ate)) return Number.NaN
+  return (Date.parse(`${ate}T00:00:00Z`) - Date.parse(`${de}T00:00:00Z`)) / DIA_EM_MS
 }
 
-export interface DependênciasDasMétricasDeUso {
+export interface DependenciasDasMetricasDeUso {
   banco: Banco
   /**
    * Só os totais que o fechamento da noite gravou. Métricas de uso nunca lê
@@ -86,23 +86,23 @@ export interface DependênciasDasMétricasDeUso {
 /** Segunda-feira da semana de uma coluna `date`, em SQL (semana ISO). */
 const segundaDe = (coluna: string) => `(${coluna} - (extract(isodow from ${coluna})::int - 1))`
 
-/** As datas de `de` a `até`, inclusive, no formato "AAAA-MM-DD". */
-function datasEntre(de: Data, até: Data): Data[] {
+/** As datas de `de` a `ate`, inclusive, no formato "AAAA-MM-DD". */
+function datasEntre(de: Data, ate: Data): Data[] {
   const datas: Data[] = []
-  for (let dia = new Date(`${de}T00:00:00Z`); dia <= new Date(`${até}T00:00:00Z`); dia.setUTCDate(dia.getUTCDate() + 1)) {
+  for (let dia = new Date(`${de}T00:00:00Z`); dia <= new Date(`${ate}T00:00:00Z`); dia.setUTCDate(dia.getUTCDate() + 1)) {
     datas.push(dia.toISOString().slice(0, 10))
   }
   return datas
 }
 
-export function criarMetricasDeUso({ banco, registrosDeVaga }: DependênciasDasMétricasDeUso) {
+export function criarMetricasDeUso({ banco, registrosDeVaga }: DependenciasDasMetricasDeUso) {
   return {
     /**
      * Guarda uma visita com o identificador mensal do celular (ADR 0004).
      * Uma por identificador e data: visitas repetidas no mesmo dia não somam.
      */
-    async registrarSessão(idMensal: string, data: Data): Promise<void> {
-      if (!FORMATO_DO_ID_MENSAL.test(idMensal)) throw new IdMensalInválido()
+    async registrarSessao(idMensal: string, data: Data): Promise<void> {
+      if (!FORMATO_DO_ID_MENSAL.test(idMensal)) throw new IdMensalInvalido()
       await banco.query(
         'insert into sessoes (id_mensal, data) values ($1, $2) on conflict do nothing',
         [idMensal, data],
@@ -124,7 +124,7 @@ export function criarMetricasDeUso({ banco, registrosDeVaga }: DependênciasDasM
      * Um comando só, para que totais e exclusão aconteçam juntos. Rodar de
      * novo não duplica nada.
      */
-    async consolidar(data: Data): Promise<Consolidação> {
+    async consolidar(data: Data): Promise<Consolidacao> {
       const { rows: [resultado] } = await banco.query<{ semanas: string[], apagadas: number }>(
         `with consolidadas as (
            insert into totais_de_sessoes (semana, motoristas, voltaram_na_semana_seguinte)
@@ -140,7 +140,7 @@ export function criarMetricasDeUso({ banco, registrosDeVaga }: DependênciasDasM
            returning semana
          ),
          apagadas as (
-           delete from sessoes where data < $1::date - ${DIAS_DE_RETENÇÃO_DAS_SESSÕES}
+           delete from sessoes where data < $1::date - ${DIAS_DE_RETENCAO_DAS_SESSOES}
            returning 1
          )
          select
@@ -148,39 +148,39 @@ export function criarMetricasDeUso({ banco, registrosDeVaga }: DependênciasDasM
            (select count(*)::int from apagadas) as apagadas`,
         [data],
       )
-      return { semanasConsolidadas: resultado!.semanas, sessõesApagadas: resultado!.apagadas }
+      return { semanasConsolidadas: resultado!.semanas, sessoesApagadas: resultado!.apagadas }
     },
 
     /**
-     * Metas do plano (seção 12.6) entre `de` e `até`, inclusive: recorrência
+     * Metas do plano (seção 12.6) entre `de` e `ate`, inclusive: recorrência
      * das semanas já consolidadas, respostas de "A previsão ajudou hoje?" e
      * total de registros das noites já fechadas. Período de até 366 dias.
      */
-    async relatório(de: Data, até: Data): Promise<Relatório> {
-      const dias = diasEntre(de, até)
-      if (!(dias >= 0 && dias <= MÁXIMO_DE_DIAS_DO_RELATÓRIO)) throw new PeríodoInválido()
+    async relatorio(de: Data, ate: Data): Promise<Relatorio> {
+      const dias = diasEntre(de, ate)
+      if (!(dias >= 0 && dias <= MAXIMO_DE_DIAS_DO_RELATORIO)) throw new PeriodoInvalido()
       const { rows: respostas } = await banco.query<{ data: string, sim: number, nao: number }>(
         `select to_char(data, 'YYYY-MM-DD') as data,
            (count(*) filter (where ajudou))::int as sim,
            (count(*) filter (where not ajudou))::int as nao
          from respostas_ajudou where data between $1 and $2
          group by data order by data`,
-        [de, até],
+        [de, ate],
       )
       const { rows } = await banco.query<{ semana: string, motoristas: number, voltaram: number }>(
         `select to_char(semana, 'YYYY-MM-DD') as semana, motoristas, voltaram_na_semana_seguinte as voltaram
          from totais_de_sessoes where semana between $1 and $2 order by semana`,
-        [de, até],
+        [de, ate],
       )
       const registrosPorNoite: RegistrosDaNoite[] = []
-      for (const noite of datasEntre(de, até)) {
+      for (const noite of datasEntre(de, ate)) {
         const totais = await registrosDeVaga.totaisDaNoite(noite)
         if (totais.length === 0) continue
-        registrosPorNoite.push({ noite, total: totais.reduce((soma, t) => soma + t.quantidade, 0), porRuaEFaixaHorária: totais })
+        registrosPorNoite.push({ noite, total: totais.reduce((soma, t) => soma + t.quantidade, 0), porRuaEFaixaHoraria: totais })
       }
       return {
-        recorrência: rows.map(r => ({ semana: r.semana, motoristas: r.motoristas, voltaramNaSemanaSeguinte: r.voltaram })),
-        ajudou: respostas.map(r => ({ data: r.data, sim: r.sim, não: r.nao })),
+        recorrencia: rows.map(r => ({ semana: r.semana, motoristas: r.motoristas, voltaramNaSemanaSeguinte: r.voltaram })),
+        ajudou: respostas.map(r => ({ data: r.data, sim: r.sim, nao: r.nao })),
         registrosPorNoite,
       }
     },

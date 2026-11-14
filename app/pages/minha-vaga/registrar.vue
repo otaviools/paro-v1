@@ -38,7 +38,7 @@ onMounted(() => {
   forma.value = dados.formaDeColaborar()
   if (forma.value === 'nenhuma') navigateTo('/minha-vaga', { replace: true })
 })
-const comLocalizacao = computed(() => forma.value === 'localização-ligada')
+const comLocalizacao = computed(() => forma.value === 'localizacao-ligada')
 
 // Com um registro aberto nesta noite, a tela é Seu registro de vaga.
 watch(agora, (valor) => {
@@ -55,7 +55,7 @@ const erroDoEnvio = ref<string | null>(null)
 const enviando = ref(false)
 
 const grupos = computed(() =>
-  agora.value?.faixaHorária ? gruposDaSaidaPrevista(faixasHorarias.value ?? [], agora.value.faixaHorária) : [],
+  agora.value?.faixaHoraria ? gruposDaSaidaPrevista(faixasHorarias.value ?? [], agora.value.faixaHoraria) : [],
 )
 
 const gaveta = ref<{ abrir: () => void, fechar: () => void }>()
@@ -82,7 +82,7 @@ async function usarMinhaLocalizacao() {
   localizando.value = false
   if (leitura.tipo === 'lida') {
     pontoDoCarro.value = leitura.ponto
-    ruaProposta.value = areaCoberta.ruaMaisPróxima(leitura.ponto).id
+    ruaProposta.value = areaCoberta.ruaMaisProxima(leitura.ponto).id
     escolherRua(ruaProposta.value)
     return
   }
@@ -113,15 +113,15 @@ async function registrar() {
   try {
     const registrado = await $fetch('/api/registros', {
       method: 'POST',
-      body: { ruaCoberta: rua.id, saídaPrevista: saidaPrevista.value },
+      body: { ruaCoberta: rua.id, saidaPrevista: saidaPrevista.value },
     })
     dados ??= dadosDoCelularDoAparelho()
     dados.guardarRegistro({
-      código: registrado.código,
+      codigo: registrado.codigo,
       noite: registrado.noite,
       ruaCoberta: { id: rua.id, nome: rua.nome },
       chegada: registrado.chegada,
-      saídaPrevista: saidaPrevista.value,
+      saidaPrevista: saidaPrevista.value,
     }, pontoDoCarro.value ?? undefined)
     vagaRecemRegistrada.value = true
     await navigateTo('/minha-vaga', { replace: true })
@@ -182,7 +182,7 @@ function voltar() {
     </p>
 
     <p
-      v-else-if="agora && agora.faixaHorária === null"
+      v-else-if="agora && agora.faixaHoraria === null"
       class="mensagem"
     >
       O registro de vaga vale das 17h às 23h, o horário da área coberta. Registre quando estacionar nesse horário.
@@ -294,7 +294,7 @@ function voltar() {
               aria-hidden="true"
             />
             <span class="nome-opcao">{{ rua.nome }}</span>
-            <span class="distancia-opcao">{{ distanciaAPe(rua.distânciaAoDestino) }}</span>
+            <span class="distancia-opcao">{{ distanciaAPe(rua.distanciaAoDestino) }}</span>
           </button>
         </div>
         <p
@@ -367,7 +367,7 @@ function voltar() {
     </form>
 
     <footer
-      v-if="agora?.faixaHorária"
+      v-if="agora?.faixaHoraria"
       class="rodape"
     >
       <button

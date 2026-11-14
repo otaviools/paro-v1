@@ -11,9 +11,9 @@ const MAIOR_INTEGER = 2_147_483_647
  */
 export default defineEventHandler(async (event) => {
   exigirSegredo(event, process.env.NUXT_CHAVE_DA_EQUIPE)
-  const parâmetro = getRouterParam(event, 'id') ?? ''
-  const id = Number(parâmetro)
-  if (!/^[1-9]\d{0,9}$/.test(parâmetro) || id > MAIOR_INTEGER) {
+  const parametro = getRouterParam(event, 'id') ?? ''
+  const id = Number(parametro)
+  if (!/^[1-9]\d{0,9}$/.test(parametro) || id > MAIOR_INTEGER) {
     throw createError({ statusCode: 400, message: 'Sugestão inválida' })
   }
   await bancoDoApp.query('delete from sugestoes_de_rua where id = $1', [id])

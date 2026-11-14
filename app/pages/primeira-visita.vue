@@ -18,7 +18,7 @@ const forma = ref<FormaDeColaborar>('nenhuma')
 
 const formas: { valor: FormaDeColaborar, titulo: string, descricao: string }[] = [
   {
-    valor: 'localização-ligada',
+    valor: 'localizacao-ligada',
     titulo: 'Com localização ligada',
     descricao: 'Ao registrar a vaga, o celular lê a sua posição uma vez e propõe a rua coberta mais próxima. '
       + 'O ponto do carro fica só neste celular, para Voltar até o carro.',

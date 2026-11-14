@@ -1,4 +1,4 @@
-import { MÁXIMO_DA_SUGESTÃO, MÍNIMO_DA_SUGESTÃO } from '#shared/sugestao-de-rua'
+import { MAXIMO_DA_SUGESTAO, MINIMO_DA_SUGESTAO } from '#shared/sugestao-de-rua'
 import { areaCoberta } from '../area-coberta'
 import { bancoDoApp } from '../banco/do-app'
 
@@ -9,10 +9,10 @@ import { bancoDoApp } from '../banco/do-app'
 export default defineEventHandler(async (event) => {
   const corpo = await readBody<{ texto?: unknown }>(event)
   const texto = typeof corpo?.texto === 'string' ? corpo.texto.trim() : ''
-  if (texto.length < MÍNIMO_DA_SUGESTÃO || texto.length > MÁXIMO_DA_SUGESTÃO) {
+  if (texto.length < MINIMO_DA_SUGESTAO || texto.length > MAXIMO_DA_SUGESTAO) {
     throw createError({
       statusCode: 400,
-      message: `Escreva a rua ou o trecho em ${MÍNIMO_DA_SUGESTÃO} a ${MÁXIMO_DA_SUGESTÃO} caracteres`,
+      message: `Escreva a rua ou o trecho em ${MINIMO_DA_SUGESTAO} a ${MAXIMO_DA_SUGESTAO} caracteres`,
     })
   }
   await bancoDoApp.query(

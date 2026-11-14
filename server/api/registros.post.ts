@@ -1,4 +1,4 @@
-import { RegistroInválido } from '../registros-de-vaga'
+import { RegistroInvalido } from '../registros-de-vaga'
 import { registrosDeVagaDoApp } from '../registros-de-vaga/do-app'
 
 /**
@@ -8,18 +8,18 @@ import { registrosDeVagaDoApp } from '../registros-de-vaga/do-app'
  * código, que fica só no celular.
  */
 export default defineEventHandler(async (event) => {
-  const corpo = await readBody<{ ruaCoberta?: unknown, saídaPrevista?: unknown }>(event)
-  if (typeof corpo?.ruaCoberta !== 'string' || typeof corpo.saídaPrevista !== 'string') {
+  const corpo = await readBody<{ ruaCoberta?: unknown, saidaPrevista?: unknown }>(event)
+  if (typeof corpo?.ruaCoberta !== 'string' || typeof corpo.saidaPrevista !== 'string') {
     throw createError({ statusCode: 400, message: 'Informe a rua coberta e a saída prevista' })
   }
   try {
     return await registrosDeVagaDoApp.registrar(
-      { ruaCoberta: corpo.ruaCoberta, chegada: 'agora', saídaPrevista: corpo.saídaPrevista },
+      { ruaCoberta: corpo.ruaCoberta, chegada: 'agora', saidaPrevista: corpo.saidaPrevista },
       new Date(),
     )
   }
   catch (erro) {
-    if (erro instanceof RegistroInválido) throw createError({ statusCode: 400, message: erro.message })
+    if (erro instanceof RegistroInvalido) throw createError({ statusCode: 400, message: erro.message })
     throw erro
   }
 })

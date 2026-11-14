@@ -11,14 +11,14 @@ const { abas, faixaHoraria, panorama, error, carregando } = usePanoramaDaNoite()
 const ruasNoMapa = useRuasNoMapa(panorama)
 
 const rotuloDaFaixa = computed(() =>
-  panorama.value?.faixaHorária ? rotuloDaFaixaHoraria(panorama.value.faixaHorária) : null,
+  panorama.value?.faixaHoraria ? rotuloDaFaixaHoraria(panorama.value.faixaHoraria) : null,
 )
 
 /** Mensagem no lugar das ruas quando não há chance para mostrar. */
 const mensagem = computed(() => {
   if (carregando.value) return null
   if (error.value) return 'Não foi possível carregar a chance agora. Tente de novo em instantes.'
-  if (panorama.value?.faixaHorária === null) {
+  if (panorama.value?.faixaHoraria === null) {
     return 'Agora está fora da área coberta, que vai das 17h às 23h. Escolha 19h, 21h ou 22h para ver a chance.'
   }
   return null
@@ -47,7 +47,7 @@ function expandir() {
   if (!selecionada.value) return
   navigateTo({
     path: `/ruas/${selecionada.value.rua.id}`,
-    query: { faixaHoraria: panorama.value?.faixaHorária ?? undefined },
+    query: { faixaHoraria: panorama.value?.faixaHoraria ?? undefined },
   })
 }
 
@@ -96,7 +96,7 @@ function abrir(gaveta: HTMLDialogElement | undefined) {
       class="painel"
       aria-label="Faixa horária e ruas cobertas"
     >
-      <AvisoDeDemonstracao v-if="panorama?.demonstração" />
+      <AvisoDeDemonstracao v-if="panorama?.demonstracao" />
 
       <!-- O título fica só para leitores de tela; o mapa ocupa a tela. -->
       <h1 class="titulo">
@@ -243,7 +243,7 @@ function abrir(gaveta: HTMLDialogElement | undefined) {
               class="icone-pequeno"
               aria-hidden="true"
             />
-            {{ distanciaAPe(selecionada.distânciaAoDestino) }} até o destino
+            {{ distanciaAPe(selecionada.distanciaAoDestino) }} até o destino
           </p>
 
           <button

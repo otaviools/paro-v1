@@ -1,4 +1,4 @@
-import { panoramaDaNoite, RuaNãoCoberta } from '../../panorama'
+import { panoramaDaNoite, RuaNaoCoberta } from '../../panorama'
 
 /**
  * Uma rua coberta ao longo da noite (Detalhe da rua). Só repassa para o
@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
     return await panoramaDaNoite.ruaAoLongoDaNoite(id, new Date())
   }
   catch (erro) {
-    if (erro instanceof RuaNãoCoberta) throw createError({ statusCode: 404, message: erro.message })
+    if (erro instanceof RuaNaoCoberta) throw createError({ statusCode: 404, message: erro.message })
     throw erro
   }
 })
