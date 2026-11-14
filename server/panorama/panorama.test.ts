@@ -58,7 +58,11 @@ function fonte(lista: Observação[], demonstração = false): Observações {
 }
 
 /** Noite sem nenhum registro de vaga. */
-const semRegistrosDeVaga = { async saídasPrevistas() { return [] } }
+const semRegistrosDeVaga = {
+  async saídasPrevistas() {
+    return []
+  },
+}
 
 function estimativaDe(resultado: Awaited<ReturnType<ReturnType<typeof criarPanorama>['panorama']>>, rua: string) {
   return resultado.ruas.find(r => r.rua.id === rua)!.estimativa

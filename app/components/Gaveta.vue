@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/multi-word-component-names -- nome em português de uma palavra só; troca pelo UDrawer fica para a ADR 0028 -->
 <!--
   Gaveta de texto (design system, "Gavetas"): sobe do rodapé, raio de 16 px no
   topo, alça de 32 × 4 px e botão de fechar. Aqui, para o aviso de

@@ -14,7 +14,9 @@ export function useAvisoFlutuante() {
   function avisar(mensagem: string) {
     texto.value = mensagem
     clearTimeout(temporizador)
-    temporizador = setTimeout(() => { texto.value = null }, DURACAO_DO_AVISO)
+    temporizador = setTimeout(() => {
+      texto.value = null
+    }, DURACAO_DO_AVISO)
   }
 
   return { texto: readonly(texto), avisar }

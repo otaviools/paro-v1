@@ -16,7 +16,9 @@ const lateralAberta = useLateralAberta()
 onMounted(() => {
   const consulta = window.matchMedia(CONSULTA_DO_DESKTOP)
   desktop.value = consulta.matches
-  consulta.addEventListener('change', (evento) => { desktop.value = evento.matches })
+  consulta.addEventListener('change', (evento) => {
+    desktop.value = evento.matches
+  })
   // Na página toda: o foco pode estar na barra lateral ou no mapa.
   document.addEventListener('keydown', aoTeclar)
 })
