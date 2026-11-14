@@ -8,7 +8,6 @@
 <script setup lang="ts">
 const emit = defineEmits<{ enviada: [] }>()
 
-const id = useId()
 const { enviarSugestao } = useSugestoesDeRua()
 const texto = ref('')
 const enviando = ref(false)
@@ -42,198 +41,69 @@ async function enviar() {
 
 <template>
   <form
-    class="formulario"
+    class="grid gap-4"
     novalidate
     @submit.prevent="enviar"
   >
-    <p class="texto">
+    <p class="max-w-[70ch] text-sm">
       Sugira uma rua ou trecho fora da área coberta para a equipe observar. A sugestão não muda o mapa: serve de
       pista para quando a área coberta crescer.
     </p>
 
-    <div class="campo">
-      <label
-        :for="`${id}-texto`"
-        class="rotulo"
-      >Rua ou trecho</label>
-      <input
-        :id="`${id}-texto`"
+    <!--
+      Rótulo sempre visível acima do campo; a contagem fica à direita do rótulo
+      e o erro, em texto de perigo com ícone, abaixo do campo (design system,
+      "Formulários"). O UFormField liga os dois ao campo por aria-describedby.
+    -->
+    <UFormField
+      label="Rua ou trecho"
+      :hint="`${texto.length} de ${MAXIMO_DA_SUGESTAO} caracteres`"
+      :error="erro ?? false"
+      size="lg"
+      :ui="{ label: 'font-semibold', hint: 'text-xs tabular-nums', error: 'text-xs font-medium' }"
+    >
+      <UInput
         v-model="texto"
         type="text"
-        class="entrada"
         :maxlength="MAXIMO_DA_SUGESTAO"
         autocomplete="off"
         enterkeyhint="send"
-        :aria-invalid="erro !== null"
-        :aria-describedby="`${id}-aviso ${id}-contagem${erro ? ` ${id}-erro` : ''}`"
-      >
-      <p
-        :id="`${id}-contagem`"
-        class="contagem"
-      >
-        {{ texto.length }} de {{ MAXIMO_DA_SUGESTAO }} caracteres
-      </p>
-      <p
-        v-if="erro"
-        :id="`${id}-erro`"
-        class="erro"
-        role="alert"
-      >
-        <UIcon
-          name="i-lucide-circle-alert"
-          class="icone"
-          aria-hidden="true"
-        />
-        {{ erro }}
-      </p>
-    </div>
-
-    <aside
-      :id="`${id}-aviso`"
-      class="aviso"
-    >
-      <UIcon
-        name="i-lucide-info"
-        class="icone"
-        aria-hidden="true"
+        class="w-full"
+        :ui="{ base: 'h-12 rounded-paro-md bg-elevated text-sm lg:h-10' }"
       />
-      <p>
-        Não escreva nome, telefone, placa ou outro dado pessoal. A sugestão vai sem nada que identifique você e é
-        apagada depois que a equipe lê.
-      </p>
-    </aside>
-
-    <button
-      type="submit"
-      class="principal"
-      :aria-busy="enviando"
-    >
-      <UIcon
-        v-if="enviando"
-        name="i-lucide-loader-circle"
-        class="icone carregando"
-        aria-label="Enviando"
-      />
-      <template v-else>
-        Enviar sugestão
+      <template #error="{ error: mensagem }">
+        <span
+          class="flex items-center gap-2"
+          role="alert"
+        >
+          <UIcon
+            name="i-lucide-circle-alert"
+            class="size-4 shrink-0"
+            aria-hidden="true"
+          />
+          {{ mensagem }}
+        </span>
       </template>
-    </button>
+    </UFormField>
+
+    <UAlert
+      color="warning"
+      variant="soft"
+      icon="i-lucide-info"
+      description="Não escreva nome, telefone, placa ou outro dado pessoal. A sugestão vai sem nada que identifique você e é apagada depois que a equipe lê."
+      :ui="{ description: 'text-xs font-medium' }"
+    />
+
+    <UButton
+      type="submit"
+      color="neutral"
+      size="xl"
+      block
+      class="h-13 text-lg lg:h-11"
+      :loading="enviando"
+      :label="enviando ? undefined : 'Enviar sugestão'"
+      :aria-label="enviando ? 'Enviando' : undefined"
+      :aria-busy="enviando"
+    />
   </form>
 </template>
-
-<style scoped>
-.formulario {
-  display: grid;
-  gap: var(--paro-esp-4);
-}
-
-.texto {
-  max-width: 70ch;
-  font-size: var(--paro-texto-corpo);
-}
-
-.campo {
-  display: grid;
-  gap: var(--paro-esp-2);
-}
-
-/* Rótulo sempre visível acima do campo (design system, "Formulários"). */
-.rotulo {
-  font-size: var(--paro-texto-interface);
-  font-weight: 600;
-}
-
-/* Campo de texto (design system, "Formulários"): 48 px, superfície, borda, raio 10 px. */
-.entrada {
-  height: var(--paro-esp-12);
-  padding: 0 var(--paro-esp-3);
-  font-size: var(--paro-texto-corpo);
-  color: var(--paro-texto);
-  background: var(--paro-superficie);
-  border: 1px solid var(--paro-borda);
-  border-radius: var(--paro-raio-botao);
-}
-
-@media (min-width: 1024px) {
-  .entrada { height: calc(var(--paro-esp-8) + var(--paro-esp-2)); }
-}
-
-.contagem {
-  justify-self: end;
-  font-size: var(--paro-texto-nota);
-  font-variant-numeric: tabular-nums;
-  color: var(--paro-texto-fraco);
-}
-
-/* Erro em texto de perigo abaixo do campo, com ícone (design system, "Formulários"). */
-.erro {
-  display: flex;
-  align-items: center;
-  gap: var(--paro-esp-2);
-  font-size: var(--paro-texto-legenda);
-  font-weight: 500;
-  color: var(--paro-perigo-texto);
-}
-
-/* Card Aviso (design system, "Cards"): sinal de alerta, texto do mesmo par, raio 12 px. */
-.aviso {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--paro-esp-3);
-  padding: var(--paro-esp-3) var(--paro-esp-4);
-  font-size: var(--paro-texto-legenda);
-  font-weight: 500;
-  color: var(--paro-alerta-texto);
-  background: var(--paro-alerta);
-  border-radius: var(--paro-raio-linha);
-}
-
-.aviso .icone {
-  margin-top: 0.1em;
-}
-
-.icone {
-  flex: none;
-  width: var(--paro-esp-4);
-  height: var(--paro-esp-4);
-}
-
-/* Botão principal (design system, "Botões"), no fim da gaveta. */
-.principal {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--paro-esp-2);
-  width: 100%;
-  height: calc(var(--paro-esp-12) + var(--paro-esp-1));
-  font-size: var(--paro-texto-botao);
-  font-weight: 600;
-  color: var(--paro-acao-texto);
-  background: var(--paro-acao);
-  border-radius: var(--paro-raio-botao);
-  cursor: pointer;
-}
-
-.principal:hover,
-.principal:active {
-  background: var(--paro-acao-hover);
-}
-
-.principal:active {
-  transform: scale(0.98);
-}
-
-@media (min-width: 1024px) {
-  .principal { height: calc(var(--paro-esp-8) + var(--paro-esp-3)); }
-}
-
-.carregando {
-  width: var(--paro-esp-5);
-  height: var(--paro-esp-5);
-  animation: girar 1s linear infinite;
-}
-
-@keyframes girar {
-  to { transform: rotate(360deg); }
-}
-</style>
