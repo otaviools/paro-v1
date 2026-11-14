@@ -61,6 +61,14 @@ const grupos = computed(() =>
 
 const gaveta = ref<{ abrir: () => void, fechar: () => void }>()
 
+/** Opções do seletor de rua coberta, com a distância a pé até o destino. */
+const opcoesDeRua = computed(() => (ruas.value ?? []).map(rua => ({
+  value: rua.id,
+  label: rua.nome,
+  description: distanciaAPe(rua.distanciaAoDestino),
+  icon: 'i-lucide-signpost',
+})))
+
 function escolherRua(id: string) {
   ruaEscolhida.value = id
   erroDaRua.value = null
@@ -147,105 +155,103 @@ function voltar() {
 </script>
 
 <template>
-  <main class="registrar">
-    <button
-      type="button"
-      class="voltar"
+  <main class="mx-auto max-w-160 px-5 pt-4 pb-8 lg:px-6">
+    <!-- Botão de ícone (design system, "Botões"). -->
+    <UButton
+      color="neutral"
+      variant="outline"
+      icon="i-lucide-arrow-left"
+      class="mb-4 size-10 justify-center lg:size-9"
       aria-label="Voltar"
       @click="voltar"
-    >
-      <UIcon
-        name="i-lucide-arrow-left"
-        class="icone-voltar"
-        aria-hidden="true"
-      />
-    </button>
+    />
 
-    <h1 class="titulo">
+    <h1 class="text-2xl font-bold leading-tight tracking-tight">
       Registrar vaga
     </h1>
-    <p class="explicacao">
+    <p class="mt-2 max-w-[70ch] text-xs text-muted">
       Avise quem está chegando quando a sua vaga deve ficar livre. O registro leva só a rua coberta e as
       faixas horárias de chegada e de saída, sem a sua posição e sem nada que identifique você.
     </p>
 
     <div
       v-if="!agora && !erroDoAgora"
-      class="esqueleto"
+      class="mt-8 h-64 rounded-paro-lg bg-muted"
       aria-busy="true"
       aria-label="Carregando"
     />
 
-    <p
+    <UAlert
       v-else-if="erroDoAgora"
-      class="mensagem"
-    >
-      Não foi possível carregar agora. Tente de novo em instantes.
-    </p>
+      class="mt-8"
+      color="error"
+      variant="soft"
+      icon="i-lucide-circle-alert"
+      title="Erro ao carregar"
+      description="Não foi possível carregar agora. Tente de novo em instantes."
+      :ui="{ title: 'text-sm', description: 'text-sm' }"
+    />
 
-    <p
+    <UAlert
       v-else-if="agora && agora.faixaHoraria === null"
-      class="mensagem"
-    >
-      O registro de vaga vale das 17h às 23h, o horário da área coberta. Registre quando estacionar nesse horário.
-    </p>
+      class="mt-8"
+      color="warning"
+      variant="soft"
+      icon="i-lucide-clock"
+      title="Fora do horário de cobertura"
+      description="O registro de vaga vale das 17h às 23h, o horário da área coberta. Registre quando estacionar nesse horário."
+      :ui="{ title: 'text-sm', description: 'text-sm' }"
+    />
 
     <form
       v-else
       id="registro"
-      class="formulario"
+      class="mt-8 grid gap-8"
       novalidate
       @submit.prevent="registrar"
     >
       <section
-        class="secao"
+        class="grid gap-3"
         aria-labelledby="rotulo-rua"
       >
         <h2
           id="rotulo-rua"
-          class="etiqueta"
+          class="text-xs font-semibold uppercase tracking-wider text-muted"
         >
           Rua coberta
         </h2>
 
-        <button
+        <UButton
           v-if="comLocalizacao"
-          type="button"
-          class="secundario"
+          color="neutral"
+          variant="outline"
+          size="lg"
+          block
+          class="min-h-11 font-medium"
+          icon="i-lucide-locate"
+          :loading="localizando"
+          :label="localizando ? 'Lendo a sua localização' : 'Usar minha localização'"
           :aria-busy="localizando"
           :aria-describedby="erroDaLocalizacao ? 'erro-localizacao' : 'nota-localizacao'"
+          :ui="{ leadingIcon: 'size-4' }"
           @click="usarMinhaLocalizacao"
-        >
-          <UIcon
-            v-if="localizando"
-            name="i-lucide-loader-circle"
-            class="icone carregando"
-            aria-hidden="true"
-          />
-          <UIcon
-            v-else
-            name="i-lucide-locate"
-            class="icone"
-            aria-hidden="true"
-          />
-          {{ localizando ? 'Lendo a sua localização' : 'Usar minha localização' }}
-        </button>
+        />
         <p
           v-if="!comLocalizacao"
           id="nota-localizacao"
-          class="nota"
+          class="max-w-[70ch] text-xs text-muted"
         >
           Escolha na lista a rua coberta onde você estacionou. No registro manual, a localização não é usada.
         </p>
         <p
           v-else-if="erroDaLocalizacao"
           id="erro-localizacao"
-          class="erro"
+          class="flex max-w-[70ch] items-start gap-2 text-xs font-medium text-error"
           role="alert"
         >
           <UIcon
             name="i-lucide-circle-alert"
-            class="icone"
+            class="mt-px size-4 shrink-0"
             aria-hidden="true"
           />
           {{ erroDaLocalizacao }}
@@ -253,12 +259,12 @@ function voltar() {
         <p
           v-else-if="ruaProposta"
           id="nota-localizacao"
-          class="nota"
+          class="flex max-w-[70ch] items-start gap-2 text-xs text-muted"
           role="status"
         >
           <UIcon
             name="i-lucide-locate"
-            class="icone"
+            class="mt-px size-4 shrink-0"
             aria-hidden="true"
           />
           {{ ruaEscolhida === ruaProposta
@@ -268,86 +274,87 @@ function voltar() {
         <p
           v-else
           id="nota-localizacao"
-          class="nota"
+          class="max-w-[70ch] text-xs text-muted"
         >
           Com a localização, o celular propõe a rua coberta mais próxima e guarda o ponto do carro só neste
           aparelho, para Voltar até o carro. Ou escolha a rua na lista.
         </p>
 
-        <div
-          class="opcoes"
-          role="radiogroup"
+        <!--
+          Seletor de opção com ícone (design system, "Formulários"; referência
+          Pangea): a escolhida em bg-primary-100 com borda de 1,5 px em
+          --ui-primary (a borda de 1 px mais 0,5 px de sombra por dentro, para
+          a opção não mudar de tamanho).
+        -->
+        <URadioGroup
+          :model-value="ruaEscolhida ?? undefined"
+          :items="opcoesDeRua"
+          variant="card"
+          indicator="hidden"
+          color="primary"
+          orientation="horizontal"
           aria-labelledby="rotulo-rua"
           :aria-describedby="erroDaRua ? 'erro-rua' : undefined"
-        >
-          <button
-            v-for="rua in ruas"
-            :key="rua.id"
-            type="button"
-            role="radio"
-            class="opcao"
-            :class="{ escolhida: ruaEscolhida === rua.id }"
-            :aria-checked="ruaEscolhida === rua.id"
-            @click="escolherRua(rua.id)"
-          >
-            <UIcon
-              name="i-lucide-signpost"
-              class="icone-opcao"
-              aria-hidden="true"
-            />
-            <span class="nome-opcao">{{ rua.nome }}</span>
-            <span class="distancia-opcao">{{ distanciaAPe(rua.distanciaAoDestino) }}</span>
-          </button>
-        </div>
+          :ui="{
+            fieldset: 'grid grid-cols-2 gap-2',
+            item: 'group rounded-paro-md bg-elevated p-3 text-default has-data-[state=checked]:border-primary has-data-[state=checked]:bg-primary-100 has-data-[state=checked]:text-primary has-data-[state=checked]:shadow-[inset_0_0_0_0.5px_var(--ui-primary)]',
+            wrapper: 'grid justify-items-start gap-1 text-left',
+            icon: 'mb-1 size-5',
+            label: 'text-sm font-semibold leading-tight text-current',
+            description: 'text-xs font-medium tabular-nums text-muted group-has-data-[state=checked]:text-primary',
+          }"
+          @update:model-value="escolherRua"
+        />
         <p
           v-if="erroDaRua"
           id="erro-rua"
-          class="erro"
+          class="flex items-start gap-2 text-xs font-medium text-error"
         >
           <UIcon
             name="i-lucide-circle-alert"
-            class="icone"
+            class="mt-px size-4 shrink-0"
             aria-hidden="true"
           />
           {{ erroDaRua }}
         </p>
       </section>
 
-      <section class="secao">
+      <section class="grid gap-3">
         <h2
           id="rotulo-saida"
-          class="etiqueta"
+          class="text-xs font-semibold uppercase tracking-wider text-muted"
         >
           Saída prevista
         </h2>
-        <button
-          type="button"
-          class="campo"
+        <!-- Campo (design system, "Formulários"): 48 px, bg-elevated, borda, rounded-paro-md. -->
+        <UButton
+          color="neutral"
+          variant="outline"
+          size="lg"
+          block
+          class="h-12 justify-between px-4 font-medium tabular-nums lg:h-10"
+          trailing-icon="i-lucide-chevron-down"
           aria-labelledby="rotulo-saida valor-saida"
           :aria-describedby="erroDaSaida ? 'erro-saida' : undefined"
           aria-haspopup="dialog"
+          :ui="{ trailingIcon: 'size-4' }"
           @click="gaveta?.abrir()"
         >
           <span
             id="valor-saida"
-            :class="{ vazio: !saidaPrevista }"
+            :class="{ 'text-muted': !saidaPrevista }"
           >
             {{ saidaPrevista ? intervaloDaFaixaHoraria(saidaPrevista) : 'Escolher faixa horária' }}
           </span>
-          <UIcon
-            name="i-lucide-chevron-down"
-            class="icone"
-            aria-hidden="true"
-          />
-        </button>
+        </UButton>
         <p
           v-if="erroDaSaida"
           id="erro-saida"
-          class="erro"
+          class="flex items-start gap-2 text-xs font-medium text-error"
         >
           <UIcon
             name="i-lucide-circle-alert"
-            class="icone"
+            class="mt-px size-4 shrink-0"
             aria-hidden="true"
           />
           {{ erroDaSaida }}
@@ -356,38 +363,35 @@ function voltar() {
 
       <p
         v-if="erroDoEnvio"
-        class="erro"
+        class="flex items-start gap-2 text-xs font-medium text-error"
         role="alert"
       >
         <UIcon
           name="i-lucide-circle-alert"
-          class="icone"
+          class="mt-px size-4 shrink-0"
           aria-hidden="true"
         />
         {{ erroDoEnvio }}
       </p>
     </form>
 
+    <!-- Ação principal fixa no rodapé (design system, "Padrões de navegação"). -->
     <footer
       v-if="agora?.faixaHoraria"
-      class="rodape"
+      class="fixed inset-x-0 bottom-0 z-10 mx-auto max-w-160 bg-default px-5 pt-3 pb-[calc(--spacing(3)+env(safe-area-inset-bottom))] lg:px-6"
     >
-      <button
+      <UButton
         type="submit"
         form="registro"
-        class="principal"
+        color="neutral"
+        size="xl"
+        block
+        class="h-13 text-lg lg:h-11"
+        :loading="enviando"
+        :label="enviando ? undefined : 'Registrar vaga'"
+        :aria-label="enviando ? 'Registrando' : undefined"
         :aria-busy="enviando"
-      >
-        <UIcon
-          v-if="enviando"
-          name="i-lucide-loader-circle"
-          class="carregando"
-          aria-label="Registrando"
-        />
-        <template v-else>
-          Registrar vaga
-        </template>
-      </button>
+      />
     </footer>
 
     <GavetaDeEscolha
@@ -399,275 +403,3 @@ function voltar() {
     />
   </main>
 </template>
-
-<style scoped>
-.registrar {
-  max-width: var(--paro-largura-conteudo);
-  margin: 0 auto;
-  padding: var(--paro-esp-4) var(--paro-margem) var(--paro-esp-8);
-}
-
-/* Botão de ícone (design system, "Botões"). */
-.voltar {
-  display: grid;
-  place-items: center;
-  width: calc(var(--paro-esp-8) + var(--paro-esp-2));
-  height: calc(var(--paro-esp-8) + var(--paro-esp-2));
-  margin-bottom: var(--paro-esp-4);
-  color: var(--paro-texto);
-  background: var(--paro-superficie);
-  border: 1px solid var(--paro-borda);
-  border-radius: var(--paro-raio-botao);
-  cursor: pointer;
-}
-
-@media (min-width: 1024px) {
-  .voltar {
-    width: calc(var(--paro-esp-8) + var(--paro-esp-1));
-    height: calc(var(--paro-esp-8) + var(--paro-esp-1));
-  }
-}
-
-.icone-voltar {
-  width: var(--paro-esp-5);
-  height: var(--paro-esp-5);
-}
-
-.titulo {
-  font-size: var(--paro-texto-titulo);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  line-height: 1.2;
-}
-
-.explicacao {
-  max-width: 70ch;
-  margin-top: var(--paro-esp-2);
-  font-size: var(--paro-texto-legenda);
-  color: var(--paro-texto-fraco);
-}
-
-.formulario {
-  display: grid;
-  gap: var(--paro-esp-8);
-  margin-top: var(--paro-esp-8);
-}
-
-.secao {
-  display: grid;
-  gap: var(--paro-esp-3);
-}
-
-.etiqueta {
-  font-size: var(--paro-texto-etiqueta);
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--paro-texto-fraco);
-}
-
-/* Botão secundário (design system, "Botões"). */
-.secundario {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--paro-esp-2);
-  width: 100%;
-  min-height: calc(var(--paro-esp-8) + var(--paro-esp-3));
-  padding: 0 var(--paro-esp-4);
-  font-size: var(--paro-texto-interface);
-  font-weight: 500;
-  color: var(--paro-texto);
-  background: var(--paro-superficie);
-  border: 1px solid var(--paro-borda);
-  border-radius: var(--paro-raio-botao);
-  cursor: pointer;
-}
-
-.secundario:active {
-  transform: scale(0.98);
-}
-
-.secundario .carregando {
-  width: var(--paro-esp-4);
-  height: var(--paro-esp-4);
-}
-
-.nota {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--paro-esp-2);
-  max-width: 70ch;
-  font-size: var(--paro-texto-legenda);
-  color: var(--paro-texto-fraco);
-}
-
-.nota .icone,
-.erro .icone {
-  margin-top: 0.1em;
-}
-
-/* Seletor de opção com ícone (design system, "Formulários"; referência Pangea). */
-.opcoes {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--paro-esp-2);
-}
-
-.opcao {
-  display: grid;
-  align-content: start;
-  justify-items: start;
-  gap: var(--paro-esp-1);
-  padding: var(--paro-esp-3);
-  text-align: left;
-  color: var(--paro-texto);
-  background: var(--paro-superficie);
-  border: 1px solid var(--paro-borda);
-  border-radius: var(--paro-raio-botao);
-  cursor: pointer;
-}
-
-.opcao.escolhida {
-  color: var(--paro-destaque-texto);
-  background: var(--paro-destaque);
-  /* Borda de 1,5 px; o padding perde 0,5 px para a opção não mudar de tamanho. */
-  padding: calc(var(--paro-esp-3) - 0.5px);
-  border: 1.5px solid var(--paro-destaque-texto);
-}
-
-.icone-opcao {
-  width: var(--paro-esp-5);
-  height: var(--paro-esp-5);
-  margin-bottom: var(--paro-esp-1);
-}
-
-.nome-opcao {
-  font-size: var(--paro-texto-interface);
-  font-weight: 600;
-  line-height: 1.2;
-}
-
-.distancia-opcao {
-  font-size: var(--paro-texto-legenda);
-  font-weight: 500;
-  font-variant-numeric: tabular-nums;
-  color: var(--paro-texto-fraco);
-}
-
-/* Texto fraco nunca sobre o destaque: na opção escolhida, o texto do par. */
-.opcao.escolhida .distancia-opcao {
-  color: var(--paro-destaque-texto);
-}
-
-/* Campo (design system, "Formulários"): 48 px, superfície, borda, raio 10 px. */
-.campo {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--paro-esp-3);
-  width: 100%;
-  height: var(--paro-esp-12);
-  padding: 0 var(--paro-esp-4);
-  font-size: var(--paro-texto-interface);
-  font-weight: 500;
-  font-variant-numeric: tabular-nums;
-  color: var(--paro-texto);
-  background: var(--paro-superficie);
-  border: 1px solid var(--paro-borda);
-  border-radius: var(--paro-raio-botao);
-  cursor: pointer;
-}
-
-@media (min-width: 1024px) {
-  .campo { height: calc(var(--paro-esp-8) + var(--paro-esp-2)); }
-}
-
-.vazio {
-  color: var(--paro-texto-fraco);
-}
-
-.icone {
-  flex: none;
-  width: var(--paro-esp-4);
-  height: var(--paro-esp-4);
-}
-
-/* Erro em texto de perigo, com ícone, nunca só cor (design system, "Formulários"). */
-.erro {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--paro-esp-2);
-  font-size: var(--paro-texto-legenda);
-  font-weight: 500;
-  color: var(--paro-perigo-texto);
-}
-
-.mensagem {
-  margin-top: var(--paro-esp-8);
-  padding: var(--paro-esp-4);
-  font-size: var(--paro-texto-corpo);
-  background: var(--paro-superficie);
-  border: 1px solid var(--paro-borda);
-  border-radius: var(--paro-raio-linha);
-}
-
-.esqueleto {
-  height: calc(var(--paro-esp-16) * 4);
-  margin-top: var(--paro-esp-8);
-  background: var(--paro-superficie-suave);
-  border-radius: var(--paro-raio-card);
-}
-
-/* Ação principal fixa no rodapé (design system, "Padrões de navegação"). */
-.rodape {
-  position: fixed;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  z-index: 10;
-  max-width: var(--paro-largura-conteudo);
-  margin: 0 auto;
-  padding: var(--paro-esp-3) var(--paro-margem) calc(var(--paro-esp-3) + env(safe-area-inset-bottom));
-  background: var(--paro-fundo);
-}
-
-/* Botão principal (design system, "Botões"). */
-.principal {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--paro-esp-2);
-  width: 100%;
-  height: calc(var(--paro-esp-12) + var(--paro-esp-1));
-  font-size: var(--paro-texto-botao);
-  font-weight: 600;
-  color: var(--paro-acao-texto);
-  background: var(--paro-acao);
-  border-radius: var(--paro-raio-botao);
-  cursor: pointer;
-}
-
-.principal:hover,
-.principal:active {
-  background: var(--paro-acao-hover);
-}
-
-.principal:active {
-  transform: scale(0.98);
-}
-
-@media (min-width: 1024px) {
-  .principal { height: calc(var(--paro-esp-8) + var(--paro-esp-3)); }
-}
-
-.carregando {
-  width: var(--paro-esp-5);
-  height: var(--paro-esp-5);
-  animation: girar 1s linear infinite;
-}
-
-@keyframes girar {
-  to { transform: rotate(360deg); }
-}
-</style>
