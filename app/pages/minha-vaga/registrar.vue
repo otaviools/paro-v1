@@ -24,10 +24,11 @@ definePageMeta({ semBarraDeAbas: true, painelDesktop: 'direita' })
 
 const router = useRouter()
 
-const { data: ruas } = await useFetch<RespostaDasRuas>('/api/ruas')
-const { data: faixasHorarias } = await useFetch<RespostaDasFaixasHorarias>('/api/faixas-horarias')
+const { data: ruas } = await useRuasCobertas()
+const { data: faixasHorarias } = await useFaixasHorarias()
 /** Noite e faixa horária de agora; lidas no navegador, na hora de abrir a tela. */
-const { data: agora, error: erroDoAgora } = useFetch<RespostaDeAgora>('/api/agora', { key: 'agora-registrar', server: false })
+const { agora, erro: erroDoAgora } = useAgora()
+const { registrar: registrarVaga } = useRegistroDeVaga()
 
 let dados: DadosDoCelular | undefined
 
@@ -110,27 +111,27 @@ async function registrar() {
 
   enviando.value = true
   erroDoEnvio.value = null
-  try {
-    const registrado = await $fetch<Registrado>('/api/registros', {
-      method: 'POST',
-      body: { ruaCoberta: rua.id, saidaPrevista: saidaPrevista.value } satisfies CorpoDoRegistro,
-    })
-    dados ??= dadosDoCelularDoAparelho()
-    dados.guardarRegistro({
-      codigo: registrado.codigo,
-      noite: registrado.noite,
-      ruaCoberta: { id: rua.id, nome: rua.nome },
-      chegada: registrado.chegada,
-      saidaPrevista: saidaPrevista.value,
-    }, pontoDoCarro.value ?? undefined)
-    vagaRecemRegistrada.value = true
-    await navigateTo('/minha-vaga', { replace: true })
-  }
-  catch (erro) {
-    const { statusCode, data } = erro as { statusCode?: number, data?: { message?: string } }
-    erroDoEnvio.value = statusCode === 400 && data?.message
-      ? `${data.message}.`
+  const saida = saidaPrevista.value
+  const resultado = await registrarVaga({ ruaCoberta: rua.id, saidaPrevista: saida })
+  if (resultado.tipo === 'falha') {
+    enviando.value = false
+    erroDoEnvio.value = resultado.motivo
+      ? `${resultado.motivo}.`
       : 'Não foi possível registrar agora. Tente de novo em instantes.'
+    return
+  }
+  const { registrado } = resultado
+  dados ??= dadosDoCelularDoAparelho()
+  dados.guardarRegistro({
+    codigo: registrado.codigo,
+    noite: registrado.noite,
+    ruaCoberta: { id: rua.id, nome: rua.nome },
+    chegada: registrado.chegada,
+    saidaPrevista: saida,
+  }, pontoDoCarro.value ?? undefined)
+  vagaRecemRegistrada.value = true
+  try {
+    await navigateTo('/minha-vaga', { replace: true })
   }
   finally {
     enviando.value = false

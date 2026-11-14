@@ -10,7 +10,7 @@ import { dadosDoCelularDoAparelho } from '~/dados-do-celular'
 import type { RegistroNoCelular } from '~/dados-do-celular'
 
 /** Noite de agora; lida no navegador, para saber se o registro ainda vale (ADR 0014). */
-const { data: agora } = useFetch<RespostaDeAgora>('/api/agora', { key: 'agora-inicio', server: false })
+const { agora } = useAgora()
 
 const registro = ref<RegistroNoCelular | null>(null)
 /** Só o registro com localização ligada tem ponto do carro (ADR 0003). */
