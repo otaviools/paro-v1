@@ -12,9 +12,9 @@ import type { DadosDoCelular, FormaDeColaborar } from '~/dados-do-celular'
 // No desktop, abre no painel da direita, com o mapa ao lado.
 definePageMeta({ painelDesktop: 'direita' })
 
-const { data: faixasHorarias } = await useFetch('/api/faixas-horarias')
+const { data: faixasHorarias } = await useFetch<RespostaDasFaixasHorarias>('/api/faixas-horarias')
 /** Noite de agora; lida no navegador, para saber se há um registro de vaga aberto. */
-const { data: agora } = useFetch('/api/agora', { key: 'agora-ajustes', server: false })
+const { data: agora } = useFetch<RespostaDeAgora>('/api/agora', { key: 'agora-ajustes', server: false })
 
 /** A rotina e a forma de colaborar ficam só no celular: são lidas e guardadas no navegador. */
 let dados: DadosDoCelular | undefined
@@ -73,7 +73,7 @@ const { avisar } = useAvisoFlutuante()
  */
 async function pedirConfirmacao() {
   dados ??= dadosDoCelularDoAparelho()
-  const noite = agora.value?.noite ?? (await $fetch('/api/agora').catch(() => null))?.noite
+  const noite = agora.value?.noite ?? (await $fetch<RespostaDeAgora>('/api/agora').catch(() => null))?.noite
   temRegistroAberto.value = noite ? dados.registroAtual(noite) !== null : true
   confirmacao.value?.abrir()
 }

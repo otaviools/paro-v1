@@ -15,7 +15,7 @@ definePageMeta({ semBarraDeAbas: true, painelDesktop: 'direita' })
 const route = useRoute()
 const router = useRouter()
 
-const { data: rua, error, refresh } = await useFetch(() => `/api/ruas/${route.params.id}`)
+const { data: rua, error, refresh } = await useFetch<RuaAoLongoDaNoite>(() => `/api/ruas/${route.params.id}`)
 
 /** As saídas previstas mudam ao longo da noite; o app consulta o servidor de novo (ADR 0018). */
 const INTERVALO_DE_ATUALIZACAO = 90_000

@@ -4,11 +4,10 @@
   desktop; a tela que usa chama o usePanoramaDaNoite e passa o resultado.
 -->
 <script setup lang="ts">
-type Panorama = ReturnType<typeof usePanoramaDaNoite>['panorama']['value']
-
 defineProps<{
   abas: { valor: string, rotulo: string }[]
-  panorama: Panorama
+  /** Null ou undefined enquanto carrega. */
+  panorama: Panorama | null | undefined
   carregando: boolean
   erro: boolean
 }>()

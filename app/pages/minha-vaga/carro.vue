@@ -19,7 +19,7 @@ definePageMeta({ semBarraDeAbas: true, painelDesktop: 'centro' })
 const router = useRouter()
 
 /** Noite de agora; lida no navegador, para saber se o registro ainda vale. */
-const { data: agora, error: erroDoAgora } = useFetch('/api/agora', { key: 'agora-carro', server: false })
+const { data: agora, error: erroDoAgora } = useFetch<RespostaDeAgora>('/api/agora', { key: 'agora-carro', server: false })
 
 /** O mapa desta tela mostra só o carro e a posição atual, sem as ruas cobertas. */
 const semRuas: RuaNoMapa[] = []
