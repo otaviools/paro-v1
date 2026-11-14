@@ -3,8 +3,6 @@ import type { Observacao } from '../observacoes'
 import { configuracaoDaChance } from './configuracao'
 import type { ConfiguracaoDaChance } from './configuracao'
 
-export type { ConfiguracaoDaChance } from './configuracao'
-
 export type FaixaDeChance = 'Tranquilo' | 'Apertado' | 'Difícil'
 
 export interface Base {
@@ -19,7 +17,7 @@ export type Estimativa
     | { tipo: 'sem-dado' }
 
 /** Chave do mapa de estimativas para uma rua coberta numa faixa horária. */
-export function chave(ruaCoberta: string, faixaHoraria: FaixaHoraria): string {
+function chave(ruaCoberta: string, faixaHoraria: FaixaHoraria): string {
   return `${ruaCoberta}|${faixaHoraria}`
 }
 
