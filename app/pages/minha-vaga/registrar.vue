@@ -101,7 +101,7 @@ function escolherSaida(faixaHoraria: string) {
   gaveta.value?.fechar()
 }
 
-const vagaRecemRegistrada = useState('vaga-recem-registrada', () => false)
+const confirmacaoDeRegistro = useConfirmacaoDeRegistroStore()
 
 async function registrar() {
   erroDaRua.value = ruaEscolhida.value ? null : 'Escolha a rua coberta onde você estacionou.'
@@ -128,7 +128,7 @@ async function registrar() {
       chegada: registrado.chegada,
       saidaPrevista: saidaPrevista.value,
     }, pontoDoCarro.value ?? undefined)
-    vagaRecemRegistrada.value = true
+    confirmacaoDeRegistro.marcar()
     await navigateTo('/minha-vaga', { replace: true })
   }
   catch {
