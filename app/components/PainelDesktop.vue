@@ -10,7 +10,7 @@
 <script setup lang="ts">
 const props = defineProps<{
   /** Onde a página da rota abre: no painel da direita, no centro, ou em nenhum (painel fechado). */
-  painel?: 'direita' | 'centro'
+  painel?: LugarNoPainelDesktop
 }>()
 
 const route = useRoute()
