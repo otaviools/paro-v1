@@ -6,6 +6,8 @@
   é apagada pela equipe depois de lida, sempre com confirmação.
 -->
 <script setup lang="ts">
+import type { TableColumn } from '@nuxt/ui'
+
 definePageMeta({ semBarraDeAbas: true, foraDoPainelDesktop: true })
 useHead({ title: 'Sugestões de rua · Parô', meta: [{ name: 'robots', content: 'noindex' }] })
 
@@ -31,7 +33,6 @@ function guardarChaveNaSessao(valor: string | null) {
   }
 }
 
-const id = useId()
 const digitada = ref('')
 /** Chave aceita pelo servidor; enquanto for null, a tela pede a chave. */
 const chave = ref<string | null>(null)
@@ -82,7 +83,8 @@ onMounted(() => {
 
 // --- Apagar depois de ler (ADR 0021) --------------------------------------------
 
-const confirmacao = ref<{ abrir: () => void, fechar: () => void }>()
+/** Confirmação de apagar (UModal). */
+const confirmacaoAberta = ref(false)
 const aApagar = ref<SugestaoDeRua | null>(null)
 const apagando = ref(false)
 const { avisar } = useAvisoFlutuanteStore()
@@ -90,7 +92,7 @@ const { avisar } = useAvisoFlutuanteStore()
 function pedirConfirmacao(sugestao: SugestaoDeRua) {
   aApagar.value = sugestao
   erroDaLista.value = null
-  confirmacao.value?.abrir()
+  confirmacaoAberta.value = true
 }
 
 async function apagar() {
@@ -99,7 +101,7 @@ async function apagar() {
   apagando.value = true
   const resultado = await apagarSugestao(chave.value, sugestao.id)
   apagando.value = false
-  confirmacao.value?.fechar()
+  confirmacaoAberta.value = false
   if (resultado === 'apagada') {
     sugestoes.value = sugestoes.value.filter(s => s.id !== sugestao.id)
     avisar('Sugestão apagada.')
@@ -107,6 +109,30 @@ async function apagar() {
   else if (resultado === 'chave-incorreta') sair('Chave da equipe incorreta.')
   else erroDaLista.value = 'Não foi possível apagar. Tente de novo.'
 }
+
+/*
+ * Tabela (design system, "Tabelas"): sem caixa, linhas separadas por 1 px em
+ * border-default, cabeçalho em etiqueta, linhas de 48 px, sem listras nem
+ * bordas verticais. Abaixo de lg, cada linha vira um bloco: data e texto à
+ * esquerda, "Apagar" à direita.
+ */
+const colunas: TableColumn<SugestaoDeRua>[] = [
+  {
+    accessorKey: 'data',
+    header: 'Data',
+    meta: { class: { td: 'whitespace-nowrap tabular-nums text-muted max-lg:text-xs' } },
+  },
+  {
+    accessorKey: 'texto',
+    header: 'Sugestão',
+    meta: { class: { td: 'text-default whitespace-normal [overflow-wrap:anywhere] max-lg:col-start-1 max-lg:row-start-2' } },
+  },
+  {
+    id: 'acao',
+    header: 'Ação',
+    meta: { class: { th: 'pe-0', td: 'pe-0 text-end max-lg:col-start-2 max-lg:row-span-2 max-lg:row-start-1' } },
+  },
+]
 
 /** "AAAA-MM-DD" → "DD/MM/AAAA". */
 function dataCompleta(data: string) {
@@ -116,122 +142,107 @@ function dataCompleta(data: string) {
 </script>
 
 <template>
-  <main class="equipe">
-    <h1 class="titulo">
+  <main class="mx-auto max-w-160 px-5 py-8 lg:px-8">
+    <h1 class="text-2xl font-bold leading-tight tracking-tight">
       Sugestões de rua
     </h1>
-    <p class="explicacao">
+    <p class="mt-2 max-w-[70ch] text-xs text-muted">
       Ruas ou trechos fora da área coberta sugeridos pelos motoristas, sem identificação. Apague cada sugestão
       depois de ler: é texto livre e pode conter dado pessoal.
     </p>
 
-    <form
+    <UCard
       v-if="!chave"
-      class="card"
+      as="form"
+      class="mt-8"
       novalidate
+      :ui="{ body: 'grid gap-4' }"
       @submit.prevent="entrar"
     >
-      <div class="campo">
-        <label
-          :for="`${id}-chave`"
-          class="rotulo"
-        >Chave da equipe</label>
-        <input
-          :id="`${id}-chave`"
+      <!-- Rótulo sempre visível; a nota fica entre o rótulo e o campo, e o erro abaixo do campo. -->
+      <UFormField
+        label="Chave da equipe"
+        description="Fica só nesta aba do navegador e some ao fechá-la."
+        :error="erroDaChave ?? false"
+        size="lg"
+        :ui="{ label: 'font-semibold', description: 'text-xs', container: 'mt-2', error: 'text-xs font-medium' }"
+      >
+        <UInput
           v-model="digitada"
           type="password"
-          class="entrada"
           autocomplete="off"
-          :aria-invalid="erroDaChave !== null"
-          :aria-describedby="`${id}-nota${erroDaChave ? ` ${id}-erro` : ''}`"
-        >
-        <p
-          :id="`${id}-nota`"
-          class="nota"
-        >
-          Fica só nesta aba do navegador e some ao fechá-la.
-        </p>
-        <p
-          v-if="erroDaChave"
-          :id="`${id}-erro`"
-          class="erro"
-          role="alert"
-        >
-          <UIcon
-            name="i-lucide-circle-alert"
-            class="icone-pequeno"
-            aria-hidden="true"
-          />
-          {{ erroDaChave }}
-        </p>
-      </div>
-
-      <button
-        type="submit"
-        class="principal"
-        :aria-busy="carregando"
-      >
-        <UIcon
-          v-if="carregando"
-          name="i-lucide-loader-circle"
-          class="carregando"
-          aria-label="Carregando"
+          class="w-full"
+          :ui="{ base: 'h-12 rounded-paro-md bg-elevated text-sm lg:h-10' }"
         />
-        <template v-else>
-          Ver sugestões
+        <template #error="{ error: mensagem }">
+          <span
+            class="flex items-center gap-2"
+            role="alert"
+          >
+            <UIcon
+              name="i-lucide-circle-alert"
+              class="size-4 shrink-0"
+              aria-hidden="true"
+            />
+            {{ mensagem }}
+          </span>
         </template>
-      </button>
-    </form>
+      </UFormField>
+
+      <UButton
+        type="submit"
+        color="neutral"
+        size="xl"
+        block
+        class="h-13 text-lg lg:h-11"
+        :loading="carregando"
+        :label="carregando ? undefined : 'Ver sugestões'"
+        :aria-label="carregando ? 'Carregando' : undefined"
+        :aria-busy="carregando"
+      />
+    </UCard>
 
     <section
       v-else
-      class="secao"
+      class="mt-8 grid gap-3"
       aria-labelledby="titulo-lista"
     >
-      <div class="topo">
+      <div class="flex flex-wrap items-center justify-between gap-2">
         <h2
           id="titulo-lista"
-          class="etiqueta"
+          class="text-xs font-semibold uppercase tracking-wider text-muted"
         >
           {{ sugestoes.length === 1 ? '1 sugestão' : `${sugestoes.length} sugestões` }}
         </h2>
-        <div class="acoes">
-          <button
-            type="button"
-            class="link"
+        <div class="flex gap-4">
+          <UButton
+            color="primary"
+            variant="link"
+            icon="i-lucide-refresh-cw"
+            label="Atualizar"
+            class="min-h-11 px-0 text-sm"
             :aria-busy="carregando"
             @click="carregar(chave)"
-          >
-            <UIcon
-              name="i-lucide-refresh-cw"
-              class="icone-pequeno"
-              aria-hidden="true"
-            />
-            Atualizar
-          </button>
-          <button
-            type="button"
-            class="link"
+          />
+          <UButton
+            color="primary"
+            variant="link"
+            icon="i-lucide-log-out"
+            label="Sair"
+            class="min-h-11 px-0 text-sm"
             @click="sair()"
-          >
-            <UIcon
-              name="i-lucide-log-out"
-              class="icone-pequeno"
-              aria-hidden="true"
-            />
-            Sair
-          </button>
+          />
         </div>
       </div>
 
       <p
         v-if="erroDaLista"
-        class="erro"
+        class="flex items-center gap-2 text-xs font-medium text-error"
         role="alert"
       >
         <UIcon
           name="i-lucide-circle-alert"
-          class="icone-pequeno"
+          class="size-4 shrink-0"
           aria-hidden="true"
         />
         {{ erroDaLista }}
@@ -239,424 +250,85 @@ function dataCompleta(data: string) {
 
       <p
         v-if="sugestoes.length === 0"
-        class="vazio"
+        class="py-4 text-sm text-muted"
       >
         Nenhuma sugestão de rua para ler.
       </p>
 
-      <!-- Tabela (design system, "Tabelas"); no celular, cada linha vira um bloco. -->
-      <table
+      <UTable
         v-else
-        class="tabela"
+        :data="sugestoes"
+        :columns="colunas"
+        :ui="{
+          root: 'overflow-visible',
+          thead: 'max-lg:sr-only',
+          tbody: 'divide-y-0 max-lg:block',
+          tr: 'border-b border-default max-lg:grid max-lg:grid-cols-[minmax(0,1fr)_auto] max-lg:items-center max-lg:gap-x-3 max-lg:py-3',
+          th: 'ps-0 pe-3 pt-0 pb-2 text-xs font-semibold uppercase tracking-wider text-muted',
+          td: 'h-12 py-2 ps-0 pe-3 align-middle text-sm max-lg:h-auto max-lg:p-0',
+        }"
       >
-        <thead>
-          <tr>
-            <th scope="col">
-              Data
-            </th>
-            <th scope="col">
-              Sugestão
-            </th>
-            <th scope="col">
-              <span class="so-leitor">Ação</span>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr
-            v-for="sugestao in sugestoes"
-            :key="sugestao.id"
-          >
-            <td class="data">
-              {{ dataCompleta(sugestao.data) }}
-            </td>
-            <td class="texto">
-              {{ sugestao.texto }}
-            </td>
-            <td class="acao">
-              <button
-                type="button"
-                class="destrutivo"
-                aria-haspopup="dialog"
-                @click="pedirConfirmacao(sugestao)"
-              >
-                <UIcon
-                  name="i-lucide-trash-2"
-                  class="icone-pequeno"
-                  aria-hidden="true"
-                />
-                Apagar
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+        <template #data-cell="{ row }">
+          {{ dataCompleta(row.original.data) }}
+        </template>
+        <template #acao-header>
+          <span class="sr-only">Ação</span>
+        </template>
+        <template #acao-cell="{ row }">
+          <UButton
+            color="error"
+            variant="link"
+            icon="i-lucide-trash-2"
+            label="Apagar"
+            aria-haspopup="dialog"
+            class="min-h-11 px-0 text-sm"
+            @click="pedirConfirmacao(row.original)"
+          />
+        </template>
+      </UTable>
     </section>
 
-    <Gaveta
-      ref="confirmacao"
-      titulo="Apagar sugestão?"
+    <!-- Confirmação (UModal), como em Ajustes. -->
+    <UModal
+      v-model:open="confirmacaoAberta"
+      title="Apagar sugestão?"
+      :close="{ color: 'neutral', variant: 'outline', class: 'size-10 justify-center lg:size-9' }"
+      :ui="{
+        overlay: 'z-40',
+        content: 'z-50 divide-y-0 rounded-paro-lg bg-elevated ring-default',
+        title: 'text-base font-semibold text-default',
+        body: 'py-0 sm:py-0',
+        footer: 'grid grid-cols-2 gap-2',
+      }"
     >
-      <div class="confirmacao">
-        <p class="texto-confirmacao">
+      <template #body>
+        <p class="max-w-[70ch] text-sm [overflow-wrap:anywhere]">
           "{{ aApagar?.texto }}" sai do servidor. Não dá para desfazer.
         </p>
-        <div class="botoes">
-          <button
-            type="button"
-            class="link link-grande"
-            @click="confirmacao?.fechar()"
-          >
-            Cancelar
-          </button>
-          <button
-            type="button"
-            class="secundario destrutivo-confirmar"
-            :aria-busy="apagando"
-            @click="apagar"
-          >
-            <UIcon
-              v-if="apagando"
-              name="i-lucide-loader-circle"
-              class="carregando"
-              aria-label="Apagando"
-            />
-            <template v-else>
-              <UIcon
-                name="i-lucide-trash-2"
-                class="icone-pequeno"
-                aria-hidden="true"
-              />
-              Apagar
-            </template>
-          </button>
-        </div>
-      </div>
-    </Gaveta>
+      </template>
+
+      <template #footer>
+        <UButton
+          color="primary"
+          variant="link"
+          block
+          label="Cancelar"
+          class="min-h-13 text-sm"
+          @click="confirmacaoAberta = false"
+        />
+        <UButton
+          color="neutral"
+          variant="outline"
+          block
+          icon="i-lucide-trash-2"
+          :label="apagando ? undefined : 'Apagar'"
+          :aria-label="apagando ? 'Apagando' : undefined"
+          class="min-h-13 text-sm text-error"
+          :loading="apagando"
+          :aria-busy="apagando"
+          @click="apagar"
+        />
+      </template>
+    </UModal>
   </main>
 </template>
-
-<style scoped>
-.equipe {
-  max-width: var(--paro-largura-conteudo);
-  margin: 0 auto;
-  padding: var(--paro-esp-8) var(--paro-margem);
-}
-
-.titulo {
-  font-size: var(--paro-texto-titulo);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  line-height: 1.2;
-}
-
-.explicacao {
-  max-width: 70ch;
-  margin-top: var(--paro-esp-2);
-  font-size: var(--paro-texto-legenda);
-  color: var(--paro-texto-fraco);
-}
-
-.card {
-  display: grid;
-  gap: var(--paro-esp-4);
-  margin-top: var(--paro-esp-8);
-  padding: var(--paro-esp-4);
-  background: var(--paro-superficie);
-  border: 1px solid var(--paro-borda);
-  border-radius: var(--paro-raio-card);
-}
-
-@media (min-width: 1024px) {
-  .card { padding: var(--paro-esp-6); }
-}
-
-.campo {
-  display: grid;
-  gap: var(--paro-esp-2);
-}
-
-/* Rótulo sempre visível acima do campo (design system, "Formulários"). */
-.rotulo {
-  font-size: var(--paro-texto-interface);
-  font-weight: 600;
-}
-
-/* Campo de texto (design system, "Formulários"): 48 px, superfície, borda, raio 10 px. */
-.entrada {
-  height: var(--paro-esp-12);
-  padding: 0 var(--paro-esp-3);
-  font-size: var(--paro-texto-corpo);
-  color: var(--paro-texto);
-  background: var(--paro-superficie);
-  border: 1px solid var(--paro-borda);
-  border-radius: var(--paro-raio-botao);
-}
-
-@media (min-width: 1024px) {
-  .entrada { height: calc(var(--paro-esp-8) + var(--paro-esp-2)); }
-}
-
-.nota {
-  font-size: var(--paro-texto-nota);
-  color: var(--paro-texto-fraco);
-}
-
-/* Erro em texto de perigo, com ícone (design system, "Formulários"). */
-.erro {
-  display: flex;
-  align-items: center;
-  gap: var(--paro-esp-2);
-  font-size: var(--paro-texto-legenda);
-  font-weight: 500;
-  color: var(--paro-perigo-texto);
-}
-
-.secao {
-  display: grid;
-  gap: var(--paro-esp-3);
-  margin-top: var(--paro-esp-8);
-}
-
-.topo {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--paro-esp-2);
-}
-
-.etiqueta {
-  font-size: var(--paro-texto-etiqueta);
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--paro-texto-fraco);
-}
-
-.acoes {
-  display: flex;
-  gap: var(--paro-esp-4);
-}
-
-/* Botão link (design system, "Botões"). */
-.link {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--paro-esp-2);
-  min-height: calc(var(--paro-esp-8) + var(--paro-esp-3));
-  font-size: var(--paro-texto-interface);
-  font-weight: 600;
-  color: var(--paro-destaque-texto);
-  cursor: pointer;
-}
-
-.link-grande {
-  min-height: calc(var(--paro-esp-12) + var(--paro-esp-1));
-}
-
-.vazio {
-  padding: var(--paro-esp-4) 0;
-  font-size: var(--paro-texto-corpo);
-  color: var(--paro-texto-fraco);
-}
-
-/*
- * Tabela (design system, "Tabelas"): sem caixa, linhas separadas por 1 px em
- * --paro-borda, cabeçalho em etiqueta, linhas de 48 px, sem listras nem
- * bordas verticais.
- */
-.tabela {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.tabela th {
-  padding: 0 var(--paro-esp-3) var(--paro-esp-2) 0;
-  font-size: var(--paro-texto-etiqueta);
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-align: left;
-  text-transform: uppercase;
-  color: var(--paro-texto-fraco);
-  border-bottom: 1px solid var(--paro-borda);
-}
-
-.tabela td {
-  height: var(--paro-esp-12);
-  padding: var(--paro-esp-2) var(--paro-esp-3) var(--paro-esp-2) 0;
-  font-size: var(--paro-texto-corpo);
-  vertical-align: middle;
-  border-bottom: 1px solid var(--paro-borda);
-}
-
-.data {
-  white-space: nowrap;
-  font-variant-numeric: tabular-nums;
-  color: var(--paro-texto-fraco);
-}
-
-.texto {
-  overflow-wrap: anywhere;
-}
-
-.tabela .acao {
-  padding-right: 0;
-  text-align: right;
-}
-
-/* No celular, toda tabela vira lista de linhas (design system, "Tabelas"). */
-@media (max-width: 1023px) {
-  .tabela thead {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-  }
-
-  .tabela tbody,
-  .tabela tr {
-    display: block;
-  }
-
-  .tabela tr {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    align-items: center;
-    column-gap: var(--paro-esp-3);
-    padding: var(--paro-esp-3) 0;
-    border-bottom: 1px solid var(--paro-borda);
-  }
-
-  .tabela td {
-    height: auto;
-    padding: 0;
-    border-bottom: 0;
-  }
-
-  .tabela .data {
-    grid-column: 1;
-    font-size: var(--paro-texto-legenda);
-  }
-
-  .tabela .texto {
-    grid-column: 1;
-    grid-row: 2;
-  }
-
-  .tabela .acao {
-    grid-column: 2;
-    grid-row: 1 / span 2;
-  }
-}
-
-.so-leitor {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-}
-
-/* Botão destrutivo (design system, "Botões"): texto de perigo, sem fundo, sempre com confirmação. */
-.destrutivo {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--paro-esp-2);
-  min-height: calc(var(--paro-esp-8) + var(--paro-esp-3));
-  font-size: var(--paro-texto-interface);
-  font-weight: 600;
-  color: var(--paro-perigo-texto);
-  cursor: pointer;
-}
-
-.icone-pequeno {
-  flex: none;
-  width: var(--paro-esp-4);
-  height: var(--paro-esp-4);
-}
-
-/* Botão principal (design system, "Botões"). */
-.principal {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--paro-esp-2);
-  width: 100%;
-  height: calc(var(--paro-esp-12) + var(--paro-esp-1));
-  font-size: var(--paro-texto-botao);
-  font-weight: 600;
-  color: var(--paro-acao-texto);
-  background: var(--paro-acao);
-  border-radius: var(--paro-raio-botao);
-  cursor: pointer;
-}
-
-.principal:hover,
-.principal:active {
-  background: var(--paro-acao-hover);
-}
-
-.principal:active {
-  transform: scale(0.98);
-}
-
-@media (min-width: 1024px) {
-  .principal { height: calc(var(--paro-esp-8) + var(--paro-esp-3)); }
-}
-
-.confirmacao {
-  display: grid;
-  gap: var(--paro-esp-4);
-}
-
-.texto-confirmacao {
-  max-width: 70ch;
-  font-size: var(--paro-texto-corpo);
-  overflow-wrap: anywhere;
-}
-
-.botoes {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--paro-esp-2);
-}
-
-/* Botão secundário (design system, "Botões"). */
-.secundario {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--paro-esp-2);
-  min-height: calc(var(--paro-esp-12) + var(--paro-esp-1));
-  padding: 0 var(--paro-esp-4);
-  font-size: var(--paro-texto-interface);
-  font-weight: 600;
-  color: var(--paro-texto);
-  background: var(--paro-superficie);
-  border: 1px solid var(--paro-borda);
-  border-radius: var(--paro-raio-botao);
-  cursor: pointer;
-}
-
-.secundario:active {
-  transform: scale(0.98);
-}
-
-.destrutivo-confirmar {
-  color: var(--paro-perigo-texto);
-}
-
-.carregando {
-  width: var(--paro-esp-5);
-  height: var(--paro-esp-5);
-  animation: girar 1s linear infinite;
-}
-
-@keyframes girar {
-  to { transform: rotate(360deg); }
-}
-</style>
