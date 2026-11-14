@@ -125,11 +125,10 @@ const colunas: TableColumn<SugestaoDeRua>[] = [
   {
     accessorKey: 'texto',
     header: 'Sugestão',
-    meta: { class: { td: 'text-default whitespace-normal [overflow-wrap:anywhere] max-lg:col-start-1 max-lg:row-start-2' } },
+    meta: { class: { td: 'text-default whitespace-normal wrap-anywhere max-lg:col-start-1 max-lg:row-start-2' } },
   },
   {
     id: 'acao',
-    header: 'Ação',
     meta: { class: { th: 'pe-0', td: 'pe-0 text-end max-lg:col-start-2 max-lg:row-span-2 max-lg:row-start-1' } },
   },
 ]
@@ -292,7 +291,7 @@ function dataCompleta(data: string) {
     <UModal
       v-model:open="confirmacaoAberta"
       title="Apagar sugestão?"
-      :close="{ color: 'neutral', variant: 'outline', class: 'size-10 justify-center lg:size-9' }"
+      :close="{ color: 'neutral', variant: 'outline', square: true, class: 'size-10 justify-center lg:size-9' }"
       :ui="{
         overlay: 'z-40',
         content: 'z-50 divide-y-0 rounded-paro-lg bg-elevated ring-default',
@@ -302,7 +301,7 @@ function dataCompleta(data: string) {
       }"
     >
       <template #body>
-        <p class="max-w-[70ch] text-sm [overflow-wrap:anywhere]">
+        <p class="max-w-[70ch] text-sm wrap-anywhere">
           "{{ aApagar?.texto }}" sai do servidor. Não dá para desfazer.
         </p>
       </template>

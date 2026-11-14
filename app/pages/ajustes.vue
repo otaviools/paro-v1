@@ -9,7 +9,7 @@
 import { dadosDoCelularDoAparelho } from '~/dados-do-celular'
 import type { DadosDoCelular, FormaDeColaborar } from '~/dados-do-celular'
 
-// No desktop, abre no painel da direita, com o mapa ao lado.
+// No desktop, abre no painel da direita, com o mapa ao lado e margem de 24 px (lg:px-6).
 definePageMeta({ painelDesktop: 'direita' })
 
 const { data: faixasHorarias } = await useFaixasHorarias()
@@ -278,7 +278,7 @@ function apagarHistorico() {
     <UModal
       v-model:open="confirmacaoAberta"
       title="Apagar histórico?"
-      :close="{ color: 'neutral', variant: 'outline', class: 'size-10 justify-center lg:size-9' }"
+      :close="{ color: 'neutral', variant: 'outline', square: true, class: 'size-10 justify-center lg:size-9' }"
       :ui="{
         overlay: 'z-40',
         content: 'z-50 divide-y-0 rounded-paro-lg bg-elevated ring-default',

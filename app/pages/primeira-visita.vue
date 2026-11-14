@@ -139,6 +139,7 @@ function comecar() {
         <UButton
           color="neutral"
           variant="outline"
+          square
           icon="i-lucide-arrow-left"
           aria-label="Voltar"
           class="-mt-8 mb-4 size-10 justify-center lg:size-9"
