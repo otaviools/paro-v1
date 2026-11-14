@@ -11,13 +11,13 @@
 <script setup lang="ts">
 import { DURACAO_DO_AVISO } from '~/stores/aviso-flutuante'
 
-const toast = useToast()
-const store = useAvisoFlutuanteStore()
+const avisosNaTela = useToast()
+const avisoFlutuante = useAvisoFlutuanteStore()
 
 // Cada `avisar` vira um toast, mesmo quando o texto repete o do aviso anterior.
-const parar = store.$onAction(({ name, args }) => {
+const parar = avisoFlutuante.$onAction(({ name, args }) => {
   if (name !== 'avisar') return
-  toast.add({
+  avisosNaTela.add({
     title: args[0] as string,
     duration: DURACAO_DO_AVISO,
     close: false,

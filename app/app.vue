@@ -50,7 +50,7 @@ function aoTeclar(evento: KeyboardEvent) {
  * (64 + 12 px) e da ação principal fixa no rodapé (52 + 12 px), com folga de
  * 12 px. Um aviso por vez: o novo troca o anterior.
  */
-const toaster: ToasterProps = {
+const lugarDosAvisos: ToasterProps = {
   position: 'bottom-center',
   duration: DURACAO_DO_AVISO,
   max: 1,
@@ -64,7 +64,7 @@ const toaster: ToasterProps = {
 <template>
   <UApp
     :locale="pt_br"
-    :toaster="toaster"
+    :toaster="lugarDosAvisos"
   >
     <PainelDesktop
       v-if="desktop && noPainelDesktop"
