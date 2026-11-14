@@ -4,7 +4,7 @@ import type { ConfiguracaoDaAreaCoberta } from '../area-coberta'
 import { configuracaoDaAreaCoberta } from '../area-coberta/configuracao'
 import type { Observacao, Observacoes } from '../observacoes'
 import { criarObservacoesFicticias } from '../observacoes/ficticias'
-import { criarBancoDeTeste } from '../banco/teste'
+import { criarBancoDeTeste } from '../../testes/banco-de-teste'
 import { criarRegistrosDeVaga } from '../registros-de-vaga'
 import { criarPanorama, RuaNaoCoberta } from '.'
 

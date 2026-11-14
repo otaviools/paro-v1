@@ -1,7 +1,7 @@
 import { PGlite } from '@electric-sql/pglite'
-import { aplicarMigracoes } from '.'
-import type { Banco, Migracao } from '.'
-import { migracoes as migracoesDoApp } from './migracoes'
+import { aplicarMigracoes } from '../utils/banco'
+import type { Banco, Migracao } from '../utils/banco'
+import { migracoes as migracoesDoApp } from '../utils/banco/migracoes'
 
 /**
  * Banco Postgres em memória (PGLite) para os testes do servidor, já com as
