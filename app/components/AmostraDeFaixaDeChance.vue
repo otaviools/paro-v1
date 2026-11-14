@@ -2,21 +2,30 @@
 /**
  * Amostra do padrão de uma faixa de chance (ADR 0006 e design system,
  * "Faixas de chance"): sólido, hachura, pontilhado ou contorno tracejado,
- * sempre em --paro-texto. Decorativa: o rótulo vai sempre ao lado, em texto.
- * Tem 12 px nas listas e no card e 32 px na legenda do mapa; o traço e o
- * espaçamento dos padrões não mudam com o tamanho.
+ * sempre na cor do texto (text-default). Decorativa: o rótulo vai sempre ao
+ * lado, em texto. Feita à mão (ADR 0028), porque o Nuxt UI não tem padrão.
+ *
+ * Interface:
+ * - `estado`: Tranquilo, Apertado, Difícil ou Sem dado.
+ * - `tamanho`: 12 (padrão, listas e card) ou 32 (legenda do mapa), em px.
+ *
+ * O traço e o espaçamento dos padrões não mudam com o tamanho. O raio é o
+ * --radius-paro-sm (6 px) na amostra de 32 px e a metade dele na de 12 px,
+ * para a amostra pequena não virar círculo.
  */
 export type EstadoDaChance = FaixaDeChance | 'Sem dado'
 
-withDefaults(defineProps<{ estado: EstadoDaChance, tamanho?: 12 | 32 }>(), { tamanho: 12 })
+const props = withDefaults(defineProps<{ estado: EstadoDaChance, tamanho?: 12 | 32 }>(), { tamanho: 12 })
 
 const id = useId()
+
+const raio = computed(() => (props.tamanho === 32 ? 6 : 3))
 </script>
 
 <template>
   <svg
-    class="amostra"
-    :class="{ grande: tamanho === 32 }"
+    class="shrink-0 text-default"
+    :class="tamanho === 32 ? 'size-8' : 'size-3'"
     :viewBox="`0 0 ${tamanho} ${tamanho}`"
     aria-hidden="true"
     focusable="false"
@@ -57,21 +66,21 @@ const id = useId()
       v-if="estado === 'Tranquilo'"
       :width="tamanho"
       :height="tamanho"
-      rx="3"
+      :rx="raio"
       fill="currentColor"
     />
     <rect
       v-else-if="estado === 'Apertado'"
       :width="tamanho"
       :height="tamanho"
-      rx="3"
+      :rx="raio"
       :fill="`url(#${id}-hachura)`"
     />
     <rect
       v-else-if="estado === 'Difícil'"
       :width="tamanho"
       :height="tamanho"
-      rx="3"
+      :rx="raio"
       :fill="`url(#${id}-pontilhado)`"
     />
     <rect
@@ -80,7 +89,7 @@ const id = useId()
       y="0.75"
       :width="tamanho - 1.5"
       :height="tamanho - 1.5"
-      rx="3"
+      :rx="raio"
       fill="none"
       stroke="currentColor"
       stroke-width="1.5"
@@ -88,18 +97,3 @@ const id = useId()
     />
   </svg>
 </template>
-
-<style scoped>
-/* Amostra de 12 px nas listas e no card; 32 px na legenda do mapa (design system). */
-.amostra {
-  flex: none;
-  width: var(--paro-esp-3);
-  height: var(--paro-esp-3);
-  color: var(--paro-texto);
-}
-
-.amostra.grande {
-  width: var(--paro-esp-8);
-  height: var(--paro-esp-8);
-}
-</style>
