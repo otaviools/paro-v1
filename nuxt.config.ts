@@ -1,6 +1,6 @@
 export default defineNuxtConfig({
   compatibilityDate: '2026-11-01',
-  modules: ['@nuxt/ui', '@vite-pwa/nuxt'],
+  modules: ['@nuxt/eslint', '@nuxt/ui', '@vite-pwa/nuxt'],
   css: ['~/assets/css/main.css'],
   devtools: { enabled: false },
 
@@ -14,6 +14,13 @@ export default defineNuxtConfig({
         { name: 'theme-color', content: '#191919', media: '(prefers-color-scheme: dark)' },
       ],
       link: [{ rel: 'icon', type: 'image/svg+xml', href: '/icone.svg' }],
+    },
+  },
+
+  // Formatação pelo ESLint Stylistic, sem Prettier (ADR 0025).
+  eslint: {
+    config: {
+      stylistic: { quotes: 'single', semi: false },
     },
   },
 
