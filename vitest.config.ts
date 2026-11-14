@@ -8,7 +8,7 @@ export default defineConfig({
   },
   test: {
     environment: 'node',
-    include: ['server/**/*.test.ts', 'shared/**/*.test.ts', 'app/dados-do-celular/**/*.test.ts'],
+    include: ['server/**/*.test.ts', 'shared/**/*.test.ts', 'app/dados-do-celular/**/*.test.ts', 'app/stores/**/*.test.ts'],
     // Cada teste com banco abre um PGLite novo, que pode levar alguns
     // segundos quando todos os arquivos rodam em paralelo.
     testTimeout: 20_000,

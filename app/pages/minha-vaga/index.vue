@@ -37,11 +37,10 @@ watch(agora, (valor) => {
 }, { immediate: true })
 
 /** Confirmação de registro, mostrada uma vez depois de Registrar vaga. */
-const vagaRecemRegistrada = useState('vaga-recem-registrada', () => false)
+const confirmacaoDeRegistro = useConfirmacaoDeRegistroStore()
 const confirmarRegistro = ref(false)
 onMounted(() => {
-  confirmarRegistro.value = vagaRecemRegistrada.value
-  vagaRecemRegistrada.value = false
+  confirmarRegistro.value = confirmacaoDeRegistro.consumir()
 })
 
 const { avisar } = useAvisoFlutuante()
