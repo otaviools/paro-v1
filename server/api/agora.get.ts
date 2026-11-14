@@ -1,5 +1,3 @@
-import { areaCoberta } from '#shared/utils/area-coberta'
-
 /**
  * A noite e a faixa horária de agora (faixa horária null fora da área
  * coberta). O celular usa a noite para saber se o código do registro ainda

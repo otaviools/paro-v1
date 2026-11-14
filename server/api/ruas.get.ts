@@ -1,5 +1,3 @@
-import { areaCoberta } from '#shared/utils/area-coberta'
-
 /** Ruas cobertas, da mais perto à mais longe do destino (escolha da rua no registro manual). */
 export default defineEventHandler((): RespostaDasRuas =>
   areaCoberta.ruasCobertas()
