@@ -120,7 +120,6 @@
   /* TEMPORÁRIO: cores, apelidos das variáveis do Nuxt UI. */
   --paro-fundo: var(--ui-bg);
   --paro-superficie: var(--ui-bg-elevated);
-  --paro-superficie-suave: var(--ui-bg-muted);
   --paro-borda: var(--ui-border);
   --paro-texto: var(--ui-text);
   --paro-texto-fraco: var(--ui-text-muted);
@@ -133,12 +132,9 @@
   --paro-alerta-texto: var(--ui-warning);
   --paro-perigo: var(--ui-color-error-100);
   --paro-perigo-texto: var(--ui-error);
-  --paro-sucesso: var(--ui-color-success-100);
-  --paro-sucesso-texto: var(--ui-success);
 
   /* TEMPORÁRIO: tipografia. Passa para a escala do Tailwind (ADR 0027). */
   --paro-texto-titulo: 26px;
-  --paro-texto-stat: 22px;
   --paro-texto-botao: 17px;
   --paro-texto-card: 16px;
   --paro-texto-corpo: 15px;
@@ -156,7 +152,6 @@
   --paro-esp-6: 24px;
   --paro-esp-8: 32px;
   --paro-esp-12: 48px;
-  --paro-esp-16: 64px;
 
   /* TEMPORÁRIO: raios antigos. Passam para --radius-paro-sm, -md e -lg. */
   --paro-raio-botao: 10px;
