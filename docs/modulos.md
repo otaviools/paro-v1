@@ -17,6 +17,24 @@ O código da Área coberta fica em `shared/utils/area-coberta/`, porque o celula
 
 O formato de entrada (query e corpo) e de resposta de cada rota de `server/api` fica em `shared/types/`, um arquivo por recurso (ADR 0032). A rota declara o tipo de retorno do handler e lê o corpo com `EntradaNaoValidada<Corpo...>`; o celular usa os mesmos tipos no `useFetch`, no `$fetch` e no `body` (`satisfies`). Os tipos de `shared/types/` têm auto-import no app e no servidor. Nenhum arquivo em `app/` importa de `server/`; o ESLint recusa esse import.
 
+## Chamadas à API no celular
+
+Toda chamada à API fica num composable de `app/composables/`, um por recurso (ADR 0030). Páginas, componentes e plugins usam o composable; o ESLint recusa `useFetch`, `useAsyncData` e `$fetch` fora dessa pasta. As leituras usam `useFetch` com chave fixa; as ações usam `$fetch` e devolvem o resultado em termos do domínio, sem erro HTTP, e a tela só escolhe o texto.
+
+| Composable | Rotas | Devolve |
+| --- | --- | --- |
+| `usePanoramaDaNoite` | `GET /api/panorama` | abas, faixa horária escolhida e panorama; uma chave por tela, porque cada tela tem sua aba |
+| `useRuaCoberta` | `GET /api/ruas/:id`, `GET /api/ruas` | `useRuaCoberta(id)`, que se atualiza a cada 90 s (ADR 0018), e `useRuasCobertas()` |
+| `useTrechos` | `GET /api/trechos` | linha de cada trecho, para o Mapa da área |
+| `useAgora` | `GET /api/agora` | noite e faixa horária de agora, lidas no navegador, e `lerNoite()` |
+| `useFaixasHorarias` | `GET /api/faixas-horarias` | faixas horárias da área coberta |
+| `useRegistroDeVaga` | `POST /api/registros`, `PATCH /api/registros/saida`, `POST /api/registros/encerrar` | `registrar`, `alterarSaida`, `encerrar` |
+| `useSugestoesDeRua` | `POST /api/sugestoes`, `GET` e `DELETE /api/equipe/sugestoes` | `enviarSugestao`, `lerSugestoes`, `apagarSugestao` |
+| `useAjudou` | `POST /api/ajudou` | `responderAjudou` |
+| `useSessao` | `POST /api/sessoes` | `contarVisita`, usado pelo plugin da sessão do mês |
+
+Os Dados do celular ficam fora dessa regra: não são API (ADRs 0003, 0004 e 0015).
+
 ### 1. Panorama da noite
 
 - **Responsabilidade:** responder "como está cada rua coberta nesta faixa horária". É o módulo de leitura das telas Início, Mapa, Detalhe da rua e Visão geral desktop.
