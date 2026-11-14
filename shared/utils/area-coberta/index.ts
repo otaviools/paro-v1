@@ -1,4 +1,4 @@
-import type { Data, FaixaHoraria, Ponto } from '../../types/area-coberta'
+import type { Data, FaixaHoraria, Ponto } from '#shared/types/area-coberta'
 import { configuracaoDaAreaCoberta } from './configuracao'
 
 export interface RuaCoberta {
