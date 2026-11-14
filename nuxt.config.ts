@@ -3,6 +3,11 @@ export default defineNuxtConfig({
   devtools: { enabled: false },
 
   app: {
+    // Troca de tela: a antiga fica até a nova estar pronta; a nova aparece em
+    // 200 ms, só com opacidade (classes .pagina-* no main.css). Sem fase de
+    // saída, não sobra tela vazia enquanto a nova carrega. Com movimento
+    // reduzido, troca na hora.
+    pageTransition: { name: 'pagina' },
     head: {
       htmlAttrs: { lang: 'pt-BR' },
       title: 'Parô',

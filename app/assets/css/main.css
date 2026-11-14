@@ -115,3 +115,103 @@
   outline: 2px solid var(--ui-primary);
   outline-offset: 2px;
 }
+
+/*
+ * Troca de tema (useTrocaDeTema): desliga o esmaecer padrão da View
+ * Transitions API; o círculo a partir do botão é animado no composable.
+ */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+/*
+ * Brilho dos esqueletos de carregamento (referências Google e Finimize): uma
+ * faixa clara passa da esquerda para a direita a cada 1,4 s. Usado com o
+ * USkeleton (classe "brilho"). O !important vence o animate-pulse padrão do
+ * USkeleton. Com movimento reduzido, o esqueleto fica parado.
+ */
+@keyframes brilho {
+  from { background-position: 150% 0; }
+  to { background-position: -50% 0; }
+}
+
+@utility brilho {
+  animation: brilho 1.4s ease-in-out infinite !important;
+  background-image: linear-gradient(90deg, transparent 0%, color-mix(in oklab, var(--ui-bg-elevated) 60%, transparent) 50%, transparent 100%);
+  background-size: 200% 100%;
+
+  /* No escuro, o bg-elevated é mais escuro que o bg-muted: a faixa clara vem do texto. */
+  @variant dark {
+    background-image: linear-gradient(90deg, transparent 0%, color-mix(in oklab, var(--ui-text) 7%, transparent) 50%, transparent 100%);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none !important;
+  }
+}
+
+/*
+ * Vidro (ADR 0034): superfície translúcida do que flutua (barra de abas, abas
+ * de faixa horária, botões de ícone e secundários). Fundo claro com 55% de
+ * opacidade, desfoque de 20 px com saturação, borda fina e um brilho de 1 px
+ * no topo. No escuro, a película é branca com 8%, para clarear o que está
+ * atrás em vez de sumir nele. O !important vence o ring e o bg dos botões do
+ * Nuxt UI, que também usam box-shadow e background-color.
+ */
+@utility vidro {
+  background-color: color-mix(in oklab, var(--ui-bg-elevated) 55%, transparent) !important;
+  backdrop-filter: blur(20px) saturate(180%);
+  box-shadow:
+    inset 0 0 0 1px rgb(0 0 0 / 0.06),
+    inset 0 1px 0 rgb(255 255 255 / 0.7),
+    0 8px 24px rgb(0 0 0 / 0.08) !important;
+
+  @variant dark {
+    background-color: rgb(255 255 255 / 0.08) !important;
+    box-shadow:
+      inset 0 0 0 1px rgb(255 255 255 / 0.1),
+      inset 0 1px 0 rgb(255 255 255 / 0.14),
+      0 8px 24px rgb(0 0 0 / 0.3) !important;
+  }
+}
+
+/* Grafismo da Primeira visita no desktop: sobe 48 px e aparece, a partir da metade escondida. */
+@keyframes surgir-de-baixo {
+  from {
+    opacity: 0;
+    translate: 0 calc(50% + 48px);
+  }
+
+  to {
+    opacity: 0.8;
+    translate: 0 50%;
+  }
+}
+
+/*
+ * Troca de tela (app.pageTransition no nuxt.config): a tela antiga fica até a
+ * nova estar pronta e sai na hora; a nova aparece em 200 ms. Só opacidade, sem
+ * deslocamento: um translate na página viraria a referência dos elementos
+ * fixos dela (a ação principal no rodapé, o fundo tingido do Detalhe da rua),
+ * que pulariam de lugar durante a animação.
+ */
+/* A tela que sai some na hora, para as duas não ficarem juntas no fluxo nem por um quadro. */
+.pagina-leave-active {
+  display: none;
+}
+
+.pagina-enter-active {
+  transition: opacity 200ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.pagina-enter-from {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pagina-enter-active {
+    transition: none;
+  }
+}
