@@ -78,6 +78,9 @@
   /* Largura da barra lateral do desktop */
   --paro-largura-lateral: 280px;
 
+  /* Largura do painel à direita do desktop (Detalhe da rua, Minha vaga, Ajustes) */
+  --paro-largura-painel: 360px;
+
   /* Nuxt UI lê estas variáveis */
   --ui-bg: var(--paro-fundo);
   --ui-bg-elevated: var(--paro-superficie);
