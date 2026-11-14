@@ -4,6 +4,13 @@ Proposta de módulos derivada do `CONTEXT.md` e das ADRs 0001 a 0024. Usa o voca
 
 ## Módulos do domínio (servidor)
 
+Os módulos do servidor ficam em `server/utils/`, uma pasta por módulo (ADR 0029). Cada pasta tem um `index.ts` com a fábrica do módulo. A instância do app fica no `index.ts` ou num arquivo à parte (`do-app.ts`, `fonte.ts`). O Nitro faz auto-import de tudo que é exportado em `server/utils/`, inclusive das subpastas, então as rotas de `server/api` usam os módulos sem `import`. Por isso:
+
+- os nomes exportados são únicos no servidor inteiro;
+- funções internas de um módulo não são exportadas;
+- ajudantes só de teste, como o banco PGLite dos testes, ficam em `server/testes/`, fora do auto-import;
+- os módulos importam uns aos outros pelo caminho do arquivo, e os testes também, porque o Vitest não tem o auto-import do Nitro.
+
 ### 1. Panorama da noite
 
 - **Responsabilidade:** responder "como está cada rua coberta nesta faixa horária". É o módulo de leitura das telas Início, Mapa, Detalhe da rua e Visão geral desktop.
