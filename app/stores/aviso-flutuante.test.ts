@@ -43,6 +43,16 @@ describe('Aviso flutuante', () => {
     expect(aviso.texto).toBeNull()
   })
 
+  it('sem tipo, o aviso é de sucesso; uma falha passa o tipo erro', () => {
+    const aviso = useAvisoFlutuanteStore()
+
+    aviso.avisar('Pronto.')
+    expect(aviso.tipo).toBe('sucesso')
+
+    aviso.avisar('Não deu.', 'erro')
+    expect(aviso.tipo).toBe('erro')
+  })
+
   it('é o mesmo em todas as telas', () => {
     useAvisoFlutuanteStore().avisar('Saí.')
 
