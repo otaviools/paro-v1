@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { aplicarMigracoes } from '.'
-import { criarBancoDeTeste } from './teste'
+import { criarBancoDeTeste } from '../../testes/banco-de-teste'
 
 const migracoes = [
   { nome: '0001_cria_exemplo', sql: 'create table exemplo (valor int not null);' },
