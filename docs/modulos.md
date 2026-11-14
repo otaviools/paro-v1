@@ -35,6 +35,16 @@ Toda chamada à API fica num composable de `app/composables/`, um por recurso (A
 
 Os Dados do celular ficam fora dessa regra: não são API (ADRs 0003, 0004 e 0015).
 
+## Estado compartilhado no celular
+
+O estado compartilhado entre telas fica em stores do Pinia em `app/stores/`, uma por assunto (ADR 0031). Nenhuma store acessa o `localStorage`: o que dura entre aberturas do app passa pelos Dados do celular. Store com regra própria tem teste em `app/stores/`.
+
+| Store | Guarda |
+| --- | --- |
+| `usePainelDesktopStore` | se a janela está na largura do desktop e se a barra lateral está aberta |
+| `useAvisoFlutuanteStore` | texto do aviso flutuante e `avisar`, que o esconde depois de 3 s |
+| `useConfirmacaoDeRegistroStore` | confirmação mostrada uma vez em Minha vaga depois de Registrar vaga (`marcar`, `consumir`) |
+
 ### 1. Panorama da noite
 
 - **Responsabilidade:** responder "como está cada rua coberta nesta faixa horária". É o módulo de leitura das telas Início, Mapa, Detalhe da rua e Visão geral desktop.
