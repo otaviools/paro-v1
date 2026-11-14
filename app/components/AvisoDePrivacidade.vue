@@ -43,8 +43,8 @@
         você. Só o seu celular guarda que você já respondeu naquela noite.
       </p>
       <p>
-        A sugestão de rua, em Ajustes, leva só o texto que você escreve, e o servidor guarda junto só a data. Não
-        escreva nome, telefone, placa ou outro dado pessoal nela.
+        A sugestão de rua, em Ajustes, leva só o texto que você escreve. O servidor guarda esse texto e a data, sem
+        nada que identifique você. Não escreva nome, telefone, placa ou outro dado pessoal nela.
       </p>
     </section>
 
