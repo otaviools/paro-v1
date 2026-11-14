@@ -20,10 +20,11 @@ export const configuracaoDaAreaCoberta: ConfiguracaoDaAreaCoberta = {
   },
 
   // As cinco ruas cobertas da ADR 0001. Trechos e distâncias PROVISÓRIOS (ADR 0024).
-  // PROVISÓRIO: cada linha vai de uma esquina à outra no quarteirão mais perto
-  // da ESAMC, com os vértices das vias do OpenStreetMap (recorte do mapa em
-  // public/mapa). O meio é o ponto médio da linha. Os limites reais vêm do
-  // protocolo de campo.
+  // PROVISÓRIO: cada linha vai de uma esquina à outra, com os vértices das
+  // vias do OpenStreetMap (recorte do mapa em public/mapa). Belo Horizonte,
+  // Rivalino Pereira, Vasconcelos Costa e Arlindo Teixeira cercam o quarteirão
+  // da ESAMC; a Alexandre Marquez fica avulsa, um quarteirão abaixo. O meio é
+  // o ponto médio da linha. Os limites reais vêm do protocolo de campo.
   ruasCobertas: [
     {
       id: 'vasconcelos-costa',
@@ -42,8 +43,8 @@ export const configuracaoDaAreaCoberta: ConfiguracaoDaAreaCoberta = {
       trecho: {
         de: 'a definir',
         ate: 'a definir',
-        meio: { lat: -18.913144, lon: -48.278883 },
-        linha: [{ lat: -18.912699, lon: -48.279022 }, { lat: -18.913589, lon: -48.278743 }],
+        meio: { lat: -18.912244, lon: -48.279179 },
+        linha: [{ lat: -18.911788, lon: -48.279336 }, { lat: -18.912699, lon: -48.279022 }],
       },
       distanciaAoDestinoMetros: 250,
     },
@@ -64,8 +65,8 @@ export const configuracaoDaAreaCoberta: ConfiguracaoDaAreaCoberta = {
       trecho: {
         de: 'a definir',
         ate: 'a definir',
-        meio: { lat: -18.913463, lon: -48.279975 },
-        linha: [{ lat: -18.913016, lon: -48.280114 }, { lat: -18.913909, lon: -48.279835 }],
+        meio: { lat: -18.912561, lon: -48.280263 },
+        linha: [{ lat: -18.912105, lon: -48.280411 }, { lat: -18.913016, lon: -48.280114 }],
       },
       distanciaAoDestinoMetros: 300,
     },
