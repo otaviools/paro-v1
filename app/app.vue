@@ -1,4 +1,8 @@
 <script setup lang="ts">
+import { pt_br } from '@nuxt/ui/locale'
+import type { ToasterProps } from '@nuxt/ui'
+import { DURACAO_DO_AVISO } from '~/stores/aviso-flutuante'
+
 const route = useRoute()
 
 // --- Painel desktop (design system, "Padrões de navegação › Desktop") ---------
@@ -33,48 +37,73 @@ function fecharPainel() {
 /** Esc fecha o painel, menos quando há uma gaveta aberta: aí o Esc é dela. */
 function aoTeclar(evento: KeyboardEvent) {
   if (evento.key !== 'Escape' || !desktop.value || painel.value !== 'direita') return
-  if (document.querySelector('dialog[open]')) return
+  // Gavetas (UDrawer) e modais do Nuxt UI são role="dialog" com data-state="open".
+  if (document.querySelector('dialog[open], [role="dialog"][data-state="open"]')) return
   // Em campo de texto, o Esc é do campo; não fecha o painel no meio do que a pessoa escreve.
   const alvo = evento.target as HTMLElement | null
   if (alvo?.closest('input, textarea, select, [contenteditable="true"]')) return
   fecharPainel()
 }
+
+/*
+ * Aviso flutuante (UToast), embaixo e no centro, acima da barra de abas
+ * (64 + 12 px) e da ação principal fixa no rodapé (52 + 12 px), com folga de
+ * 12 px. Um aviso por vez: o novo troca o anterior.
+ */
+const toaster: ToasterProps = {
+  position: 'bottom-center',
+  duration: DURACAO_DO_AVISO,
+  max: 1,
+  progress: false,
+  ui: {
+    viewport: 'bottom-[calc(--spacing(38)+env(safe-area-inset-bottom))] w-[calc(100%-2.5rem)] max-w-150 sm:w-[calc(100%-2.5rem)]',
+  },
+}
 </script>
 
 <template>
-  <UApp>
+  <UApp
+    :locale="pt_br"
+    :toaster="toaster"
+  >
     <PainelDesktop
       v-if="desktop && noPainelDesktop"
       :painel="painel"
     />
+    <!--
+      Embaixo, espaço para a barra de abas flutuante ou para a ação principal
+      fixa no rodapé não cobrir o fim da página. No desktop (lg), a página vira
+      o painel da direita (360 px), o centro (Voltar até o carro) ou some
+      (painel fechado). O [contain:layout] faz dos elementos fixos da página
+      (a ação principal no rodapé) filhos do painel, e não da janela.
+      TEMPORÁRIO: o painel da direita põe --paro-margem em 24 px, para as
+      telas que ainda usam o token (#37, #38 e #39).
+    -->
     <div
-      class="conteudo"
+      class="pb-[calc(--spacing(19)+env(safe-area-inset-bottom))]"
       :class="noPainelDesktop && {
-        'painel-direita': painel === 'direita',
-        'painel-centro': painel === 'centro',
-        'painel-fechado': !painel,
-        'sem-lateral': !lateralAberta,
+        'lg:fixed lg:inset-y-0 lg:right-0 lg:z-3 lg:grid lg:w-90 lg:grid-rows-[auto_minmax(0,1fr)] lg:border-l lg:border-default lg:bg-default lg:pb-0 lg:[contain:layout] lg:[--paro-margem:1.5rem]': painel === 'direita',
+        'lg:fixed lg:inset-y-0 lg:right-0 lg:pb-0 lg:[contain:layout]': painel === 'centro',
+        'lg:left-100': painel === 'centro' && lateralAberta,
+        'lg:left-0': painel === 'centro' && !lateralAberta,
+        'lg:hidden': !painel,
       }"
     >
       <!-- Só aparece no desktop, com o painel da direita aberto. -->
       <header
         v-if="noPainelDesktop && painel === 'direita'"
-        class="topo-do-painel"
+        class="hidden justify-end px-6 pt-4 lg:flex"
       >
-        <button
-          type="button"
-          class="fechar"
+        <UButton
+          color="neutral"
+          variant="outline"
+          icon="i-lucide-x"
           aria-label="Fechar painel"
+          class="size-9 justify-center"
           @click="fecharPainel"
-        >
-          <UIcon
-            name="i-lucide-x"
-            class="icone"
-            aria-hidden="true"
-          />
-        </button>
+        />
       </header>
-      <div class="rolagem">
+      <div :class="noPainelDesktop && painel === 'direita' && 'lg:overflow-y-auto lg:pb-19'">
         <NuxtPage />
       </div>
     </div>
@@ -83,91 +112,3 @@ function aoTeclar(evento: KeyboardEvent) {
     <AvisoFlutuante />
   </UApp>
 </template>
-
-<style scoped>
-/*
- * Espaço para a barra de abas flutuante, ou para a ação principal fixa no
- * rodapé, não cobrir o fim da página.
- */
-.conteudo {
-  padding-bottom: calc(var(--paro-esp-16) + var(--paro-esp-3) + env(safe-area-inset-bottom));
-}
-
-.topo-do-painel {
-  display: none;
-}
-
-@media (min-width: 1024px) {
-  /* Painel fechado: só a barra lateral e o mapa. */
-  .painel-fechado {
-    display: none;
-  }
-
-  /*
-   * Painel da direita de 360 px. O `contain: layout` faz dos elementos fixos
-   * da página (a ação principal no rodapé) filhos do painel, e não da janela.
-   * A margem lateral do painel é de 24 px, como a da barra lateral.
-   */
-  .painel-direita {
-    --paro-margem: var(--paro-esp-6);
-
-    position: fixed;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 3;
-    display: grid;
-    grid-template-rows: auto minmax(0, 1fr);
-    width: var(--paro-largura-painel);
-    padding-bottom: 0;
-    background: var(--paro-fundo);
-    border-left: 1px solid var(--paro-borda);
-    contain: layout;
-  }
-
-  .painel-direita .rolagem {
-    padding-bottom: calc(var(--paro-esp-16) + var(--paro-esp-3));
-    overflow-y: auto;
-  }
-
-  .topo-do-painel {
-    display: flex;
-    justify-content: flex-end;
-    padding: var(--paro-esp-4) var(--paro-margem) 0;
-  }
-
-  /* Voltar até o carro: no centro, no lugar do mapa da área. */
-  .painel-centro {
-    position: fixed;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: var(--paro-largura-lateral);
-    padding-bottom: 0;
-    contain: layout;
-  }
-
-  /* Com a barra lateral fechada, o centro ocupa o espaço dela. */
-  .painel-centro.sem-lateral {
-    left: 0;
-  }
-}
-
-/* Botão de ícone (design system, "Botões"), 36 px no desktop. */
-.fechar {
-  display: grid;
-  place-items: center;
-  width: calc(var(--paro-esp-8) + var(--paro-esp-1));
-  height: calc(var(--paro-esp-8) + var(--paro-esp-1));
-  color: var(--paro-texto);
-  background: var(--paro-superficie);
-  border: 1px solid var(--paro-borda);
-  border-radius: var(--paro-raio-botao);
-  cursor: pointer;
-}
-
-.icone {
-  width: var(--paro-esp-5);
-  height: var(--paro-esp-5);
-}
-</style>
