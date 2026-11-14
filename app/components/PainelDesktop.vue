@@ -16,7 +16,7 @@ const props = defineProps<{
 }>()
 
 const route = useRoute()
-const lateralAberta = useLateralAberta()
+const { lateralAberta } = storeToRefs(usePainelDesktopStore())
 
 const { abas, faixaHoraria, panorama, error, carregando } = usePanoramaDaNoite()
 const ruasNoMapa = useRuasNoMapa(panorama)
