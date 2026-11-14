@@ -1,6 +1,4 @@
 import { MAXIMO_DA_SUGESTAO, MINIMO_DA_SUGESTAO } from '#shared/sugestao-de-rua'
-import { areaCoberta } from '../area-coberta'
-import { bancoDoApp } from '../banco/do-app'
 
 /**
  * Sugestão de rua (ADR 0013): grava só o texto e a data, sem identificador.

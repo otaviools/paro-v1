@@ -1,6 +1,3 @@
-import { bancoDoApp } from '../../../banco/do-app'
-import { exigirSegredo } from '../../../utils/segredo'
-
 /** O id é um integer do Postgres: vai de 1 até este valor. */
 const MAIOR_INTEGER = 2_147_483_647
 

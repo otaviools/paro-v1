@@ -1,5 +1,3 @@
-import { panoramaDaNoite, RuaNaoCoberta } from '../../panorama'
-
 /**
  * Uma rua coberta ao longo da noite (Detalhe da rua). Só repassa para o
  * Panorama da noite, com o instante atual.

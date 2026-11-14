@@ -1,7 +1,3 @@
-import { areaCoberta } from '../area-coberta'
-import { IdMensalInvalido } from '../metricas-de-uso'
-import { metricasDeUsoDoApp } from '../metricas-de-uso/do-app'
-
 /**
  * Visita ao app, com o identificador mensal sorteado no celular (ADR 0004).
  * Só o identificador; a data é a de agora, no servidor.

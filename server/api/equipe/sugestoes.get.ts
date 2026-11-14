@@ -1,6 +1,3 @@
-import { bancoDoApp } from '../../banco/do-app'
-import { exigirSegredo } from '../../utils/segredo'
-
 /**
  * Sugestões de rua para a equipe, da mais antiga para a mais nova, protegidas
  * pela chave da equipe (`NUXT_CHAVE_DA_EQUIPE`, em `Authorization: Bearer <chave>`).

@@ -1,7 +1,3 @@
-import { PeriodoInvalido } from '../../metricas-de-uso'
-import { metricasDeUsoDoApp } from '../../metricas-de-uso/do-app'
-import { exigirSegredo } from '../../utils/segredo'
-
 /**
  * Métricas de uso para a equipe, em JSON, protegidas pela chave da equipe
  * (`NUXT_CHAVE_DA_EQUIPE`, enviada em `Authorization: Bearer <chave>`).

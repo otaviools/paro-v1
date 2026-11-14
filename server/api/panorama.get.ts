@@ -1,5 +1,3 @@
-import { FaixaHorariaInvalida, panoramaDaNoite } from '../panorama'
-
 /**
  * Panorama da noite numa faixa horária (`?faixaHoraria=agora`, `19:00`, `21:00`...).
  * Só repassa para o Panorama da noite, com o instante atual.

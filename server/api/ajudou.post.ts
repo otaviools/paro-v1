@@ -1,6 +1,3 @@
-import { areaCoberta } from '../area-coberta'
-import { metricasDeUsoDoApp } from '../metricas-de-uso/do-app'
-
 /**
  * Resposta a "A previsão ajudou hoje?": só sim ou não. Sem identificador; a
  * data é a de agora, no servidor.
