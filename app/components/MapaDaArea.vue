@@ -1,7 +1,7 @@
 <!--
   Mapa da área (docs/modulos.md, módulo 8): desenha as ruas cobertas sobre o
-  mapa de ruas real, cada trecho com o padrão e o rótulo da sua faixa de
-  chance (ADR 0006), e avisa quando o motorista toca num trecho. Para Voltar
+  mapa de ruas real, cada trecho com a cor e o rótulo da sua faixa de
+  chance (ADRs 0006 e 0033), e avisa quando o motorista toca num trecho. Para Voltar
   até o carro, mostra o ponto do carro, a posição atual e uma etiqueta sobre
   o mapa, sem rota (ADR 0020).
 
@@ -58,9 +58,9 @@ const LARGURA_DO_TRECHO = 12
 
 /** Nome da imagem do padrão de cada faixa de chance no MapLibre. */
 const IMAGEM_DO_PADRAO: Record<EstadoDaChance, string> = {
-  'Tranquilo': 'padrao-solido',
-  'Apertado': 'padrao-hachura',
-  'Difícil': 'padrao-pontilhado',
+  'Tranquilo': 'padrao-verde',
+  'Apertado': 'padrao-amarelo',
+  'Difícil': 'padrao-vermelho',
   'Sem dado': 'padrao-tracejado',
 }
 const ESTADOS = Object.keys(IMAGEM_DO_PADRAO) as EstadoDaChance[]
@@ -152,46 +152,26 @@ function desenhar(largura: number, altura: number, pintar: (ctx: CanvasRendering
 }
 
 /**
- * Padrão de linha de cada faixa de chance, na cor do texto. O MapLibre repete
- * a imagem ao longo do trecho; a altura dela é a largura do trecho.
+ * Imagem de linha de cada faixa de chance (ADR 0033): cor cheia verde, amarela
+ * ou vermelha; Sem dado em contorno tracejado na cor do texto. O MapLibre
+ * repete a imagem ao longo do trecho; a altura dela é a largura do trecho.
  */
-function padrao(estado: EstadoDaChance, cor: string) {
+function padrao(estado: EstadoDaChance, corDoTexto: string) {
   const altura = LARGURA_DO_TRECHO
   switch (estado) {
-    // Sólido. A imagem tem 8 px de comprimento: com 1 px, o MapLibre mistura
+    // Cor cheia. A imagem tem 8 px de comprimento: com 1 px, o MapLibre mistura
     // a borda do atlas e o trecho fica listrado.
     case 'Tranquilo':
-      return desenhar(8, altura, (ctx) => {
-        ctx.fillStyle = cor
-        ctx.fillRect(0, 0, 8, altura)
-      })
-    // Hachura diagonal: traço de 1,2 px a 45°, a cada 3,5 px. Na horizontal,
-    // o período é 3,5 × √2 ≈ 5 px, o que deixa a imagem sem emenda.
     case 'Apertado':
-      return desenhar(5, altura, (ctx) => {
-        ctx.strokeStyle = cor
-        ctx.lineWidth = 1.2
-        for (let x = -altura; x <= 5 + altura; x += 5) {
-          ctx.beginPath()
-          ctx.moveTo(x, altura)
-          ctx.lineTo(x + altura, 0)
-          ctx.stroke()
-        }
-      })
-    // Pontilhado: pontos de 1,6 px a cada 4 px.
     case 'Difícil':
-      return desenhar(4, altura, (ctx) => {
-        ctx.fillStyle = cor
-        for (let y = 2; y < altura; y += 4) {
-          ctx.beginPath()
-          ctx.arc(2, y, 0.8, 0, Math.PI * 2)
-          ctx.fill()
-        }
+      return desenhar(8, altura, (ctx) => {
+        ctx.fillStyle = corDaFaixaDeChance(estado)
+        ctx.fillRect(0, 0, 8, altura)
       })
     // Contorno tracejado de 1,5 px: 4 px de traço e 3 px de intervalo nas duas bordas.
     case 'Sem dado':
       return desenhar(7, altura, (ctx) => {
-        ctx.fillStyle = cor
+        ctx.fillStyle = corDoTexto
         ctx.fillRect(0, 0, 4, 1.5)
         ctx.fillRect(0, altura - 1.5, 4, 1.5)
       })
@@ -361,7 +341,7 @@ function estilo(urlDosTiles: string, cores: Cores): StyleSpecification {
         },
         'paint': { 'text-halo-width': 1.5 },
       },
-      // Ruas cobertas por cima, com o padrão da faixa de chance na cor do texto.
+      // Ruas cobertas por cima, na cor da faixa de chance (Sem dado: tracejado na cor do texto).
       {
         id: 'trechos-fundo', type: 'line', source: 'trechos', filter: daGeometria('LineString'),
         layout: { 'line-cap': 'butt', 'line-join': 'round' },
@@ -642,7 +622,7 @@ onBeforeUnmount(() => {
         ref="elementoDaEtiqueta"
         class="pointer-events-none pb-6"
       >
-        <span class="flex items-center gap-1 whitespace-nowrap rounded-full border border-default bg-elevated px-2 py-1 font-sans text-xs font-semibold tabular-nums text-default">
+        <span class="flex items-center gap-1 vidro whitespace-nowrap rounded-full px-2 py-1 font-sans text-xs font-semibold tabular-nums text-default">
           <UIcon
             name="i-lucide-footprints"
             class="size-4 shrink-0"
@@ -654,7 +634,7 @@ onBeforeUnmount(() => {
     </div>
     <p
       v-if="falhou"
-      class="absolute inset-x-5 top-1/2 -translate-y-1/2 rounded-paro-md border border-default bg-elevated p-4 text-sm lg:inset-x-8"
+      class="absolute inset-x-5 top-1/2 -translate-y-1/2 vidro rounded-paro-md p-4 text-sm lg:inset-x-8"
     >
       Não foi possível abrir o mapa. A lista das ruas cobertas continua disponível.
     </p>

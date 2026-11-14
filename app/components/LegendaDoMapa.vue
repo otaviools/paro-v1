@@ -1,7 +1,7 @@
 <!--
   Legenda do mapa (referência Lime, "zonas e estacionamento"): cada faixa de
-  chance com o seu padrão em 32 px, o rótulo e uma explicação própria, sem
-  depender de cor (ADR 0006 e design system, "Faixas de chance").
+  chance com a sua amostra de cor em 32 px, o rótulo e uma explicação própria
+  (ADR 0033 e design system, "Faixas de chance").
 -->
 <script setup lang="ts">
 import type { EstadoDaChance } from '~/components/AmostraDeFaixaDeChance.vue'
@@ -10,7 +10,7 @@ const itens: { estado: EstadoDaChance, explicacao: string }[] = [
   { estado: 'Tranquilo', explicacao: 'Chance de 70% ou mais.' },
   { estado: 'Apertado', explicacao: 'Chance de 40% a 69%.' },
   { estado: 'Difícil', explicacao: 'Chance abaixo de 40%.' },
-  { estado: 'Sem dado', explicacao: 'Ainda não temos observações suficientes nesta faixa horária' },
+  { estado: 'Sem dado', explicacao: 'Não temos observações suficientes nesta faixa horária' },
 ]
 </script>
 
