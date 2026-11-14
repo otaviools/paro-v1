@@ -108,111 +108,108 @@ async function sair() {
 </script>
 
 <template>
-  <main class="minha-vaga">
-    <h1 class="titulo">
+  <main class="mx-auto max-w-160 px-5 pt-8 pb-24 lg:px-6 lg:pb-8">
+    <!-- Espaço extra no fim para a ação principal, que fica acima da barra de abas; no desktop, não há barra. -->
+    <h1 class="text-2xl font-bold leading-tight tracking-tight">
       Minha vaga
     </h1>
 
     <div
       v-if="!lido && !erroDoAgora"
-      class="esqueleto"
+      class="mt-6 h-44 rounded-paro-lg bg-muted"
       aria-busy="true"
       aria-label="Carregando"
     />
 
-    <p
+    <UAlert
       v-else-if="erroDoAgora"
-      class="mensagem"
-    >
-      Não foi possível carregar agora. Tente de novo em instantes.
-    </p>
+      class="mt-6"
+      color="error"
+      variant="soft"
+      icon="i-lucide-circle-alert"
+      title="Erro ao carregar"
+      description="Não foi possível carregar agora. Tente de novo em instantes."
+      :ui="{ title: 'text-sm', description: 'text-sm' }"
+    />
 
     <template v-else-if="registro">
-      <aside
+      <!-- Aviso com o sinal de sucesso (confirmação de registro). -->
+      <UAlert
         v-if="confirmarRegistro"
-        class="confirmacao"
         role="status"
-      >
-        <UIcon
-          name="i-lucide-circle-check"
-          class="icone"
-          aria-hidden="true"
-        />
-        <p>Vaga registrada. Quem está chegando já vê a sua saída prevista no detalhe da rua.</p>
-      </aside>
+        class="mt-6"
+        color="success"
+        variant="soft"
+        icon="i-lucide-circle-check"
+        description="Vaga registrada. Quem está chegando já vê a sua saída prevista no detalhe da rua."
+        :ui="{ description: 'text-xs font-medium' }"
+      />
 
       <!-- Card Seu registro de vaga (design system, "Cards"; referência Waymo). -->
-      <section
-        class="card"
+      <UCard
+        as="section"
         aria-labelledby="titulo-vaga"
+        :class="confirmarRegistro ? 'mt-3' : 'mt-6'"
+        :ui="{ body: 'grid gap-1' }"
       >
-        <p class="etiqueta">
+        <p class="text-xs font-semibold uppercase tracking-wider text-muted">
           Seu registro de vaga
         </p>
         <h2
           id="titulo-vaga"
-          class="saida"
+          class="mt-1 text-xl font-bold leading-tight tabular-nums"
         >
           Saída prevista: {{ rotuloDaFaixaHoraria(registro.saidaPrevista) }}
         </h2>
-        <p class="rua">
+        <p class="text-sm font-semibold">
           {{ registro.ruaCoberta.nome }}
         </p>
-        <p class="chegada">
+        <p class="text-xs font-medium tabular-nums text-muted">
           Chegada: {{ rotuloDaFaixaHoraria(registro.chegada) }}
         </p>
 
-        <div class="acoes">
-          <button
-            type="button"
-            class="secundario"
+        <!-- Linha de ações com ícone e rótulo, separada por uma borda. -->
+        <div class="mt-3 flex flex-wrap gap-2 border-t border-default pt-3">
+          <UButton
+            color="neutral"
+            variant="outline"
+            size="lg"
+            class="min-h-11 font-medium"
+            icon="i-lucide-clock"
+            label="Mudar saída"
             aria-haspopup="dialog"
+            :ui="{ leadingIcon: 'size-4' }"
             @click="gaveta?.abrir()"
-          >
-            <UIcon
-              name="i-lucide-clock"
-              class="icone"
-              aria-hidden="true"
-            />
-            Mudar saída
-          </button>
-          <NuxtLink
+          />
+          <UButton
             v-if="temPontoDoCarro"
             to="/minha-vaga/carro"
-            class="secundario"
-          >
-            <UIcon
-              name="i-lucide-map-pin"
-              class="icone"
-              aria-hidden="true"
-            />
-            Voltar até o carro
-          </NuxtLink>
-        </div>
-      </section>
-
-      <footer class="rodape">
-        <button
-          type="button"
-          class="principal"
-          :aria-busy="saindo"
-          @click="sair"
-        >
-          <UIcon
-            v-if="saindo"
-            name="i-lucide-loader-circle"
-            class="carregando"
-            aria-label="Avisando a saída"
+            color="neutral"
+            variant="outline"
+            size="lg"
+            class="min-h-11 font-medium"
+            icon="i-lucide-map-pin"
+            label="Voltar até o carro"
+            :ui="{ leadingIcon: 'size-4' }"
           />
-          <template v-else>
-            <UIcon
-              name="i-lucide-log-out"
-              class="icone-botao"
-              aria-hidden="true"
-            />
-            Saí
-          </template>
-        </button>
+        </div>
+      </UCard>
+
+      <!-- Ação principal fixa, logo acima da barra de abas flutuante; no desktop, no rodapé do painel. -->
+      <footer class="fixed inset-x-0 bottom-[calc(--spacing(19)+env(safe-area-inset-bottom))] z-10 mx-auto max-w-160 px-5 py-3 lg:bottom-0 lg:bg-default lg:px-6">
+        <UButton
+          color="neutral"
+          size="xl"
+          block
+          class="h-13 text-lg lg:h-11"
+          icon="i-lucide-log-out"
+          :loading="saindo"
+          :label="saindo ? undefined : 'Saí'"
+          :aria-label="saindo ? 'Avisando a saída' : undefined"
+          :aria-busy="saindo"
+          :ui="{ leadingIcon: 'size-5' }"
+          @click="sair"
+        />
       </footer>
 
       <GavetaDeEscolha
@@ -226,259 +223,66 @@ async function sair() {
     </template>
 
     <template v-else-if="forma === 'nenhuma'">
-      <section
-        class="card"
+      <UCard
+        as="section"
+        class="mt-6"
         aria-labelledby="titulo-desligado"
+        :ui="{ body: 'grid gap-1' }"
       >
         <h2
           id="titulo-desligado"
-          class="nome-card"
+          class="text-base font-semibold leading-tight"
         >
           Registro de vaga desligado
         </h2>
-        <p class="explicacao">
+        <p class="max-w-[70ch] text-xs text-muted">
           Você escolheu só consultar a chance. Para registrar a vaga e avisar quem está chegando quando ela deve
           ficar livre, escolha uma forma de colaborar em Ajustes.
         </p>
-      </section>
+      </UCard>
 
-      <footer class="rodape">
-        <NuxtLink
+      <footer class="fixed inset-x-0 bottom-[calc(--spacing(19)+env(safe-area-inset-bottom))] z-10 mx-auto max-w-160 px-5 py-3 lg:bottom-0 lg:bg-default lg:px-6">
+        <UButton
           to="/ajustes"
-          class="principal"
-        >Escolher forma de colaborar</NuxtLink>
+          color="neutral"
+          size="xl"
+          block
+          class="h-13 text-lg lg:h-11"
+          label="Escolher forma de colaborar"
+        />
       </footer>
     </template>
 
     <template v-else>
-      <section
-        class="card"
+      <UCard
+        as="section"
+        class="mt-6"
         aria-labelledby="titulo-sem-vaga"
+        :ui="{ body: 'grid gap-1' }"
       >
         <h2
           id="titulo-sem-vaga"
-          class="nome-card"
+          class="text-base font-semibold leading-tight"
         >
           Nenhuma vaga registrada nesta noite
         </h2>
-        <p class="explicacao">
+        <p class="max-w-[70ch] text-xs text-muted">
           Quando estacionar numa rua coberta, registre a vaga com a saída prevista para avisar quem está chegando.
           O registro leva só a rua coberta e as faixas horárias de chegada e de saída, sem a sua posição e sem
           nada que identifique você.
         </p>
-      </section>
+      </UCard>
 
-      <footer class="rodape">
-        <NuxtLink
+      <footer class="fixed inset-x-0 bottom-[calc(--spacing(19)+env(safe-area-inset-bottom))] z-10 mx-auto max-w-160 px-5 py-3 lg:bottom-0 lg:bg-default lg:px-6">
+        <UButton
           to="/minha-vaga/registrar"
-          class="principal"
-        >Registrar vaga</NuxtLink>
+          color="neutral"
+          size="xl"
+          block
+          class="h-13 text-lg lg:h-11"
+          label="Registrar vaga"
+        />
       </footer>
     </template>
   </main>
 </template>
-
-<style scoped>
-/* Espaço extra no fim para a ação principal, que fica acima da barra de abas. */
-.minha-vaga {
-  max-width: var(--paro-largura-conteudo);
-  margin: 0 auto;
-  padding: var(--paro-esp-8) var(--paro-margem) calc(var(--paro-esp-16) + var(--paro-esp-8));
-}
-
-.titulo {
-  font-size: var(--paro-texto-titulo);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  line-height: 1.2;
-}
-
-.esqueleto {
-  height: calc(var(--paro-esp-16) * 2 + var(--paro-esp-12));
-  margin-top: var(--paro-esp-6);
-  background: var(--paro-superficie-suave);
-  border-radius: var(--paro-raio-card);
-}
-
-.mensagem {
-  margin-top: var(--paro-esp-6);
-  padding: var(--paro-esp-4);
-  font-size: var(--paro-texto-corpo);
-  background: var(--paro-superficie);
-  border: 1px solid var(--paro-borda);
-  border-radius: var(--paro-raio-linha);
-}
-
-/* Card Aviso com o sinal de sucesso (confirmação de registro). */
-.confirmacao {
-  display: flex;
-  align-items: center;
-  gap: var(--paro-esp-3);
-  margin-top: var(--paro-esp-6);
-  padding: var(--paro-esp-3) var(--paro-esp-4);
-  font-size: var(--paro-texto-legenda);
-  font-weight: 500;
-  color: var(--paro-sucesso-texto);
-  background: var(--paro-sucesso);
-  border-radius: var(--paro-raio-linha);
-}
-
-.card {
-  display: grid;
-  gap: var(--paro-esp-1);
-  margin-top: var(--paro-esp-6);
-  padding: var(--paro-esp-4);
-  background: var(--paro-superficie);
-  border: 1px solid var(--paro-borda);
-  border-radius: var(--paro-raio-card);
-}
-
-.confirmacao + .card {
-  margin-top: var(--paro-esp-3);
-}
-
-@media (min-width: 1024px) {
-  .card { padding: var(--paro-esp-6); }
-}
-
-.etiqueta {
-  font-size: var(--paro-texto-etiqueta);
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--paro-texto-fraco);
-}
-
-.saida {
-  margin-top: var(--paro-esp-1);
-  font-size: var(--paro-texto-stat);
-  font-weight: 700;
-  line-height: 1.2;
-  font-variant-numeric: tabular-nums;
-}
-
-.rua {
-  font-size: var(--paro-texto-corpo);
-  font-weight: 600;
-}
-
-.chegada {
-  font-size: var(--paro-texto-legenda);
-  font-weight: 500;
-  font-variant-numeric: tabular-nums;
-  color: var(--paro-texto-fraco);
-}
-
-/* Linha de ações com ícone e rótulo, separada por --paro-borda. */
-.acoes {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--paro-esp-2);
-  margin-top: var(--paro-esp-3);
-  padding-top: var(--paro-esp-3);
-  border-top: 1px solid var(--paro-borda);
-}
-
-/* Botão secundário (design system, "Botões"). */
-.secundario {
-  display: flex;
-  align-items: center;
-  gap: var(--paro-esp-2);
-  min-height: calc(var(--paro-esp-8) + var(--paro-esp-3));
-  padding: 0 var(--paro-esp-4);
-  font-size: var(--paro-texto-interface);
-  font-weight: 500;
-  color: var(--paro-texto);
-  background: var(--paro-superficie);
-  border: 1px solid var(--paro-borda);
-  border-radius: var(--paro-raio-botao);
-  cursor: pointer;
-}
-
-.secundario:active {
-  transform: scale(0.98);
-}
-
-.nome-card {
-  font-size: var(--paro-texto-card);
-  font-weight: 600;
-  line-height: 1.2;
-}
-
-.explicacao {
-  max-width: 70ch;
-  margin-top: var(--paro-esp-1);
-  font-size: var(--paro-texto-legenda);
-  color: var(--paro-texto-fraco);
-}
-
-.icone {
-  flex: none;
-  width: var(--paro-esp-4);
-  height: var(--paro-esp-4);
-}
-
-/* Ação principal fixa, logo acima da barra de abas flutuante. */
-.rodape {
-  position: fixed;
-  right: 0;
-  bottom: calc(var(--paro-esp-16) + var(--paro-esp-3) + env(safe-area-inset-bottom));
-  left: 0;
-  z-index: 10;
-  max-width: var(--paro-largura-conteudo);
-  margin: 0 auto;
-  padding: var(--paro-esp-3) var(--paro-margem);
-}
-
-/* Botão principal (design system, "Botões"). */
-.principal {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--paro-esp-2);
-  width: 100%;
-  height: calc(var(--paro-esp-12) + var(--paro-esp-1));
-  font-size: var(--paro-texto-botao);
-  font-weight: 600;
-  color: var(--paro-acao-texto);
-  background: var(--paro-acao);
-  border-radius: var(--paro-raio-botao);
-  cursor: pointer;
-}
-
-.principal:hover,
-.principal:active {
-  background: var(--paro-acao-hover);
-}
-
-.principal:active {
-  transform: scale(0.98);
-}
-
-@media (min-width: 1024px) {
-  .principal { height: calc(var(--paro-esp-8) + var(--paro-esp-3)); }
-
-  /* No painel da direita não há barra de abas: a ação principal desce para o rodapé. */
-  .minha-vaga { padding-bottom: var(--paro-esp-8); }
-
-  .rodape {
-    bottom: 0;
-    padding-bottom: var(--paro-esp-3);
-    background: var(--paro-fundo);
-  }
-}
-
-.icone-botao,
-.carregando {
-  width: var(--paro-esp-5);
-  height: var(--paro-esp-5);
-}
-
-.carregando {
-  animation: girar 1s linear infinite;
-}
-
-@keyframes girar {
-  to { transform: rotate(360deg); }
-}
-</style>
