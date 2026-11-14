@@ -159,11 +159,9 @@
   --paro-esp-16: 64px;
 
   /* TEMPORÁRIO: raios antigos. Passam para --radius-paro-sm, -md e -lg. */
-  --paro-raio-amostra: 3px;
   --paro-raio-botao: 10px;
   --paro-raio-linha: 12px;
   --paro-raio-card: 16px;
-  --paro-raio-pilula: 999px;
 
   /*
    * TEMPORÁRIO: margem lateral das telas. No painel da direita do desktop, o
