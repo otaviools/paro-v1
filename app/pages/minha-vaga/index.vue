@@ -11,6 +11,9 @@
 import { dadosDoCelularDoAparelho } from '~/dados-do-celular'
 import type { DadosDoCelular, FormaDeColaborar, RegistroNoCelular } from '~/dados-do-celular'
 
+// No desktop, abre no painel da direita, com o mapa ao lado.
+definePageMeta({ painelDesktop: 'direita' })
+
 /** Noite e faixa horária de agora; lidas no navegador, na hora de abrir a tela. */
 const { data: agora, error: erroDoAgora } = useFetch('/api/agora', { key: 'agora-minha-vaga', server: false })
 const { data: faixasHorarias } = useFetch('/api/faixas-horarias', { server: false })
@@ -380,6 +383,15 @@ async function sair() {
 
 @media (min-width: 1024px) {
   .principal { height: calc(var(--paro-esp-8) + var(--paro-esp-3)); }
+
+  /* No painel da direita não há barra de abas: a ação principal desce para o rodapé. */
+  .minha-vaga { padding-bottom: var(--paro-esp-8); }
+
+  .rodape {
+    bottom: 0;
+    padding-bottom: var(--paro-esp-3);
+    background: var(--paro-fundo);
+  }
 }
 
 .icone-botao,

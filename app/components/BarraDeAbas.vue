@@ -1,4 +1,7 @@
-<!-- Barra de abas flutuante do mobile (design system, "Padrões de navegação"). -->
+<!--
+  Barra de abas flutuante do mobile (design system, "Padrões de navegação").
+  No desktop não existe: a navegação fica na barra lateral do PainelDesktop.
+-->
 <script setup lang="ts">
 const abas = [
   { para: '/', rotulo: 'Início', icone: 'i-lucide-house' },
@@ -58,5 +61,9 @@ const abas = [
 .icone {
   width: var(--paro-esp-5);
   height: var(--paro-esp-5);
+}
+
+@media (min-width: 1024px) {
+  .barra { display: none; }
 }
 </style>

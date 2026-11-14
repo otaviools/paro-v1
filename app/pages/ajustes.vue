@@ -9,6 +9,9 @@
 import { dadosDoCelularDoAparelho } from '~/dados-do-celular'
 import type { DadosDoCelular, FormaDeColaborar } from '~/dados-do-celular'
 
+// No desktop, abre no painel da direita, com o mapa ao lado.
+definePageMeta({ painelDesktop: 'direita' })
+
 const { data: faixasHorarias } = await useFetch('/api/faixas-horarias')
 /** Noite de agora; lida no navegador, para saber se há um registro de vaga aberto. */
 const { data: agora } = useFetch('/api/agora', { key: 'agora-ajustes', server: false })

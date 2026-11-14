@@ -1,25 +1,14 @@
 <!--
-  Mapa (design system, "Padrões de navegação"; referências Lime e Turo):
+  Mapa do celular (design system, "Padrões de navegação"; referência Lime):
   mapa em tela cheia com as ruas cobertas no padrão da faixa de chance e as
   mesmas abas de faixa horária do Início. Tocar num trecho abre a gaveta de
-  resumo; expandir abre o Detalhe da rua. A lista por chance fica ao lado do
-  mapa no desktop e numa gaveta no celular.
+  resumo; expandir abre o Detalhe da rua. A lista por chance fica numa gaveta.
+  No desktop, o mapa fica no centro do PainelDesktop.
 -->
 <script setup lang="ts">
-import type { RuaNoMapa } from '~/components/MapaDaArea.vue'
-
 const { abas, faixaHoraria, panorama, error, carregando } = usePanoramaDaNoite()
 
-/** Linhas dos trechos; não mudam com a faixa horária. */
-const { data: trechos } = useFetch('/api/trechos', { key: 'trechos', server: false })
-
-const ruasNoMapa = computed<RuaNoMapa[]>(() => {
-  const linhas = new Map((trechos.value ?? []).map((t) => [t.id, t.linha]))
-  return (panorama.value?.ruas ?? []).flatMap(({ rua, estimativa }) => {
-    const linha = linhas.get(rua.id)
-    return linha ? [{ id: rua.id, nome: rua.nome, estado: estadoDaEstimativa(estimativa), linha }] : []
-  })
-})
+const ruasNoMapa = useRuasNoMapa(panorama)
 
 const rotuloDaFaixa = computed(() =>
   panorama.value?.faixaHorária ? rotuloDaFaixaHoraria(panorama.value.faixaHorária) : null,
@@ -99,11 +88,11 @@ function abrir(gaveta: HTMLDialogElement | undefined) {
 
 <template>
   <main class="tela" @keydown.esc="fecharResumo">
-    <!-- Desktop: barra lateral com abas e lista. Celular: abas sobre o mapa. -->
+    <!-- Abas sobre o mapa. -->
     <section class="painel" aria-label="Faixa horária e ruas cobertas">
       <AvisoDeDemonstracao v-if="panorama?.demonstração" />
 
-      <!-- No celular o título fica só para leitores de tela; o mapa ocupa a tela. -->
+      <!-- O título fica só para leitores de tela; o mapa ocupa a tela. -->
       <h1 class="titulo">Mapa</h1>
 
       <div class="abas" role="tablist" aria-label="Faixa horária">
@@ -119,21 +108,7 @@ function abrir(gaveta: HTMLDialogElement | undefined) {
         </ChipDeFaixaHoraria>
       </div>
 
-      <p v-if="mensagem" class="mensagem so-celular">{{ mensagem }}</p>
-
-      <CardDeMelhorChance
-        v-if="!carregando && panorama?.faixaHorária"
-        class="so-desktop"
-        :faixa-horaria="panorama.faixaHorária"
-        :melhor-chance="panorama.melhorChance"
-      />
-
-      <div class="lista-lateral so-desktop">
-        <h3 class="etiqueta">
-          Ruas cobertas<template v-if="!carregando && rotuloDaFaixa"> · {{ rotuloDaFaixa }}</template>
-        </h3>
-        <ListaDeRuasCobertas :panorama="panorama" :carregando="carregando" :erro="Boolean(error)" />
-      </div>
+      <p v-if="mensagem" class="mensagem">{{ mensagem }}</p>
     </section>
 
     <div class="area-do-mapa">
@@ -141,10 +116,10 @@ function abrir(gaveta: HTMLDialogElement | undefined) {
 
       <!-- Botões de ícone flutuando no canto direito (referência Lime). -->
       <div class="controles">
-        <button type="button" class="botao-icone so-celular" aria-label="Lista das ruas cobertas" @click="abrir(gavetaDaLista)">
+        <button type="button" class="botao-icone" aria-label="Lista das ruas cobertas" @click="abrir(gavetaDaLista)">
           <UIcon name="i-lucide-list" class="icone" aria-hidden="true" />
         </button>
-        <button type="button" class="botao-icone so-celular" aria-label="Legenda" @click="abrir(gavetaDaLegenda)">
+        <button type="button" class="botao-icone" aria-label="Legenda" @click="abrir(gavetaDaLegenda)">
           <UIcon name="i-lucide-circle-help" class="icone" aria-hidden="true" />
         </button>
         <button type="button" class="botao-icone" aria-label="Centralizar nas ruas cobertas" @click="mapa?.centralizar()">
@@ -152,15 +127,9 @@ function abrir(gaveta: HTMLDialogElement | undefined) {
         </button>
       </div>
 
-      <!-- Desktop: legenda no canto inferior do mapa. -->
-      <section class="legenda-fixa so-desktop" aria-labelledby="titulo-legenda-fixa">
-        <h2 id="titulo-legenda-fixa" class="etiqueta">Legenda</h2>
-        <LegendaDoMapa />
-      </section>
-
       <!--
-        Gaveta de resumo da rua tocada (referência Lime); no desktop, painel à
-        direita. Vai para o <body> para ficar por cima da barra de abas.
+        Gaveta de resumo da rua tocada (referência Lime). Vai para o <body>
+        para ficar por cima da barra de abas.
       -->
       <Teleport to="body">
         <section
@@ -212,7 +181,7 @@ function abrir(gaveta: HTMLDialogElement | undefined) {
       </Teleport>
     </div>
 
-    <!-- Celular: lista por chance numa gaveta. -->
+    <!-- Lista por chance numa gaveta. -->
     <dialog ref="gavetaDaLista" class="gaveta" aria-labelledby="titulo-lista" @click.self="gavetaDaLista?.close()">
       <div class="alca" aria-hidden="true" />
       <div class="cabecalho">
@@ -226,7 +195,7 @@ function abrir(gaveta: HTMLDialogElement | undefined) {
       <ListaDeRuasCobertas :panorama="panorama" :carregando="carregando" :erro="Boolean(error)" />
     </dialog>
 
-    <!-- Celular: legenda numa gaveta, com botão grande para fechar (referência Lime). -->
+    <!-- Legenda numa gaveta, com botão grande para fechar (referência Lime). -->
     <dialog ref="gavetaDaLegenda" class="gaveta" aria-labelledby="titulo-legenda" @click.self="gavetaDaLegenda?.close()">
       <div class="alca" aria-hidden="true" />
       <h2 id="titulo-legenda" class="titulo-gaveta">Legenda</h2>
@@ -305,20 +274,6 @@ function abrir(gaveta: HTMLDialogElement | undefined) {
   font-weight: 700;
   letter-spacing: -0.02em;
   line-height: 1.2;
-}
-
-.etiqueta {
-  font-size: var(--paro-texto-etiqueta);
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  font-variant-numeric: tabular-nums;
-  color: var(--paro-texto-fraco);
-}
-
-.lista-lateral {
-  display: grid;
-  gap: var(--paro-esp-3);
 }
 
 /* Botões de ícone (design system, "Botões"), acima da barra de abas no celular. */
@@ -480,104 +435,11 @@ function abrir(gaveta: HTMLDialogElement | undefined) {
   to { opacity: 1; transform: translateY(0); }
 }
 
-.so-desktop {
-  display: none;
-}
-
-/* Desktop: barra lateral de 280 px com abas e lista; mapa ao lado (referência Turo). */
+/* No desktop, o Mapa do celular não aparece; antes de o app montar, o CSS já o esconde. */
 @media (min-width: 1024px) {
-  .tela {
-    display: grid;
-    grid-template-columns: var(--paro-largura-lateral) 1fr;
-  }
-
-  .painel {
-    position: static;
-    align-content: start;
-    gap: var(--paro-esp-4);
-    padding: var(--paro-esp-8) var(--paro-esp-6) var(--altura-da-barra);
-    overflow-y: auto;
-    background: var(--paro-fundo);
-    border-right: 1px solid var(--paro-borda);
-  }
-
-  .titulo {
-    position: static;
-    width: auto;
-    height: auto;
-    overflow: visible;
-    clip-path: none;
-  }
-
-  .abas {
-    flex-wrap: wrap;
-    overflow: visible;
-  }
-
-  .area-do-mapa {
-    position: relative;
-    inset: auto;
-  }
-
-  .so-desktop {
-    display: grid;
-  }
-
-  .so-celular {
-    display: none;
-  }
-
-  .controles {
-    top: var(--paro-margem);
-    bottom: auto;
-  }
-
-  .botao-icone {
-    width: calc(var(--paro-esp-8) + var(--paro-esp-1));
-    height: calc(var(--paro-esp-8) + var(--paro-esp-1));
-  }
-
-  /* No desktop, as abas estão na barra lateral e a legenda fica à esquerda. */
-  .mapa {
-    --mapa-margem-superior: 0px;
-    --mapa-margem-esquerda: var(--paro-largura-lateral);
-  }
-
-  .legenda-fixa {
-    position: absolute;
-    width: calc(var(--paro-largura-lateral) - var(--paro-esp-8));
-    bottom: var(--altura-da-barra);
-    left: var(--paro-margem);
-    z-index: 2;
-    gap: var(--paro-esp-3);
-    padding: var(--paro-esp-4);
-    background: var(--paro-superficie);
-    border: 1px solid var(--paro-borda);
-    border-radius: var(--paro-raio-card);
-  }
-
-  /* Painel do Detalhe da rua à direita do mapa. */
+  .tela,
   .resumo {
-    top: var(--paro-margem);
-    right: calc(var(--paro-margem) + var(--paro-esp-12));
-    bottom: auto;
-    left: auto;
-    width: var(--paro-largura-lateral);
-    padding: 0 var(--paro-esp-6) var(--paro-esp-6);
-    border-bottom: 1px solid var(--paro-borda);
-    border-radius: var(--paro-raio-card);
-  }
-
-  .alca-toque {
     display: none;
-  }
-
-  .cabecalho {
-    padding-top: var(--paro-esp-6);
-  }
-
-  .principal {
-    height: calc(var(--paro-esp-8) + var(--paro-esp-3));
   }
 }
 </style>

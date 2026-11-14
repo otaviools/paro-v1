@@ -9,7 +9,8 @@
 <script setup lang="ts">
 import type { EstadoDaChance } from '~/components/AmostraDeFaixaDeChance.vue'
 
-definePageMeta({ semBarraDeAbas: true })
+// No desktop, abre no painel da direita, com o mapa ao lado.
+definePageMeta({ semBarraDeAbas: true, painelDesktop: 'direita' })
 
 const route = useRoute()
 const router = useRouter()
@@ -184,11 +185,9 @@ function fecharAviso() {
   cursor: pointer;
 }
 
+/* No desktop, o painel da direita tem o próprio botão de fechar. */
 @media (min-width: 1024px) {
-  .voltar {
-    width: calc(var(--paro-esp-8) + var(--paro-esp-1));
-    height: calc(var(--paro-esp-8) + var(--paro-esp-1));
-  }
+  .voltar { display: none; }
 }
 
 .icone-voltar {
