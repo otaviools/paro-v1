@@ -47,7 +47,7 @@ async function enviar() {
 <template>
   <form class="formulario" novalidate @submit.prevent="enviar">
     <p class="texto">
-      Indique uma rua ou trecho fora da área coberta para a equipe observar. A sugestão não muda o mapa: serve de
+      Sugira uma rua ou trecho fora da área coberta para a equipe observar. A sugestão não muda o mapa: serve de
       pista para quando a área coberta crescer.
     </p>
 

@@ -123,7 +123,7 @@ async function apagar() {
 }
 
 /** "AAAA-MM-DD" → "DD/MM/AAAA". */
-function dataPorExtenso(data: string) {
+function dataCompleta(data: string) {
   const [ano, mes, dia] = data.split('-')
   return `${dia}/${mes}/${ano}`
 }
@@ -197,7 +197,7 @@ function dataPorExtenso(data: string) {
         </thead>
         <tbody>
           <tr v-for="sugestao in sugestoes" :key="sugestao.id">
-            <td class="data">{{ dataPorExtenso(sugestao.data) }}</td>
+            <td class="data">{{ dataCompleta(sugestao.data) }}</td>
             <td class="texto">{{ sugestao.texto }}</td>
             <td class="acao">
               <button type="button" class="destrutivo" aria-haspopup="dialog" @click="pedirConfirmacao(sugestao)">

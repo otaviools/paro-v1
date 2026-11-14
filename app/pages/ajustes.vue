@@ -179,7 +179,7 @@ function apagarHistorico() {
       </div>
     </section>
 
-    <Gaveta ref="sugestao" titulo="Sugerir rua" @fechada="formularioDeSugestao?.limpar()">
+    <Gaveta ref="sugestao" titulo="Sugerir rua ou trecho" @fechada="formularioDeSugestao?.limpar()">
       <FormularioDeSugestao ref="formularioDeSugestao" @enviada="sugestaoEnviada" />
     </Gaveta>
 
