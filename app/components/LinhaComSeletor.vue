@@ -1,7 +1,14 @@
 <!--
   Linha com seletor liga/desliga (design system, "Formulários"; referências
-  Grok e Pangea): ícone, título, parágrafo explicativo em texto fraco e o
-  seletor à direita, ligado em --paro-acao.
+  Grok e Pangea): ícone, título, parágrafo explicativo em text-muted e o
+  USwitch à direita, ligado em bg-inverted.
+
+  Interface:
+  - prop `titulo`: nome do seletor; é o rótulo acessível do USwitch.
+  - prop `explicacao`: parágrafo abaixo do título; descreve o USwitch.
+  - prop `icone`: nome do ícone Lucide (`i-lucide-...`).
+  - prop `ligado`: estado atual. A linha não guarda estado próprio.
+  - evento `mudar(ligado)`: a pessoa tocou no seletor; quem usa decide.
 -->
 <script setup lang="ts">
 defineProps<{
@@ -17,119 +24,35 @@ const id = useId()
 </script>
 
 <template>
-  <div class="linha">
+  <div class="grid grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-3">
     <UIcon
       :name="icone"
-      class="icone"
+      class="mt-0.5 size-5"
       aria-hidden="true"
     />
-    <div class="textos">
+    <div class="grid gap-1">
       <p
         :id="`${id}-titulo`"
-        class="titulo"
+        class="text-sm font-semibold leading-tight"
       >
         {{ titulo }}
       </p>
       <p
         :id="`${id}-explicacao`"
-        class="explicacao"
+        class="max-w-[70ch] text-xs text-muted"
       >
         {{ explicacao }}
       </p>
     </div>
-    <button
-      type="button"
-      role="switch"
-      class="seletor"
-      :class="{ ligado }"
-      :aria-checked="ligado"
+    <!-- Trilho de 44 × 24 px; o ::after estende o alvo de toque para 44 × 44 px. -->
+    <USwitch
+      :model-value="ligado"
+      color="neutral"
+      size="xl"
+      :ui="{ base: 'relative after:absolute after:inset-x-0 after:-inset-y-2.5' }"
       :aria-labelledby="`${id}-titulo`"
       :aria-describedby="`${id}-explicacao`"
-      @click="emit('mudar', !ligado)"
-    >
-      <span
-        class="botao"
-        aria-hidden="true"
-      />
-    </button>
+      @update:model-value="emit('mudar', $event)"
+    />
   </div>
 </template>
-
-<style scoped>
-.linha {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  align-items: start;
-  gap: var(--paro-esp-3);
-}
-
-.icone {
-  width: var(--paro-esp-5);
-  height: var(--paro-esp-5);
-  margin-top: 0.1em;
-}
-
-.textos {
-  display: grid;
-  gap: var(--paro-esp-1);
-}
-
-.titulo {
-  font-size: var(--paro-texto-corpo);
-  font-weight: 600;
-  line-height: 1.2;
-}
-
-.explicacao {
-  max-width: 70ch;
-  font-size: var(--paro-texto-legenda);
-  color: var(--paro-texto-fraco);
-}
-
-/*
- * Seletor: trilho de 44 × 24 px dentro de um alvo de toque de 44 × 44 px.
- * Desligado em superfície suave com borda; ligado em --paro-acao.
- */
-.seletor {
-  display: grid;
-  align-items: center;
-  width: calc(var(--paro-esp-8) + var(--paro-esp-3));
-  height: calc(var(--paro-esp-8) + var(--paro-esp-3));
-  margin-top: calc(var(--paro-esp-3) * -1);
-  cursor: pointer;
-}
-
-.seletor::before {
-  content: '';
-  grid-area: 1 / 1;
-  height: var(--paro-esp-6);
-  background: var(--paro-superficie-suave);
-  border: 1px solid var(--paro-borda);
-  border-radius: var(--paro-raio-pilula);
-}
-
-.seletor.ligado::before {
-  background: var(--paro-acao);
-  border-color: var(--paro-acao);
-}
-
-.botao {
-  grid-area: 1 / 1;
-  width: var(--paro-esp-4);
-  height: var(--paro-esp-4);
-  margin-left: var(--paro-esp-1);
-  background: var(--paro-texto-fraco);
-  border-radius: var(--paro-raio-pilula);
-}
-
-.seletor.ligado .botao {
-  background: var(--paro-acao-texto);
-  transform: translateX(var(--paro-esp-5));
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .botao {
-    transition: transform 250ms cubic-bezier(0.16, 1, 0.3, 1);
-  }
-}
-</style>
