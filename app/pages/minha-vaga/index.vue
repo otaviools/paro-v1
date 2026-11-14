@@ -1,5 +1,5 @@
 <!--
-  Minha vaga. Com um registro de vaga aberto nesta noite, mostra a Vaga ativa
+  Minha vaga. Com um registro de vaga aberto nesta noite, mostra Seu registro de vaga
   (referências Waymo e Lime): card com a saída prevista como título, a rua
   coberta e a linha de ações com "Mudar saída" e, no registro com localização
   ligada, "Voltar até o carro"; "Saí" fixo no rodapé. Sem registro, leva para
@@ -131,7 +131,7 @@ async function sair() {
         <p>Vaga registrada. Quem está chegando já vê a sua saída prevista no detalhe da rua.</p>
       </aside>
 
-      <!-- Card Vaga ativa (design system, "Cards"; referência Waymo). -->
+      <!-- Card Seu registro de vaga (design system, "Cards"; referência Waymo). -->
       <section class="card" aria-labelledby="titulo-vaga">
         <p class="etiqueta">Seu registro de vaga</p>
         <h2 id="titulo-vaga" class="saida">Saída prevista: {{ rotuloDaFaixaHoraria(registro.saídaPrevista) }}</h2>

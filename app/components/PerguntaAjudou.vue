@@ -8,7 +8,7 @@
 <script setup lang="ts">
 import { dadosDoCelularDoAparelho } from '~/dados-do-celular'
 
-/** Noite de agora; mesma busca do bloco da vaga ativa no Início. */
+/** Noite de agora; mesma busca do bloco do registro de vaga no Início. */
 const { data: agora } = useFetch('/api/agora', { key: 'agora-inicio', server: false })
 
 const visivel = ref(false)
