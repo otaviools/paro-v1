@@ -176,7 +176,7 @@ function voltar() {
 
     <div
       v-if="!agora && !erroDoAgora"
-      class="mt-8 h-64 rounded-paro-lg bg-muted"
+      class="mt-8 h-64 rounded-paro-lg bg-muted brilho"
       aria-busy="true"
       aria-label="Carregando"
     />
@@ -199,7 +199,7 @@ function voltar() {
       variant="soft"
       icon="i-lucide-clock"
       title="Fora do horário de cobertura"
-      description="O registro de vaga vale das 17h às 23h, o horário da área coberta. Registre quando estacionar nesse horário."
+      description="O registro de vaga vale das 17h às 23h."
       :ui="{ title: 'text-sm', description: 'text-sm' }"
     />
 

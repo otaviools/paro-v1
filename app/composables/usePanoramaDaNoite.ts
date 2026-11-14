@@ -1,11 +1,11 @@
 import { dadosDoCelularDoAparelho } from '~/dados-do-celular'
 
 /** Faixas horárias fixas das abas, além de Agora. */
-const FAIXAS_HORARIAS_DAS_ABAS = ['19:00', '21:00', '22:00']
+const FAIXAS_HORARIAS_DAS_ABAS = ['18:00', '19:00', '20:00']
 
 /**
  * Panorama da noite com as abas de faixa horária do Início e do Mapa:
- * Agora, 19h, 21h e 22h, mais a rotina quando não é uma delas. Abre na
+ * Agora, 18h, 19h e 20h, mais a rotina quando não é uma delas. Abre na
  * rotina do celular; sem rotina, em Agora.
  */
 export function usePanoramaDaNoite() {

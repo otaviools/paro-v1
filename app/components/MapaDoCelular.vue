@@ -21,7 +21,7 @@ const mensagem = computed(() => {
   if (carregando.value) return null
   if (error.value) return 'Não foi possível carregar a chance agora. Tente de novo em instantes.'
   if (panorama.value?.faixaHoraria === null) {
-    return 'Agora está fora da área coberta, que vai das 17h às 23h. Escolha 19h, 21h ou 22h para ver a chance.'
+    return 'Agora está fora da área coberta, que vai das 17h às 23h. Escolha 18h, 19h ou 20h para ver a chance.'
   }
   return null
 })
@@ -119,22 +119,10 @@ const botaoDeFechar = { color: 'neutral', variant: 'outline', class: 'size-10 ju
         Mapa
       </h1>
 
-      <div
-        class="flex gap-2 overflow-x-auto [scrollbar-width:none]"
-        role="tablist"
-        aria-label="Faixa horária"
-      >
-        <ChipDeFaixaHoraria
-          v-for="aba in abas"
-          :key="aba.valor"
-          role="tab"
-          :aria-selected="faixaHoraria === aba.valor"
-          :ativo="faixaHoraria === aba.valor"
-          @click="faixaHoraria = aba.valor"
-        >
-          {{ aba.rotulo }}
-        </ChipDeFaixaHoraria>
-      </div>
+      <AbasDeFaixaHoraria
+        v-model="faixaHoraria"
+        :abas="abas"
+      />
 
       <UAlert
         v-if="mensagem"
@@ -214,7 +202,7 @@ const botaoDeFechar = { color: 'neutral', variant: 'outline', class: 'size-10 ju
           <p>
             {{ resumo.estimativa.tipo === 'chance'
               ? textoDaBase(resumo.estimativa.base)
-              : 'Ainda não temos observações suficientes nesta faixa horária' }}
+              : 'Não temos observações suficientes nesta faixa horária' }}
           </p>
           <p class="flex items-center gap-2">
             <UIcon
