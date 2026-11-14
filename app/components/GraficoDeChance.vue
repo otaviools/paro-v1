@@ -8,13 +8,8 @@
 <script setup lang="ts">
 import type { EstadoDaChance } from '~/components/AmostraDeFaixaDeChance.vue'
 
-export interface FaixaHorariaDoGrafico {
-  faixaHoraria: string
-  estimativa: { tipo: 'sem-dado' } | { tipo: 'chance', faixaDeChance: Exclude<EstadoDaChance, 'Sem dado'>, chance: number }
-}
-
 const props = defineProps<{
-  faixasHorarias: FaixaHorariaDoGrafico[]
+  faixasHorarias: FaixaHorariaDaRua[]
   /** Faixa horária de maior chance; null quando a rua está Sem dado a noite toda. */
   melhorFaixaHoraria: string | null
 }>()
@@ -25,12 +20,12 @@ const id = useId()
 
 const LEGENDA: EstadoDaChance[] = ['Tranquilo', 'Apertado', 'Difícil', 'Sem dado']
 
-function estadoDe(estimativa: FaixaHorariaDoGrafico['estimativa']): EstadoDaChance {
+function estadoDe(estimativa: Estimativa): EstadoDaChance {
   return estimativa.tipo === 'chance' ? estimativa.faixaDeChance : 'Sem dado'
 }
 
 /** Altura da barra: a chance; um mínimo para o padrão aparecer em 0%. */
-function alturaDe(estimativa: FaixaHorariaDoGrafico['estimativa']) {
+function alturaDe(estimativa: Estimativa) {
   return estimativa.tipo === 'chance'
     ? `max(var(--paro-esp-1), ${estimativa.chance}%)`
     : 'var(--paro-esp-2)'

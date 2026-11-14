@@ -29,9 +29,9 @@ export function usePanoramaDaNoite() {
   // busca roda no navegador, depois de ler a rotina. Cada tela tem a sua
   // chave: com uma chave só, a busca da tela anterior, já desmontada, não
   // acompanha mais a troca de aba da tela nova.
-  const { data: panorama, status, error, execute } = useFetch('/api/panorama', {
+  const { data: panorama, status, error, execute } = useFetch<Panorama>('/api/panorama', {
     key: `panorama-da-noite-${useId()}`,
-    query: { faixaHoraria },
+    query: { faixaHoraria } satisfies EntradaNaoValidada<ConsultaDoPanorama>,
     server: false,
     immediate: false,
   })

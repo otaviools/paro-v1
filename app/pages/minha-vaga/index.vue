@@ -15,8 +15,8 @@ import type { DadosDoCelular, FormaDeColaborar, RegistroNoCelular } from '~/dado
 definePageMeta({ painelDesktop: 'direita' })
 
 /** Noite e faixa horária de agora; lidas no navegador, na hora de abrir a tela. */
-const { data: agora, error: erroDoAgora } = useFetch('/api/agora', { key: 'agora-minha-vaga', server: false })
-const { data: faixasHorarias } = useFetch('/api/faixas-horarias', { server: false })
+const { data: agora, error: erroDoAgora } = useFetch<RespostaDeAgora>('/api/agora', { key: 'agora-minha-vaga', server: false })
+const { data: faixasHorarias } = useFetch<RespostaDasFaixasHorarias>('/api/faixas-horarias', { server: false })
 
 let dados: DadosDoCelular | undefined
 const registro = ref<RegistroNoCelular | null>(null)
@@ -75,9 +75,9 @@ async function mudarSaida(saidaPrevista: string) {
   if (!registro.value || mudandoSaida.value) return
   mudandoSaida.value = true
   try {
-    await $fetch('/api/registros/saida', {
+    await $fetch<RespostaDaSaida>('/api/registros/saida', {
       method: 'PATCH',
-      body: { codigo: registro.value.codigo, saidaPrevista: saidaPrevista },
+      body: { codigo: registro.value.codigo, saidaPrevista: saidaPrevista } satisfies CorpoDaSaida,
     })
     dados?.mudarSaidaDoRegistro(saidaPrevista)
     registro.value = { ...registro.value, saidaPrevista: saidaPrevista }
@@ -102,7 +102,10 @@ async function sair() {
   if (!registro.value || saindo.value) return
   saindo.value = true
   try {
-    await $fetch('/api/registros/encerrar', { method: 'POST', body: { codigo: registro.value.codigo } })
+    await $fetch<RespostaDoEncerramento>('/api/registros/encerrar', {
+      method: 'POST',
+      body: { codigo: registro.value.codigo } satisfies CorpoDoEncerramento,
+    })
   }
   catch (erro) {
     // Código recusado: o registro já não conta, então o "Saí" vale do mesmo jeito.

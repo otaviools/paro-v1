@@ -9,7 +9,7 @@
 import { dadosDoCelularDoAparelho } from '~/dados-do-celular'
 
 /** Noite de agora; mesma busca do bloco do registro de vaga no Início. */
-const { data: agora } = useFetch('/api/agora', { key: 'agora-inicio', server: false })
+const { data: agora } = useFetch<RespostaDeAgora>('/api/agora', { key: 'agora-inicio', server: false })
 
 const visivel = ref(false)
 /** A resposta que está indo ao servidor; o botão dela mostra o indicador de carregando. */
@@ -28,7 +28,7 @@ async function responder(ajudou: boolean) {
   enviando.value = ajudou
   erro.value = false
   try {
-    await $fetch('/api/ajudou', { method: 'POST', body: { ajudou } })
+    await $fetch('/api/ajudou', { method: 'POST', body: { ajudou } satisfies CorpoDoAjudou })
     dadosDoCelularDoAparelho().marcarRespostaAjudou(agora.value.noite)
     visivel.value = false
     avisar('Obrigado pela resposta.')

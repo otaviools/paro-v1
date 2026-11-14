@@ -5,25 +5,15 @@
   Detalhe da rua. Mostra também o esqueleto, o erro e "fora da área coberta".
 -->
 <script setup lang="ts">
-import type { EstadoDaChance } from '~/components/AmostraDeFaixaDeChance.vue'
-
-interface RuaNaLista {
-  rua: { id: string, nome: string }
-  estimativa:
-    | { tipo: 'chance', faixaDeChance: Exclude<EstadoDaChance, 'Sem dado'>, base: { observacoes: number, ultima: string } }
-    | { tipo: 'sem-dado' }
-  distanciaAoDestino: number
-}
-
 defineProps<{
   /** Panorama da noite; null ou undefined enquanto carrega. */
-  panorama: { faixaHoraria: string | null, ruas: RuaNaLista[] } | null | undefined
+  panorama: Panorama | null | undefined
   carregando: boolean
   erro: boolean
 }>()
 
 /** Base, ou o texto obrigatório de Sem dado (design system). */
-function subtitulo(estimativa: RuaNaLista['estimativa']) {
+function subtitulo(estimativa: Estimativa) {
   if (estimativa.tipo !== 'chance') return 'Ainda não temos observações suficientes nesta faixa horária'
   return textoDaBase(estimativa.base)
 }

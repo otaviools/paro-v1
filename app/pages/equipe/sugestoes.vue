@@ -9,8 +9,6 @@
 definePageMeta({ semBarraDeAbas: true, foraDoPainelDesktop: true })
 useHead({ title: 'Sugestões de rua · Parô', meta: [{ name: 'robots', content: 'noindex' }] })
 
-interface Sugestao { id: number, texto: string, data: string }
-
 /** Onde a chave fica enquanto a aba estiver aberta. */
 const CHAVE_NA_SESSAO = 'paro:chave-da-equipe'
 
@@ -37,7 +35,7 @@ const id = useId()
 const digitada = ref('')
 /** Chave aceita pelo servidor; enquanto for null, a tela pede a chave. */
 const chave = ref<string | null>(null)
-const sugestoes = ref<Sugestao[]>([])
+const sugestoes = ref<SugestaoDeRua[]>([])
 const carregando = ref(false)
 const erroDaChave = ref<string | null>(null)
 const erroDaLista = ref<string | null>(null)
@@ -60,7 +58,7 @@ async function carregar(valor: string) {
   erroDaChave.value = null
   erroDaLista.value = null
   try {
-    sugestoes.value = await $fetch<Sugestao[]>('/api/equipe/sugestoes', { headers: cabecalho(valor) })
+    sugestoes.value = await $fetch<RespostaDasSugestoes>('/api/equipe/sugestoes', { headers: cabecalho(valor) })
     chave.value = valor
     guardarChaveNaSessao(valor)
     digitada.value = ''
@@ -92,11 +90,11 @@ onMounted(() => {
 // --- Apagar depois de ler (ADR 0021) --------------------------------------------
 
 const confirmacao = ref<{ abrir: () => void, fechar: () => void }>()
-const aApagar = ref<Sugestao | null>(null)
+const aApagar = ref<SugestaoDeRua | null>(null)
 const apagando = ref(false)
 const { avisar } = useAvisoFlutuante()
 
-function pedirConfirmacao(sugestao: Sugestao) {
+function pedirConfirmacao(sugestao: SugestaoDeRua) {
   aApagar.value = sugestao
   erroDaLista.value = null
   confirmacao.value?.abrir()
@@ -107,7 +105,7 @@ async function apagar() {
   if (!sugestao || !chave.value || apagando.value) return
   apagando.value = true
   try {
-    await $fetch(`/api/equipe/sugestoes/${sugestao.id}`, { method: 'DELETE', headers: cabecalho(chave.value) })
+    await $fetch<SemConteudo>(`/api/equipe/sugestoes/${sugestao.id}`, { method: 'DELETE', headers: cabecalho(chave.value) })
     sugestoes.value = sugestoes.value.filter(s => s.id !== sugestao.id)
     confirmacao.value?.fechar()
     avisar('Sugestão apagada.')

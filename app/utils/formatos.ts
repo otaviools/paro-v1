@@ -13,7 +13,7 @@ function diaEMes(data: string) {
 }
 
 /** Base de uma chance: "6 noites · última em 04/11". */
-export function textoDaBase(base: { observacoes: number, ultima: string }) {
+export function textoDaBase(base: Base) {
   return `${base.observacoes} noites · última em ${diaEMes(base.ultima)}`
 }
 
@@ -45,14 +45,12 @@ export function intervaloDaFaixaHoraria(inicio: string) {
  * Chance em número com a base (ADR 0006): "7 de 10 noites · última em 04/11".
  * As noites não cheias voltam da chance, que é exatamente não cheias / base.
  */
-export function textoDaChanceComBase(chance: number, base: { observacoes: number, ultima: string }) {
+export function textoDaChanceComBase(chance: number, base: Base) {
   const naoCheias = Math.round((chance * base.observacoes) / 100)
   return `${naoCheias} de ${textoDaBase(base)}`
 }
 
 /** Estado mostrado de uma estimativa: a faixa de chance, ou Sem dado. */
-export function estadoDaEstimativa(
-  estimativa: { tipo: 'chance', faixaDeChance: Exclude<EstadoDaChance, 'Sem dado'> } | { tipo: 'sem-dado' },
-): EstadoDaChance {
+export function estadoDaEstimativa(estimativa: Estimativa): EstadoDaChance {
   return estimativa.tipo === 'chance' ? estimativa.faixaDeChance : 'Sem dado'
 }

@@ -6,7 +6,7 @@
  * Tem 12 px nas listas e no card e 32 px na legenda do mapa; o traço e o
  * espaçamento dos padrões não mudam com o tamanho.
  */
-export type EstadoDaChance = 'Tranquilo' | 'Apertado' | 'Difícil' | 'Sem dado'
+export type EstadoDaChance = FaixaDeChance | 'Sem dado'
 
 withDefaults(defineProps<{ estado: EstadoDaChance, tamanho?: 12 | 32 }>(), { tamanho: 12 })
 
