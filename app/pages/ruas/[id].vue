@@ -33,8 +33,8 @@ const escolhida = ref<string | null>(typeof route.query.faixaHoraria === 'string
 
 const selecionada = computed(() => {
   const faixasHorarias = rua.value?.faixasHorárias ?? []
-  return faixasHorarias.find((f) => f.faixaHorária === escolhida.value)
-    ?? faixasHorarias.find((f) => f.faixaHorária === rua.value?.melhorFaixaHorária)
+  return faixasHorarias.find(f => f.faixaHorária === escolhida.value)
+    ?? faixasHorarias.find(f => f.faixaHorária === rua.value?.melhorFaixaHorária)
     ?? faixasHorarias[0]
     ?? null
 })
@@ -73,23 +73,47 @@ function fecharAviso() {
 
 <template>
   <main class="detalhe">
-    <button type="button" class="voltar" aria-label="Voltar" @click="voltar">
-      <UIcon name="i-lucide-arrow-left" class="icone-voltar" aria-hidden="true" />
+    <button
+      type="button"
+      class="voltar"
+      aria-label="Voltar"
+      @click="voltar"
+    >
+      <UIcon
+        name="i-lucide-arrow-left"
+        class="icone-voltar"
+        aria-hidden="true"
+      />
     </button>
 
-    <p v-if="error?.statusCode === 404" class="mensagem">
+    <p
+      v-if="error?.statusCode === 404"
+      class="mensagem"
+    >
       Esta rua não é uma das ruas cobertas.
     </p>
-    <p v-else-if="error" class="mensagem">
+    <p
+      v-else-if="error"
+      class="mensagem"
+    >
       Não foi possível carregar a chance agora. Tente de novo em instantes.
     </p>
 
     <template v-else-if="rua">
-      <AvisoDeDemonstracao v-if="rua.demonstração" class="aviso" />
+      <AvisoDeDemonstracao
+        v-if="rua.demonstração"
+        class="aviso"
+      />
 
-      <h1 class="nome">{{ rua.rua.nome }}</h1>
+      <h1 class="nome">
+        {{ rua.rua.nome }}
+      </h1>
       <p class="distancia">
-        <UIcon name="i-lucide-footprints" class="icone" aria-hidden="true" />
+        <UIcon
+          name="i-lucide-footprints"
+          class="icone"
+          aria-hidden="true"
+        />
         {{ distanciaAPe(rua.distânciaAoDestino) }} até o destino
       </p>
 
@@ -100,9 +124,21 @@ function fecharAviso() {
         :melhor-faixa-horaria="rua.melhorFaixaHorária"
       />
 
-      <section v-if="selecionada" class="bloco" aria-labelledby="titulo-bloco" aria-live="polite">
-        <h2 id="titulo-bloco" class="titulo-bloco">
-          <UIcon name="i-lucide-clock" class="icone" aria-hidden="true" />
+      <section
+        v-if="selecionada"
+        class="bloco"
+        aria-labelledby="titulo-bloco"
+        aria-live="polite"
+      >
+        <h2
+          id="titulo-bloco"
+          class="titulo-bloco"
+        >
+          <UIcon
+            name="i-lucide-clock"
+            class="icone"
+            aria-hidden="true"
+          />
           {{ intervaloDaFaixaHoraria(selecionada.faixaHorária) }}
         </h2>
 
@@ -114,52 +150,116 @@ function fecharAviso() {
               {{ estadoDe(selecionada.estimativa) }}
             </dd>
           </div>
-          <div v-if="selecionada.estimativa.tipo === 'chance'" class="dado">
+          <div
+            v-if="selecionada.estimativa.tipo === 'chance'"
+            class="dado"
+          >
             <dt>Chance</dt>
             <dd>{{ textoDaChanceComBase(selecionada.estimativa.chance, selecionada.estimativa.base) }}</dd>
           </div>
         </dl>
 
-        <p v-if="selecionada.estimativa.tipo === 'sem-dado'" class="sem-dado">
+        <p
+          v-if="selecionada.estimativa.tipo === 'sem-dado'"
+          class="sem-dado"
+        >
           Ainda não temos observações suficientes nesta faixa horária
         </p>
       </section>
 
       <!-- Bloco de dado à parte da chance: dado declarado, não observado (ADR 0009). -->
-      <section class="bloco saidas" aria-labelledby="titulo-saidas">
-        <h2 id="titulo-saidas" class="titulo-bloco">
-          <UIcon name="i-lucide-log-out" class="icone" aria-hidden="true" />
+      <section
+        class="bloco saidas"
+        aria-labelledby="titulo-saidas"
+      >
+        <h2
+          id="titulo-saidas"
+          class="titulo-bloco"
+        >
+          <UIcon
+            name="i-lucide-log-out"
+            class="icone"
+            aria-hidden="true"
+          />
           Saídas previstas nesta noite
         </h2>
 
-        <dl v-if="rua.saídasPrevistas.length" class="dados">
-          <div v-for="saida in rua.saídasPrevistas" :key="saida.faixaHorária" class="dado">
+        <dl
+          v-if="rua.saídasPrevistas.length"
+          class="dados"
+        >
+          <div
+            v-for="saida in rua.saídasPrevistas"
+            :key="saida.faixaHorária"
+            class="dado"
+          >
             <dt>{{ intervaloDaFaixaHoraria(saida.faixaHorária) }}</dt>
             <dd>{{ textoDasSaidas(saida.quantidade) }}</dd>
           </div>
         </dl>
-        <p v-else class="sem-saidas">Ninguém registrou saída prevista nesta rua hoje.</p>
+        <p
+          v-else
+          class="sem-saidas"
+        >
+          Ninguém registrou saída prevista nesta rua hoje.
+        </p>
 
-        <p class="nota">Informadas por quem estacionou aqui. Não entram na chance.</p>
+        <p class="nota">
+          Informadas por quem estacionou aqui. Não entram na chance.
+        </p>
       </section>
     </template>
 
-    <footer v-if="rua" class="rodape">
-      <button type="button" class="principal" @click="comoChegar">
-        <UIcon name="i-lucide-navigation" class="icone-botao" aria-hidden="true" />
+    <footer
+      v-if="rua"
+      class="rodape"
+    >
+      <button
+        type="button"
+        class="principal"
+        @click="comoChegar"
+      >
+        <UIcon
+          name="i-lucide-navigation"
+          class="icone-botao"
+          aria-hidden="true"
+        />
         Como chegar
       </button>
     </footer>
 
-    <dialog ref="aviso" class="gaveta" aria-labelledby="titulo-aviso" @click.self="fecharAviso">
-      <div class="alca" aria-hidden="true" />
-      <h2 id="titulo-aviso" class="titulo-aviso">Abrir outro app?</h2>
+    <dialog
+      ref="aviso"
+      class="gaveta"
+      aria-labelledby="titulo-aviso"
+      @click.self="fecharAviso"
+    >
+      <div
+        class="alca"
+        aria-hidden="true"
+      />
+      <h2
+        id="titulo-aviso"
+        class="titulo-aviso"
+      >
+        Abrir outro app?
+      </h2>
       <p class="texto-aviso">
         "Como chegar" abre o app de navegação do celular com a {{ rua?.rua.nome }} como destino.
         Esse app recebe a rua de destino e a sua posição.
       </p>
-      <a :href="link" class="principal" @click="fecharAviso">Abrir app de navegação</a>
-      <button type="button" class="link" @click="fecharAviso">Cancelar</button>
+      <a
+        :href="link"
+        class="principal"
+        @click="fecharAviso"
+      >Abrir app de navegação</a>
+      <button
+        type="button"
+        class="link"
+        @click="fecharAviso"
+      >
+        Cancelar
+      </button>
     </dialog>
   </main>
 </template>

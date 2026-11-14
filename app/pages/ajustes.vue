@@ -89,19 +89,38 @@ function apagarHistorico() {
 
 <template>
   <main class="ajustes">
-    <h1 class="titulo">Ajustes</h1>
+    <h1 class="titulo">
+      Ajustes
+    </h1>
 
-    <section class="secao" aria-labelledby="titulo-rotina">
-      <h2 id="titulo-rotina" class="etiqueta">Rotina</h2>
+    <section
+      class="secao"
+      aria-labelledby="titulo-rotina"
+    >
+      <h2
+        id="titulo-rotina"
+        class="etiqueta"
+      >
+        Rotina
+      </h2>
 
       <div class="card">
-        <h3 id="nome-rotina" class="nome">Horário de chegada habitual</h3>
+        <h3
+          id="nome-rotina"
+          class="nome"
+        >
+          Horário de chegada habitual
+        </h3>
         <p class="explicacao">
           O Parô abre na faixa horária em que você costuma chegar. Sem rotina, abre em Agora.
           Fica guardada só neste celular.
         </p>
 
-        <div class="opcoes" role="radiogroup" aria-labelledby="nome-rotina">
+        <div
+          class="opcoes"
+          role="radiogroup"
+          aria-labelledby="nome-rotina"
+        >
           <ChipDeFaixaHoraria
             role="radio"
             :ativo="rotina === null"
@@ -124,8 +143,16 @@ function apagarHistorico() {
       </div>
     </section>
 
-    <section class="secao" aria-labelledby="titulo-forma">
-      <h2 id="titulo-forma" class="etiqueta">Forma de colaborar</h2>
+    <section
+      class="secao"
+      aria-labelledby="titulo-forma"
+    >
+      <h2
+        id="titulo-forma"
+        class="etiqueta"
+      >
+        Forma de colaborar
+      </h2>
 
       <div class="card linhas">
         <LinhaComSeletor
@@ -147,33 +174,84 @@ function apagarHistorico() {
       </div>
     </section>
 
-    <section class="secao" aria-labelledby="titulo-sugestao">
-      <h2 id="titulo-sugestao" class="etiqueta">Sugestão de rua</h2>
+    <section
+      class="secao"
+      aria-labelledby="titulo-sugestao"
+    >
+      <h2
+        id="titulo-sugestao"
+        class="etiqueta"
+      >
+        Sugestão de rua
+      </h2>
 
       <div class="card">
-        <button type="button" class="linha-link" aria-haspopup="dialog" @click="sugestao?.abrir()">
-          <UIcon name="i-lucide-map-pin-plus" class="icone" aria-hidden="true" />
+        <button
+          type="button"
+          class="linha-link"
+          aria-haspopup="dialog"
+          @click="sugestao?.abrir()"
+        >
+          <UIcon
+            name="i-lucide-map-pin-plus"
+            class="icone"
+            aria-hidden="true"
+          />
           <span class="nome-linha">Sugerir rua ou trecho</span>
-          <UIcon name="i-lucide-chevron-right" class="icone" aria-hidden="true" />
+          <UIcon
+            name="i-lucide-chevron-right"
+            class="icone"
+            aria-hidden="true"
+          />
         </button>
       </div>
     </section>
 
-    <section class="secao" aria-labelledby="titulo-privacidade">
-      <h2 id="titulo-privacidade" class="etiqueta">Privacidade</h2>
+    <section
+      class="secao"
+      aria-labelledby="titulo-privacidade"
+    >
+      <h2
+        id="titulo-privacidade"
+        class="etiqueta"
+      >
+        Privacidade
+      </h2>
 
       <div class="card">
-        <button type="button" class="linha-link" aria-haspopup="dialog" @click="privacidade?.abrir()">
-          <UIcon name="i-lucide-shield" class="icone" aria-hidden="true" />
+        <button
+          type="button"
+          class="linha-link"
+          aria-haspopup="dialog"
+          @click="privacidade?.abrir()"
+        >
+          <UIcon
+            name="i-lucide-shield"
+            class="icone"
+            aria-hidden="true"
+          />
           <span class="nome-linha">Como o Parô trata os seus dados</span>
-          <UIcon name="i-lucide-chevron-right" class="icone" aria-hidden="true" />
+          <UIcon
+            name="i-lucide-chevron-right"
+            class="icone"
+            aria-hidden="true"
+          />
         </button>
       </div>
 
       <!-- Ação de apagar no fim da lista (referência Grok); sempre com confirmação. -->
       <div class="apagar">
-        <button type="button" class="destrutivo" aria-haspopup="dialog" @click="pedirConfirmacao">
-          <UIcon name="i-lucide-trash-2" class="icone" aria-hidden="true" />
+        <button
+          type="button"
+          class="destrutivo"
+          aria-haspopup="dialog"
+          @click="pedirConfirmacao"
+        >
+          <UIcon
+            name="i-lucide-trash-2"
+            class="icone"
+            aria-hidden="true"
+          />
           Apagar histórico
         </button>
         <p class="explicacao">
@@ -182,38 +260,77 @@ function apagarHistorico() {
       </div>
     </section>
 
-    <Gaveta ref="sugestao" titulo="Sugerir rua ou trecho" @fechada="formularioDeSugestao?.limpar()">
-      <FormularioDeSugestao ref="formularioDeSugestao" @enviada="sugestaoEnviada" />
+    <Gaveta
+      ref="sugestao"
+      titulo="Sugerir rua ou trecho"
+      @fechada="formularioDeSugestao?.limpar()"
+    >
+      <FormularioDeSugestao
+        ref="formularioDeSugestao"
+        @enviada="sugestaoEnviada"
+      />
     </Gaveta>
 
-    <Gaveta ref="privacidade" titulo="Como o Parô trata os seus dados">
+    <Gaveta
+      ref="privacidade"
+      titulo="Como o Parô trata os seus dados"
+    >
       <AvisoDePrivacidade />
     </Gaveta>
 
-    <Gaveta ref="confirmacao" titulo="Apagar histórico?">
+    <Gaveta
+      ref="confirmacao"
+      titulo="Apagar histórico?"
+    >
       <div class="confirmacao">
         <p class="texto">
           Apaga deste celular a rotina, o registro de vaga com o código e o ponto do carro. Não dá para desfazer.
           A forma de colaborar continua como está.
         </p>
 
-        <aside v-if="temRegistroAberto" class="aviso-perigo" role="alert">
-          <UIcon name="i-lucide-circle-alert" class="icone-pequeno" aria-hidden="true" />
+        <aside
+          v-if="temRegistroAberto"
+          class="aviso-perigo"
+          role="alert"
+        >
+          <UIcon
+            name="i-lucide-circle-alert"
+            class="icone-pequeno"
+            aria-hidden="true"
+          />
           <div class="aviso-textos">
             <p>
               Se você tem um registro de vaga aberto nesta noite: sem o código, não dá mais para mudar a saída prevista
               nem tocar em "Saí", e a sua saída prevista continua contando para quem está chegando até o fim da noite.
             </p>
-            <NuxtLink to="/minha-vaga" class="link-perigo" @click="confirmacao?.fechar()">
+            <NuxtLink
+              to="/minha-vaga"
+              class="link-perigo"
+              @click="confirmacao?.fechar()"
+            >
               Tocar em "Saí" antes, em Minha vaga
             </NuxtLink>
           </div>
         </aside>
 
         <div class="botoes">
-          <button type="button" class="link" @click="confirmacao?.fechar()">Cancelar</button>
-          <button type="button" class="secundario destrutivo-confirmar" @click="apagarHistorico">
-            <UIcon name="i-lucide-trash-2" class="icone-pequeno" aria-hidden="true" />
+          <button
+            type="button"
+            class="link"
+            @click="confirmacao?.fechar()"
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            class="secundario destrutivo-confirmar"
+            @click="apagarHistorico"
+          >
+            <UIcon
+              name="i-lucide-trash-2"
+              class="icone-pequeno"
+              aria-hidden="true"
+            />
             Apagar
           </button>
         </div>

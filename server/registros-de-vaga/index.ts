@@ -115,7 +115,7 @@ export function criarRegistrosDeVaga({ banco, areaCoberta }: DependênciasDosReg
   return {
     /** Recebe um registro de vaga na noite de `agora` e devolve o código dele. */
     async registrar({ ruaCoberta, chegada, saídaPrevista }: NovoRegistro, agora: Date): Promise<Registrado> {
-      if (!areaCoberta.ruasCobertas().some((r) => r.id === ruaCoberta)) {
+      if (!areaCoberta.ruasCobertas().some(r => r.id === ruaCoberta)) {
         throw new RegistroInválido(`"${ruaCoberta}" não é uma rua coberta`)
       }
       const chegadaDoRegistro = chegada === 'agora' ? areaCoberta.faixaHorária(agora) : chegada
@@ -166,7 +166,7 @@ export function criarRegistrosDeVaga({ banco, areaCoberta }: DependênciasDosReg
          order by rua_coberta, saida_prevista`,
         [noite],
       )
-      return rows.map((r) => ({ ruaCoberta: r.rua_coberta, faixaHorária: r.saida_prevista, quantidade: r.quantidade }))
+      return rows.map(r => ({ ruaCoberta: r.rua_coberta, faixaHorária: r.saida_prevista, quantidade: r.quantidade }))
     },
 
     fecharNoite,
@@ -182,7 +182,7 @@ export function criarRegistrosDeVaga({ banco, areaCoberta }: DependênciasDosReg
         [areaCoberta.noiteDe(agora)],
       )
       for (const { noite } of rows) await fecharNoite(noite)
-      return rows.map((r) => r.noite)
+      return rows.map(r => r.noite)
     },
 
     /** Total de registros de uma noite fechada, por rua coberta e faixa horária de chegada. */
@@ -192,7 +192,7 @@ export function criarRegistrosDeVaga({ banco, areaCoberta }: DependênciasDosReg
          where noite = $1 order by rua_coberta, faixa_horaria`,
         [noite],
       )
-      return rows.map((r) => ({ ruaCoberta: r.rua_coberta, faixaHorária: r.faixa_horaria, quantidade: r.quantidade }))
+      return rows.map(r => ({ ruaCoberta: r.rua_coberta, faixaHorária: r.faixa_horaria, quantidade: r.quantidade }))
     },
   }
 }

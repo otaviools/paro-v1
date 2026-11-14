@@ -65,7 +65,7 @@ function horaLocal(instante: Date, fusoHorario: string) {
     minute: '2-digit',
     hourCycle: 'h23',
   }).formatToParts(instante)
-  const parte = (tipo: string) => partes.find((p) => p.type === tipo)!.value
+  const parte = (tipo: string) => partes.find(p => p.type === tipo)!.value
   return {
     data: `${parte('year')}-${parte('month')}-${parte('day')}`,
     minutos: Number(parte('hour')) * 60 + Number(parte('minute')),
@@ -112,13 +112,13 @@ function distânciaAoTrecho(ponto: Ponto, trecho: RuaCoberta['trecho']): number 
 
 export function criarAreaCoberta(configuracao: ConfiguracaoDaAreaCoberta) {
   function ruaCoberta(id: string): RuaCoberta {
-    const rua = configuracao.ruasCobertas.find((r) => r.id === id)
+    const rua = configuracao.ruasCobertas.find(r => r.id === id)
     if (!rua) throw new Error(`"${id}" não é uma rua coberta`)
     return rua
   }
 
   function semestreLetivo(data: Data): SemestreLetivo | undefined {
-    return configuracao.calendarioLetivo.find((s) => dentroDe(s, data))
+    return configuracao.calendarioLetivo.find(s => dentroDe(s, data))
   }
 
   return {
@@ -161,8 +161,8 @@ export function criarAreaCoberta(configuracao: ConfiguracaoDaAreaCoberta) {
       if (!semestre) return false
       return semestre.diasDeAula.includes(diaDaSemana(data))
         && !semestre.feriados.includes(data)
-        && !semestre.provas.some((p) => dentroDe(p, data))
-        && !semestre.ferias.some((p) => dentroDe(p, data))
+        && !semestre.provas.some(p => dentroDe(p, data))
+        && !semestre.ferias.some(p => dentroDe(p, data))
     },
 
     /** Semestre letivo da data, ou null fora de qualquer semestre. */

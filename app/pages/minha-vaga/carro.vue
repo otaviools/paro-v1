@@ -85,48 +85,113 @@ function voltar() {
       :etiqueta-do-carro="distancia"
     />
 
-    <button type="button" class="botao-icone voltar" aria-label="Voltar" @click="voltar">
-      <UIcon name="i-lucide-arrow-left" class="icone" aria-hidden="true" />
+    <button
+      type="button"
+      class="botao-icone voltar"
+      aria-label="Voltar"
+      @click="voltar"
+    >
+      <UIcon
+        name="i-lucide-arrow-left"
+        class="icone"
+        aria-hidden="true"
+      />
     </button>
 
-    <section class="painel" aria-labelledby="titulo-carro">
-      <h1 id="titulo-carro" class="titulo">Voltar até o carro</h1>
+    <section
+      class="painel"
+      aria-labelledby="titulo-carro"
+    >
+      <h1
+        id="titulo-carro"
+        class="titulo"
+      >
+        Voltar até o carro
+      </h1>
 
-      <div v-if="!lido && !erroDoAgora" class="esqueleto" aria-busy="true" aria-label="Carregando" />
+      <div
+        v-if="!lido && !erroDoAgora"
+        class="esqueleto"
+        aria-busy="true"
+        aria-label="Carregando"
+      />
 
-      <p v-else-if="erroDoAgora" class="linha">
+      <p
+        v-else-if="erroDoAgora"
+        class="linha"
+      >
         Não foi possível carregar agora. Tente de novo em instantes.
       </p>
 
       <template v-else-if="registro && pontoDoCarro">
-        <p class="rua">{{ registro.ruaCoberta.nome }}</p>
-        <p class="linha">Chegada: {{ rotuloDaFaixaHoraria(registro.chegada) }}</p>
+        <p class="rua">
+          {{ registro.ruaCoberta.nome }}
+        </p>
+        <p class="linha">
+          Chegada: {{ rotuloDaFaixaHoraria(registro.chegada) }}
+        </p>
         <template v-if="!localizacaoLigada">
           <p class="linha">
             A localização está desligada em Ajustes, então o mapa mostra só o ponto do carro.
           </p>
-          <NuxtLink to="/ajustes" class="principal">Abrir Ajustes</NuxtLink>
+          <NuxtLink
+            to="/ajustes"
+            class="principal"
+          >Abrir Ajustes</NuxtLink>
         </template>
         <template v-else>
-          <p v-if="distancia" class="linha" role="status">
-            <UIcon name="i-lucide-footprints" class="icone-pequeno" aria-hidden="true" />
+          <p
+            v-if="distancia"
+            class="linha"
+            role="status"
+          >
+            <UIcon
+              name="i-lucide-footprints"
+              class="icone-pequeno"
+              aria-hidden="true"
+            />
             Você está a {{ distancia }} do carro.
           </p>
-          <p v-else-if="erroDaPosicao" class="erro" role="alert">
-            <UIcon name="i-lucide-circle-alert" class="icone-pequeno" aria-hidden="true" />
+          <p
+            v-else-if="erroDaPosicao"
+            class="erro"
+            role="alert"
+          >
+            <UIcon
+              name="i-lucide-circle-alert"
+              class="icone-pequeno"
+              aria-hidden="true"
+            />
             {{ erroDaPosicao }}
           </p>
 
-          <button type="button" class="principal" :aria-busy="localizando" @click="atualizarPosicao">
-            <UIcon v-if="localizando" name="i-lucide-loader-circle" class="carregando" aria-label="Lendo a sua posição" />
-            <template v-else>Atualizar minha posição</template>
+          <button
+            type="button"
+            class="principal"
+            :aria-busy="localizando"
+            @click="atualizarPosicao"
+          >
+            <UIcon
+              v-if="localizando"
+              name="i-lucide-loader-circle"
+              class="carregando"
+              aria-label="Lendo a sua posição"
+            />
+            <template v-else>
+              Atualizar minha posição
+            </template>
           </button>
         </template>
       </template>
 
       <template v-else-if="!registro">
-        <p class="linha">Nenhum registro de vaga aberto nesta noite.</p>
-        <NuxtLink to="/minha-vaga" class="principal">Ver minha vaga</NuxtLink>
+        <p class="linha">
+          Nenhum registro de vaga aberto nesta noite.
+        </p>
+        <NuxtLink
+          to="/minha-vaga"
+          class="principal"
+        >Ver minha vaga</NuxtLink>
       </template>
 
       <template v-else>
@@ -134,7 +199,10 @@ function voltar() {
           Este registro de vaga não tem o ponto do carro. O ponto só fica guardado no celular quando a vaga é
           registrada com a localização.
         </p>
-        <NuxtLink to="/minha-vaga" class="principal">Ver minha vaga</NuxtLink>
+        <NuxtLink
+          to="/minha-vaga"
+          class="principal"
+        >Ver minha vaga</NuxtLink>
       </template>
     </section>
   </main>

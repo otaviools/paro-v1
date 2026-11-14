@@ -9,9 +9,18 @@ const { texto } = useAvisoFlutuante()
 </script>
 
 <template>
-  <div class="regiao" role="status" aria-live="polite">
+  <div
+    class="regiao"
+    role="status"
+    aria-live="polite"
+  >
     <Transition name="aviso">
-      <p v-if="texto" class="aviso">{{ texto }}</p>
+      <p
+        v-if="texto"
+        class="aviso"
+      >
+        {{ texto }}
+      </p>
     </Transition>
   </div>
 </template>

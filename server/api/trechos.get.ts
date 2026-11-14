@@ -5,5 +5,5 @@ import { areaCoberta } from '../area-coberta'
  * Só repassa a configuração da Área coberta; a chance vem do Panorama da noite.
  */
 export default defineEventHandler(() =>
-  areaCoberta.ruasCobertas().map((rua) => ({ id: rua.id, linha: rua.trecho.linha })),
+  areaCoberta.ruasCobertas().map(rua => ({ id: rua.id, linha: rua.trecho.linha })),
 )

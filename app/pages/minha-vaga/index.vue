@@ -120,44 +120,107 @@ async function sair() {
 
 <template>
   <main class="minha-vaga">
-    <h1 class="titulo">Minha vaga</h1>
+    <h1 class="titulo">
+      Minha vaga
+    </h1>
 
-    <div v-if="!lido && !erroDoAgora" class="esqueleto" aria-busy="true" aria-label="Carregando" />
+    <div
+      v-if="!lido && !erroDoAgora"
+      class="esqueleto"
+      aria-busy="true"
+      aria-label="Carregando"
+    />
 
-    <p v-else-if="erroDoAgora" class="mensagem">
+    <p
+      v-else-if="erroDoAgora"
+      class="mensagem"
+    >
       Não foi possível carregar agora. Tente de novo em instantes.
     </p>
 
     <template v-else-if="registro">
-      <aside v-if="confirmarRegistro" class="confirmacao" role="status">
-        <UIcon name="i-lucide-circle-check" class="icone" aria-hidden="true" />
+      <aside
+        v-if="confirmarRegistro"
+        class="confirmacao"
+        role="status"
+      >
+        <UIcon
+          name="i-lucide-circle-check"
+          class="icone"
+          aria-hidden="true"
+        />
         <p>Vaga registrada. Quem está chegando já vê a sua saída prevista no detalhe da rua.</p>
       </aside>
 
       <!-- Card Seu registro de vaga (design system, "Cards"; referência Waymo). -->
-      <section class="card" aria-labelledby="titulo-vaga">
-        <p class="etiqueta">Seu registro de vaga</p>
-        <h2 id="titulo-vaga" class="saida">Saída prevista: {{ rotuloDaFaixaHoraria(registro.saídaPrevista) }}</h2>
-        <p class="rua">{{ registro.ruaCoberta.nome }}</p>
-        <p class="chegada">Chegada: {{ rotuloDaFaixaHoraria(registro.chegada) }}</p>
+      <section
+        class="card"
+        aria-labelledby="titulo-vaga"
+      >
+        <p class="etiqueta">
+          Seu registro de vaga
+        </p>
+        <h2
+          id="titulo-vaga"
+          class="saida"
+        >
+          Saída prevista: {{ rotuloDaFaixaHoraria(registro.saídaPrevista) }}
+        </h2>
+        <p class="rua">
+          {{ registro.ruaCoberta.nome }}
+        </p>
+        <p class="chegada">
+          Chegada: {{ rotuloDaFaixaHoraria(registro.chegada) }}
+        </p>
 
         <div class="acoes">
-          <button type="button" class="secundario" aria-haspopup="dialog" @click="gaveta?.abrir()">
-            <UIcon name="i-lucide-clock" class="icone" aria-hidden="true" />
+          <button
+            type="button"
+            class="secundario"
+            aria-haspopup="dialog"
+            @click="gaveta?.abrir()"
+          >
+            <UIcon
+              name="i-lucide-clock"
+              class="icone"
+              aria-hidden="true"
+            />
             Mudar saída
           </button>
-          <NuxtLink v-if="temPontoDoCarro" to="/minha-vaga/carro" class="secundario">
-            <UIcon name="i-lucide-map-pin" class="icone" aria-hidden="true" />
+          <NuxtLink
+            v-if="temPontoDoCarro"
+            to="/minha-vaga/carro"
+            class="secundario"
+          >
+            <UIcon
+              name="i-lucide-map-pin"
+              class="icone"
+              aria-hidden="true"
+            />
             Voltar até o carro
           </NuxtLink>
         </div>
       </section>
 
       <footer class="rodape">
-        <button type="button" class="principal" :aria-busy="saindo" @click="sair">
-          <UIcon v-if="saindo" name="i-lucide-loader-circle" class="carregando" aria-label="Avisando a saída" />
+        <button
+          type="button"
+          class="principal"
+          :aria-busy="saindo"
+          @click="sair"
+        >
+          <UIcon
+            v-if="saindo"
+            name="i-lucide-loader-circle"
+            class="carregando"
+            aria-label="Avisando a saída"
+          />
           <template v-else>
-            <UIcon name="i-lucide-log-out" class="icone-botao" aria-hidden="true" />
+            <UIcon
+              name="i-lucide-log-out"
+              class="icone-botao"
+              aria-hidden="true"
+            />
             Saí
           </template>
         </button>
@@ -174,8 +237,16 @@ async function sair() {
     </template>
 
     <template v-else-if="forma === 'nenhuma'">
-      <section class="card" aria-labelledby="titulo-desligado">
-        <h2 id="titulo-desligado" class="nome-card">Registro de vaga desligado</h2>
+      <section
+        class="card"
+        aria-labelledby="titulo-desligado"
+      >
+        <h2
+          id="titulo-desligado"
+          class="nome-card"
+        >
+          Registro de vaga desligado
+        </h2>
         <p class="explicacao">
           Você escolheu só consultar a chance. Para registrar a vaga e avisar quem está chegando quando ela deve
           ficar livre, escolha uma forma de colaborar em Ajustes.
@@ -183,13 +254,24 @@ async function sair() {
       </section>
 
       <footer class="rodape">
-        <NuxtLink to="/ajustes" class="principal">Escolher forma de colaborar</NuxtLink>
+        <NuxtLink
+          to="/ajustes"
+          class="principal"
+        >Escolher forma de colaborar</NuxtLink>
       </footer>
     </template>
 
     <template v-else>
-      <section class="card" aria-labelledby="titulo-sem-vaga">
-        <h2 id="titulo-sem-vaga" class="nome-card">Nenhuma vaga registrada nesta noite</h2>
+      <section
+        class="card"
+        aria-labelledby="titulo-sem-vaga"
+      >
+        <h2
+          id="titulo-sem-vaga"
+          class="nome-card"
+        >
+          Nenhuma vaga registrada nesta noite
+        </h2>
         <p class="explicacao">
           Quando estacionar numa rua coberta, registre a vaga com a saída prevista para avisar quem está chegando.
           O registro leva só a rua coberta e as faixas horárias de chegada e de saída, sem a sua posição e sem
@@ -198,7 +280,10 @@ async function sair() {
       </section>
 
       <footer class="rodape">
-        <NuxtLink to="/minha-vaga/registrar" class="principal">Registrar vaga</NuxtLink>
+        <NuxtLink
+          to="/minha-vaga/registrar"
+          class="principal"
+        >Registrar vaga</NuxtLink>
       </footer>
     </template>
   </main>

@@ -139,11 +139,11 @@ export function criarPanorama({ areaCoberta, observações, registrosDeVaga, cha
 
       const { estimativas, saídasPrevistas } = await daNoite(agora)
 
-      const ruas: RuaNoPanorama[] = areaCoberta.ruasCobertas().map((rua) => ({
+      const ruas: RuaNoPanorama[] = areaCoberta.ruasCobertas().map(rua => ({
         rua: { id: rua.id, nome: rua.nome },
         estimativa: estimativaDe(estimativas, rua.id, faixaHorária),
         saídasPrevistas: saídasPrevistas
-          .find((s) => s.ruaCoberta === rua.id && s.faixaHorária === faixaHorária)?.quantidade ?? 0,
+          .find(s => s.ruaCoberta === rua.id && s.faixaHorária === faixaHorária)?.quantidade ?? 0,
         distânciaAoDestino: areaCoberta.distânciaAoDestino(rua.id),
       })).sort(porChance)
 
@@ -153,10 +153,10 @@ export function criarPanorama({ areaCoberta, observações, registrosDeVaga, cha
 
     /** Como está uma rua coberta em cada faixa horária da noite de `agora`. */
     async ruaAoLongoDaNoite(idDaRua: string, agora: Date): Promise<RuaAoLongoDaNoite> {
-      const rua = areaCoberta.ruasCobertas().find((r) => r.id === idDaRua)
+      const rua = areaCoberta.ruasCobertas().find(r => r.id === idDaRua)
       if (!rua) throw new RuaNãoCoberta(idDaRua)
       const { estimativas, saídasPrevistas } = await daNoite(agora)
-      const faixasHorárias = areaCoberta.faixasHorárias().map((faixaHorária) => ({
+      const faixasHorárias = areaCoberta.faixasHorárias().map(faixaHorária => ({
         faixaHorária,
         estimativa: estimativaDe(estimativas, idDaRua, faixaHorária),
       }))
@@ -174,7 +174,7 @@ export function criarPanorama({ areaCoberta, observações, registrosDeVaga, cha
         faixasHorárias,
         melhorFaixaHorária: melhor?.faixaHorária ?? null,
         saídasPrevistas: saídasPrevistas
-          .filter((s) => s.ruaCoberta === idDaRua)
+          .filter(s => s.ruaCoberta === idDaRua)
           .map(({ faixaHorária, quantidade }) => ({ faixaHorária, quantidade }))
           .sort((a, b) => a.faixaHorária.localeCompare(b.faixaHorária)),
         demonstração: observações.éDemonstração(),

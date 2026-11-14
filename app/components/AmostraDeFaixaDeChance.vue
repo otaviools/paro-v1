@@ -14,7 +14,13 @@ const id = useId()
 </script>
 
 <template>
-  <svg class="amostra" :class="{ grande: tamanho === 32 }" :viewBox="`0 0 ${tamanho} ${tamanho}`" aria-hidden="true" focusable="false">
+  <svg
+    class="amostra"
+    :class="{ grande: tamanho === 32 }"
+    :viewBox="`0 0 ${tamanho} ${tamanho}`"
+    aria-hidden="true"
+    focusable="false"
+  >
     <defs>
       <pattern
         :id="`${id}-hachura`"
@@ -23,16 +29,51 @@ const id = useId()
         patternUnits="userSpaceOnUse"
         patternTransform="rotate(45)"
       >
-        <line x1="0" y1="0" x2="0" y2="3.5" stroke="currentColor" stroke-width="1.2" />
+        <line
+          x1="0"
+          y1="0"
+          x2="0"
+          y2="3.5"
+          stroke="currentColor"
+          stroke-width="1.2"
+        />
       </pattern>
-      <pattern :id="`${id}-pontilhado`" width="4" height="4" patternUnits="userSpaceOnUse">
-        <circle cx="2" cy="2" r="0.8" fill="currentColor" />
+      <pattern
+        :id="`${id}-pontilhado`"
+        width="4"
+        height="4"
+        patternUnits="userSpaceOnUse"
+      >
+        <circle
+          cx="2"
+          cy="2"
+          r="0.8"
+          fill="currentColor"
+        />
       </pattern>
     </defs>
 
-    <rect v-if="estado === 'Tranquilo'" :width="tamanho" :height="tamanho" rx="3" fill="currentColor" />
-    <rect v-else-if="estado === 'Apertado'" :width="tamanho" :height="tamanho" rx="3" :fill="`url(#${id}-hachura)`" />
-    <rect v-else-if="estado === 'Difícil'" :width="tamanho" :height="tamanho" rx="3" :fill="`url(#${id}-pontilhado)`" />
+    <rect
+      v-if="estado === 'Tranquilo'"
+      :width="tamanho"
+      :height="tamanho"
+      rx="3"
+      fill="currentColor"
+    />
+    <rect
+      v-else-if="estado === 'Apertado'"
+      :width="tamanho"
+      :height="tamanho"
+      rx="3"
+      :fill="`url(#${id}-hachura)`"
+    />
+    <rect
+      v-else-if="estado === 'Difícil'"
+      :width="tamanho"
+      :height="tamanho"
+      rx="3"
+      :fill="`url(#${id}-pontilhado)`"
+    />
     <rect
       v-else
       x="0.75"

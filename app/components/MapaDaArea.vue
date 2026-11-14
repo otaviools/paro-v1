@@ -233,7 +233,7 @@ function dadosDosTrechos(ruas: RuaNoMapa[]): FeatureCollection {
   return {
     type: 'FeatureCollection',
     features: ruas.flatMap((rua) => {
-      const coordenadas = rua.linha.map((p) => [p.lon, p.lat])
+      const coordenadas = rua.linha.map(p => [p.lon, p.lat])
       const propriedades = { id: rua.id, nome: rua.nome, estado: rua.estado, padrao: IMAGEM_DO_PADRAO[rua.estado] }
       return [
         { type: 'Feature', properties: propriedades, geometry: { type: 'LineString', coordinates: coordenadas } },
@@ -320,40 +320,40 @@ function estilo(urlDosTiles: string, cores: Cores): StyleSpecification {
     },
     layers: [
       { id: 'fundo', type: 'background', paint: {} },
-      { id: 'parques', type: 'fill', source: 'base', 'source-layer': 'landuse', filter: parques, paint: {} },
-      { id: 'agua', type: 'fill', source: 'base', 'source-layer': 'water', paint: {} },
-      { id: 'quadras', type: 'fill', source: 'base', 'source-layer': 'buildings', minzoom: 14, paint: {} },
+      { 'id': 'parques', 'type': 'fill', 'source': 'base', 'source-layer': 'landuse', 'filter': parques, 'paint': {} },
+      { 'id': 'agua', 'type': 'fill', 'source': 'base', 'source-layer': 'water', 'paint': {} },
+      { 'id': 'quadras', 'type': 'fill', 'source': 'base', 'source-layer': 'buildings', 'minzoom': 14, 'paint': {} },
       {
-        id: 'meio-fio-locais', type: 'line', source: 'base', 'source-layer': 'roads', filter: viasLocais,
-        layout: { 'line-join': 'round', 'line-cap': 'round' },
-        paint: { 'line-width': comMeioFio(LARGURA_LOCAL) },
+        'id': 'meio-fio-locais', 'type': 'line', 'source': 'base', 'source-layer': 'roads', 'filter': viasLocais,
+        'layout': { 'line-join': 'round', 'line-cap': 'round' },
+        'paint': { 'line-width': comMeioFio(LARGURA_LOCAL) },
       },
       {
-        id: 'meio-fio-principais', type: 'line', source: 'base', 'source-layer': 'roads', filter: viasPrincipais,
-        layout: { 'line-join': 'round', 'line-cap': 'round' },
-        paint: { 'line-width': comMeioFio(LARGURA_PRINCIPAL) },
+        'id': 'meio-fio-principais', 'type': 'line', 'source': 'base', 'source-layer': 'roads', 'filter': viasPrincipais,
+        'layout': { 'line-join': 'round', 'line-cap': 'round' },
+        'paint': { 'line-width': comMeioFio(LARGURA_PRINCIPAL) },
       },
       {
-        id: 'vias-locais', type: 'line', source: 'base', 'source-layer': 'roads', filter: viasLocais,
-        layout: { 'line-join': 'round', 'line-cap': 'round' },
-        paint: { 'line-width': larguraLocal },
+        'id': 'vias-locais', 'type': 'line', 'source': 'base', 'source-layer': 'roads', 'filter': viasLocais,
+        'layout': { 'line-join': 'round', 'line-cap': 'round' },
+        'paint': { 'line-width': larguraLocal },
       },
       {
-        id: 'vias-principais', type: 'line', source: 'base', 'source-layer': 'roads', filter: viasPrincipais,
-        layout: { 'line-join': 'round', 'line-cap': 'round' },
-        paint: { 'line-width': larguraPrincipal },
+        'id': 'vias-principais', 'type': 'line', 'source': 'base', 'source-layer': 'roads', 'filter': viasPrincipais,
+        'layout': { 'line-join': 'round', 'line-cap': 'round' },
+        'paint': { 'line-width': larguraPrincipal },
       },
       {
-        id: 'nomes-de-rua', type: 'symbol', source: 'base', 'source-layer': 'roads', minzoom: 14,
-        filter: ['all', ['has', 'name'], ['!=', ['get', 'kind'], 'path']],
-        layout: {
+        'id': 'nomes-de-rua', 'type': 'symbol', 'source': 'base', 'source-layer': 'roads', 'minzoom': 14,
+        'filter': ['all', ['has', 'name'], ['!=', ['get', 'kind'], 'path']],
+        'layout': {
           'symbol-placement': 'line',
           'text-field': ['get', 'name'],
           'text-font': ['Noto Sans Regular'],
           'text-size': tamanhoDoTexto('nota'),
           'text-max-angle': 30,
         },
-        paint: { 'text-halo-width': 1.5 },
+        'paint': { 'text-halo-width': 1.5 },
       },
       // Ruas cobertas por cima, com o padrão da faixa de chance em --paro-texto.
       {
@@ -391,7 +391,7 @@ function estilo(urlDosTiles: string, cores: Cores): StyleSpecification {
   }
   // As cores entram pela tabela, a mesma da troca de tema.
   for (const [id, propriedade, token] of CORES_DAS_CAMADAS) {
-    const camada = especificacao.layers.find((c) => c.id === id)
+    const camada = especificacao.layers.find(c => c.id === id)
     if (camada && 'paint' in camada) (camada.paint as Record<string, string>)[propriedade] = cores[token]
   }
   return especificacao
@@ -415,10 +415,10 @@ function aplicarTema(m: MapaMapLibre) {
 function caixaDoEnquadramento(): [number, number, number, number] {
   const pontos = props.pontoDoCarro
     ? [props.pontoDoCarro, ...(props.posicaoAtual ? [props.posicaoAtual] : [])]
-    : props.ruas.flatMap((r) => r.linha)
+    : props.ruas.flatMap(r => r.linha)
   if (pontos.length === 0) return LIMITES_DOS_TILES
-  const lons = pontos.map((p) => p.lon)
-  const lats = pontos.map((p) => p.lat)
+  const lons = pontos.map(p => p.lon)
+  const lats = pontos.map(p => p.lat)
   return [Math.min(...lons), Math.min(...lats), Math.max(...lons), Math.max(...lats)]
 }
 
@@ -579,23 +579,56 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="mapa-da-area">
-    <div ref="recipiente" class="recipiente" role="region" aria-label="Mapa das ruas cobertas" />
-    <div ref="sonda" class="sonda" aria-hidden="true" />
+    <div
+      ref="recipiente"
+      class="recipiente"
+      role="region"
+      aria-label="Mapa das ruas cobertas"
+    />
+    <div
+      ref="sonda"
+      class="sonda"
+      aria-hidden="true"
+    />
     <!-- Marcadores: ficam aqui, escondidos, até o MapLibre levá-los para o mapa. -->
     <div class="marcadores">
-      <div ref="elementoDoCarro" class="marcador-carro" role="img" aria-label="Ponto do carro">
-        <UIcon name="i-lucide-car" class="icone-carro" aria-hidden="true" />
+      <div
+        ref="elementoDoCarro"
+        class="marcador-carro"
+        role="img"
+        aria-label="Ponto do carro"
+      >
+        <UIcon
+          name="i-lucide-car"
+          class="icone-carro"
+          aria-hidden="true"
+        />
       </div>
-      <div ref="elementoDaPosicao" class="marcador-posicao" role="img" aria-label="Sua posição atual" />
+      <div
+        ref="elementoDaPosicao"
+        class="marcador-posicao"
+        role="img"
+        aria-label="Sua posição atual"
+      />
       <!-- Etiqueta sobre o mapa (design system, "Gavetas, avisos flutuantes e carregamento"). -->
-      <div ref="elementoDaEtiqueta" class="marcador-etiqueta">
+      <div
+        ref="elementoDaEtiqueta"
+        class="marcador-etiqueta"
+      >
         <span class="etiqueta-do-carro">
-          <UIcon name="i-lucide-footprints" class="icone-etiqueta" aria-hidden="true" />
+          <UIcon
+            name="i-lucide-footprints"
+            class="icone-etiqueta"
+            aria-hidden="true"
+          />
           {{ etiquetaDoCarro }}
         </span>
       </div>
     </div>
-    <p v-if="falhou" class="falha">
+    <p
+      v-if="falhou"
+      class="falha"
+    >
       Não foi possível abrir o mapa. A lista das ruas cobertas continua disponível.
     </p>
   </div>

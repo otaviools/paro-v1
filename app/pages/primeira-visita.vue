@@ -48,8 +48,16 @@ function comecar() {
 <template>
   <main class="primeira-visita">
     <template v-if="passo === 'boas-vindas'">
-      <section class="conteudo" aria-labelledby="titulo-boas-vindas">
-        <h1 id="titulo-boas-vindas" class="titulo">Chance de vaga nas ruas cobertas</h1>
+      <section
+        class="conteudo"
+        aria-labelledby="titulo-boas-vindas"
+      >
+        <h1
+          id="titulo-boas-vindas"
+          class="titulo"
+        >
+          Chance de vaga nas ruas cobertas
+        </h1>
         <p class="explicacao">
           O Parô mostra em quais ruas cobertas e faixas horárias costuma haver vaga à noite, para você decidir
           antes de sair de casa.
@@ -57,46 +65,102 @@ function comecar() {
 
         <ul class="cards">
           <li class="card">
-            <UIcon name="i-lucide-user-x" class="icone-card" aria-hidden="true" />
-            <h2 class="nome-card">Sem cadastro</h2>
-            <p class="texto-card">Sem conta e sem login. O Parô não pede nada que identifique você.</p>
+            <UIcon
+              name="i-lucide-user-x"
+              class="icone-card"
+              aria-hidden="true"
+            />
+            <h2 class="nome-card">
+              Sem cadastro
+            </h2>
+            <p class="texto-card">
+              Sem conta e sem login. O Parô não pede nada que identifique você.
+            </p>
           </li>
           <li class="card">
-            <UIcon name="i-lucide-info" class="icone-card" aria-hidden="true" />
-            <h2 class="nome-card">Chance, não garantia</h2>
-            <p class="texto-card">A chance diz com que frequência a rua coberta não estava cheia em noites anteriores, sempre com a base.</p>
+            <UIcon
+              name="i-lucide-info"
+              class="icone-card"
+              aria-hidden="true"
+            />
+            <h2 class="nome-card">
+              Chance, não garantia
+            </h2>
+            <p class="texto-card">
+              A chance diz com que frequência a rua coberta não estava cheia em noites anteriores, sempre com a base.
+            </p>
           </li>
           <li class="card">
-            <UIcon name="i-lucide-car" class="icone-card" aria-hidden="true" />
-            <h2 class="nome-card">Avise quem está chegando</h2>
-            <p class="texto-card">Se quiser, registre a sua vaga com a saída prevista. É opcional.</p>
+            <UIcon
+              name="i-lucide-car"
+              class="icone-card"
+              aria-hidden="true"
+            />
+            <h2 class="nome-card">
+              Avise quem está chegando
+            </h2>
+            <p class="texto-card">
+              Se quiser, registre a sua vaga com a saída prevista. É opcional.
+            </p>
           </li>
         </ul>
 
-        <button type="button" class="link" aria-haspopup="dialog" @click="privacidade?.abrir()">
+        <button
+          type="button"
+          class="link"
+          aria-haspopup="dialog"
+          @click="privacidade?.abrir()"
+        >
           Como o Parô trata os seus dados
         </button>
       </section>
 
       <footer class="rodape">
-        <button type="button" class="principal" @click="passo = 'forma-de-colaborar'">Continuar</button>
+        <button
+          type="button"
+          class="principal"
+          @click="passo = 'forma-de-colaborar'"
+        >
+          Continuar
+        </button>
       </footer>
     </template>
 
     <template v-else>
-      <button type="button" class="voltar" aria-label="Voltar" @click="passo = 'boas-vindas'">
-        <UIcon name="i-lucide-arrow-left" class="icone-voltar" aria-hidden="true" />
+      <button
+        type="button"
+        class="voltar"
+        aria-label="Voltar"
+        @click="passo = 'boas-vindas'"
+      >
+        <UIcon
+          name="i-lucide-arrow-left"
+          class="icone-voltar"
+          aria-hidden="true"
+        />
       </button>
 
-      <section class="conteudo" aria-labelledby="titulo-forma">
-        <h1 id="titulo-forma" class="titulo">Como você quer colaborar?</h1>
+      <section
+        class="conteudo"
+        aria-labelledby="titulo-forma"
+      >
+        <h1
+          id="titulo-forma"
+          class="titulo"
+        >
+          Como você quer colaborar?
+        </h1>
         <p class="explicacao">
           Ao estacionar, você pode fazer um registro de vaga para avisar quem está chegando quando a sua vaga deve
           ficar livre. Tudo começa desligado, e você muda quando quiser em Ajustes.
         </p>
 
         <!-- Card de escolha única (design system, "Formulários"). -->
-        <div class="escolhas" role="radiogroup" aria-labelledby="titulo-forma">
+        <div
+          class="escolhas"
+          role="radiogroup"
+          aria-labelledby="titulo-forma"
+        >
           <button
             v-for="opcao in formas"
             :key="opcao.valor"
@@ -114,18 +178,32 @@ function comecar() {
 
         <p class="nota">
           A localização nunca é acompanhada e a posição exata nunca sai do celular.
-          <button type="button" class="link link-na-linha" aria-haspopup="dialog" @click="privacidade?.abrir()">
+          <button
+            type="button"
+            class="link link-na-linha"
+            aria-haspopup="dialog"
+            @click="privacidade?.abrir()"
+          >
             Como o Parô trata os seus dados
           </button>
         </p>
       </section>
 
       <footer class="rodape">
-        <button type="button" class="principal" @click="comecar">Começar</button>
+        <button
+          type="button"
+          class="principal"
+          @click="comecar"
+        >
+          Começar
+        </button>
       </footer>
     </template>
 
-    <Gaveta ref="privacidade" titulo="Como o Parô trata os seus dados">
+    <Gaveta
+      ref="privacidade"
+      titulo="Como o Parô trata os seus dados"
+    >
       <AvisoDePrivacidade />
     </Gaveta>
   </main>

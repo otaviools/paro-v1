@@ -1,7 +1,5 @@
 export default defineNuxtConfig({
-  compatibilityDate: '2026-11-01',
   modules: ['@nuxt/eslint', '@nuxt/ui', '@vite-pwa/nuxt'],
-  css: ['~/assets/css/main.css'],
   devtools: { enabled: false },
 
   app: {
@@ -16,16 +14,11 @@ export default defineNuxtConfig({
       link: [{ rel: 'icon', type: 'image/svg+xml', href: '/icone.svg' }],
     },
   },
-
-  // Formatação pelo ESLint Stylistic, sem Prettier (ADR 0025).
-  eslint: {
-    config: {
-      stylistic: { quotes: 'single', semi: false },
-    },
-  },
+  css: ['~/assets/css/main.css'],
 
   // O tema segue o sistema por padrão (design system, "Tema escuro").
   colorMode: { preference: 'system', fallback: 'light' },
+  compatibilityDate: '2026-11-01',
 
   nitro: {
     vercel: {
@@ -35,6 +28,13 @@ export default defineNuxtConfig({
         // da área coberta às 23h. A rota exige o segredo CRON_SECRET.
         crons: [{ path: '/api/cron/fechar-noites', schedule: '30 3 * * *' }],
       },
+    },
+  },
+
+  // Formatação pelo ESLint Stylistic, sem Prettier (ADR 0025).
+  eslint: {
+    config: {
+      stylistic: { quotes: 'single', semi: false },
     },
   },
 

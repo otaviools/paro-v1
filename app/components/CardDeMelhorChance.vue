@@ -28,11 +28,21 @@ const id = useId()
 </script>
 
 <template>
-  <section class="card" :aria-labelledby="id">
-    <h2 :id="id" class="etiqueta">Melhor chance · {{ rotulo }}</h2>
+  <section
+    class="card"
+    :aria-labelledby="id"
+  >
+    <h2
+      :id="id"
+      class="etiqueta"
+    >
+      Melhor chance · {{ rotulo }}
+    </h2>
 
     <template v-if="melhorChance">
-      <p class="nome">{{ melhorChance.rua.nome }}</p>
+      <p class="nome">
+        {{ melhorChance.rua.nome }}
+      </p>
       <p class="linha">
         <AmostraDeFaixaDeChance :estado="melhorChance.estimativa.faixaDeChance" />
         <span>
@@ -41,13 +51,22 @@ const id = useId()
         </span>
       </p>
       <p class="linha">
-        <UIcon name="i-lucide-footprints" class="icone" aria-hidden="true" />
+        <UIcon
+          name="i-lucide-footprints"
+          class="icone"
+          aria-hidden="true"
+        />
         <span>{{ distanciaAPe(melhorChance.distânciaAoDestino) }}</span>
       </p>
-      <p class="nota">Previsão, não garantia.</p>
+      <p class="nota">
+        Previsão, não garantia.
+      </p>
     </template>
 
-    <p v-else class="sem-dados">
+    <p
+      v-else
+      class="sem-dados"
+    >
       Ainda não há dados para {{ rotulo }}. Nenhuma rua coberta tem observações suficientes nesta faixa horária.
     </p>
   </section>

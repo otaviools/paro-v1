@@ -14,9 +14,9 @@ export interface Base {
   última: Data
 }
 
-export type Estimativa =
-  | { tipo: 'chance', faixaDeChance: FaixaDeChance, /** Em %, de 0 a 100. */ chance: number, base: Base }
-  | { tipo: 'sem-dado' }
+export type Estimativa
+  = | { tipo: 'chance', faixaDeChance: FaixaDeChance, /** Em %, de 0 a 100. */ chance: number, base: Base }
+    | { tipo: 'sem-dado' }
 
 /** Chave do mapa de estimativas para uma rua coberta numa faixa horária. */
 export function chave(ruaCoberta: string, faixaHorária: FaixaHorária): string {
@@ -41,7 +41,7 @@ export function estimar(
 ): Map<string, Estimativa> {
   const grupos = new Map<string, Observação[]>()
   // Só contam observações do semestre atual em dias letivos normais (ADRs 0007 e 0008).
-  const consideradas = observações.filter((o) =>
+  const consideradas = observações.filter(o =>
     calendário.semestreDe(o.data) === semestre && calendário.éDiaLetivoNormal(o.data))
   for (const o of consideradas) {
     const k = chave(o.ruaCoberta, o.faixaHorária)
@@ -50,12 +50,12 @@ export function estimar(
 
   const estimativas = new Map<string, Estimativa>()
   for (const [k, grupo] of grupos) {
-    const dias = new Set(grupo.map((o) => o.data))
+    const dias = new Set(grupo.map(o => o.data))
     if (dias.size < configuracao.mínimoDeObservações) continue
 
     const ruaCheia = (o: Observação) =>
       o.vagasOcupadas * 100 >= configuracao.ocupaçãoDeRuaCheia * o.totalDeVagas
-    const naoCheias = grupo.filter((o) => !ruaCheia(o)).length
+    const naoCheias = grupo.filter(o => !ruaCheia(o)).length
     const chance = (naoCheias * 100) / grupo.length
 
     estimativas.set(k, {

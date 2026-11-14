@@ -18,7 +18,7 @@ export function usePanoramaDaNoite() {
       : FAIXAS_HORARIAS_DAS_ABAS
     return [
       { valor: 'agora', rotulo: 'Agora' },
-      ...faixasHorarias.map((f) => ({ valor: f, rotulo: rotuloDaFaixaHoraria(f) })),
+      ...faixasHorarias.map(f => ({ valor: f, rotulo: rotuloDaFaixaHoraria(f) })),
     ]
   })
 

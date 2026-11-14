@@ -14,7 +14,7 @@ export function useRuasNoMapa(panorama: Ref<PanoramaComRuas | null | undefined>)
   const { data: trechos } = useFetch('/api/trechos', { key: 'trechos', server: false })
 
   return computed<RuaNoMapa[]>(() => {
-    const linhas = new Map((trechos.value ?? []).map((t) => [t.id, t.linha]))
+    const linhas = new Map((trechos.value ?? []).map(t => [t.id, t.linha]))
     return (panorama.value?.ruas ?? []).flatMap(({ rua, estimativa }) => {
       const linha = linhas.get(rua.id)
       return linha ? [{ id: rua.id, nome: rua.nome, estado: estadoDaEstimativa(estimativa), linha }] : []

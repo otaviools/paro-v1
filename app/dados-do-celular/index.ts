@@ -12,7 +12,7 @@ export interface Armazenamento {
 export function armazenamentoEmMemória(): Armazenamento {
   const itens = new Map<string, string>()
   return {
-    getItem: (chave) => itens.get(chave) ?? null,
+    getItem: chave => itens.get(chave) ?? null,
     // Como o localStorage, guarda sempre texto.
     setItem: (chave, valor) => { itens.set(chave, String(valor)) },
     removeItem: (chave) => { itens.delete(chave) },
@@ -67,7 +67,7 @@ export type Mês = string
 /** 16 bytes aleatórios em hexadecimal: o formato que o servidor aceita. */
 function sortearId(): string {
   const bytes = crypto.getRandomValues(new Uint8Array(16))
-  return Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('')
+  return Array.from(bytes, b => b.toString(16).padStart(2, '0')).join('')
 }
 
 /**

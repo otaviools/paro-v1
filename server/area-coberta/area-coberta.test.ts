@@ -58,7 +58,7 @@ describe('Área coberta', () => {
   it('lista as ruas cobertas da configuração', () => {
     const area = criarAreaCoberta(configuracao)
 
-    expect(area.ruasCobertas().map((r) => r.nome)).toEqual(['Rua A', 'Rua B'])
+    expect(area.ruasCobertas().map(r => r.nome)).toEqual(['Rua A', 'Rua B'])
   })
 
   it('dá a distância a pé de uma rua coberta até o destino', () => {
@@ -169,7 +169,7 @@ describe('Área coberta', () => {
 
   describe('configuração do app', () => {
     it('cobre as cinco ruas da ADR 0001, cada uma com distância até o destino', () => {
-      const nomes = areaCoberta.ruasCobertas().map((r) => r.nome)
+      const nomes = areaCoberta.ruasCobertas().map(r => r.nome)
 
       expect(nomes).toEqual([
         'Av. Vasconcelos Costa',

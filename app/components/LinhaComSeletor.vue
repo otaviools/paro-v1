@@ -18,10 +18,24 @@ const id = useId()
 
 <template>
   <div class="linha">
-    <UIcon :name="icone" class="icone" aria-hidden="true" />
+    <UIcon
+      :name="icone"
+      class="icone"
+      aria-hidden="true"
+    />
     <div class="textos">
-      <p :id="`${id}-titulo`" class="titulo">{{ titulo }}</p>
-      <p :id="`${id}-explicacao`" class="explicacao">{{ explicacao }}</p>
+      <p
+        :id="`${id}-titulo`"
+        class="titulo"
+      >
+        {{ titulo }}
+      </p>
+      <p
+        :id="`${id}-explicacao`"
+        class="explicacao"
+      >
+        {{ explicacao }}
+      </p>
     </div>
     <button
       type="button"
@@ -33,7 +47,10 @@ const id = useId()
       :aria-describedby="`${id}-explicacao`"
       @click="emit('mudar', !ligado)"
     >
-      <span class="botao" aria-hidden="true" />
+      <span
+        class="botao"
+        aria-hidden="true"
+      />
     </button>
   </div>
 </template>

@@ -8,7 +8,11 @@ defineProps<{ ativo: boolean }>()
 </script>
 
 <template>
-  <button type="button" class="chip" :class="{ ativo }">
+  <button
+    type="button"
+    class="chip"
+    :class="{ ativo }"
+  >
     <slot />
   </button>
 </template>

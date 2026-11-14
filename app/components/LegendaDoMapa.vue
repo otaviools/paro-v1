@@ -16,8 +16,15 @@ const itens: { estado: EstadoDaChance, explicacao: string }[] = [
 
 <template>
   <ul class="legenda">
-    <li v-for="item in itens" :key="item.estado" class="item">
-      <AmostraDeFaixaDeChance :estado="item.estado" :tamanho="32" />
+    <li
+      v-for="item in itens"
+      :key="item.estado"
+      class="item"
+    >
+      <AmostraDeFaixaDeChance
+        :estado="item.estado"
+        :tamanho="32"
+      />
       <p class="texto">
         <strong class="rotulo">{{ item.estado }}</strong>
         <span class="explicacao">{{ item.explicacao }}</span>

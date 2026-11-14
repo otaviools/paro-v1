@@ -22,7 +22,7 @@ export async function aplicarMigracoes(banco: Banco, migracoes: Migracao[]): Pro
     );
   `)
   const { rows } = await banco.query<{ nome: string }>('select nome from migracoes_aplicadas')
-  const jaAplicadas = new Set(rows.map((r) => r.nome))
+  const jaAplicadas = new Set(rows.map(r => r.nome))
 
   const aplicadas: string[] = []
   for (const migracao of [...migracoes].sort((a, b) => a.nome.localeCompare(b.nome))) {

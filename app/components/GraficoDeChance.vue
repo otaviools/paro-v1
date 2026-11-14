@@ -44,21 +44,37 @@ function preenchimentoDe(estado: EstadoDaChance) {
 
 /** Só as horas cheias ganham rótulo no eixo, para caber no celular. */
 const horasDoEixo = computed(() =>
-  props.faixasHorarias.filter((f) => f.faixaHorária.endsWith(':00')).map((f) => rotuloDaFaixaHoraria(f.faixaHorária)))
+  props.faixasHorarias.filter(f => f.faixaHorária.endsWith(':00')).map(f => rotuloDaFaixaHoraria(f.faixaHorária)))
 </script>
 
 <template>
-  <section class="card" :aria-labelledby="`${id}-titulo`">
+  <section
+    class="card"
+    :aria-labelledby="`${id}-titulo`"
+  >
     <header class="cabecalho">
-      <h2 :id="`${id}-titulo`" class="etiqueta">Chance ao longo da noite</h2>
+      <h2
+        :id="`${id}-titulo`"
+        class="etiqueta"
+      >
+        Chance ao longo da noite
+      </h2>
       <p class="resumo">
-        <template v-if="melhorFaixaHoraria">Melhor faixa: {{ intervaloDaFaixaHoraria(melhorFaixaHoraria) }}</template>
-        <template v-else>Sem dado a noite toda</template>
+        <template v-if="melhorFaixaHoraria">
+          Melhor faixa: {{ intervaloDaFaixaHoraria(melhorFaixaHoraria) }}
+        </template>
+        <template v-else>
+          Sem dado a noite toda
+        </template>
       </p>
     </header>
 
     <!-- Padrões das faixas de chance, iguais aos da amostra. -->
-    <svg class="definicoes" aria-hidden="true" focusable="false">
+    <svg
+      class="definicoes"
+      aria-hidden="true"
+      focusable="false"
+    >
       <defs>
         <pattern
           :id="`${id}-hachura`"
@@ -67,10 +83,27 @@ const horasDoEixo = computed(() =>
           patternUnits="userSpaceOnUse"
           patternTransform="rotate(45)"
         >
-          <line x1="0" y1="0" x2="0" y2="3.5" stroke="currentColor" stroke-width="1.2" />
+          <line
+            x1="0"
+            y1="0"
+            x2="0"
+            y2="3.5"
+            stroke="currentColor"
+            stroke-width="1.2"
+          />
         </pattern>
-        <pattern :id="`${id}-pontilhado`" width="4" height="4" patternUnits="userSpaceOnUse">
-          <circle cx="2" cy="2" r="0.8" fill="currentColor" />
+        <pattern
+          :id="`${id}-pontilhado`"
+          width="4"
+          height="4"
+          patternUnits="userSpaceOnUse"
+        >
+          <circle
+            cx="2"
+            cy="2"
+            r="0.8"
+            fill="currentColor"
+          />
         </pattern>
       </defs>
     </svg>
@@ -86,7 +119,12 @@ const horasDoEixo = computed(() =>
         :aria-label="`${intervaloDaFaixaHoraria(faixaHorária)}: ${estadoDe(estimativa)}`"
         @click="selecionada = faixaHorária"
       >
-        <svg class="barra" :style="{ height: alturaDe(estimativa) }" aria-hidden="true" focusable="false">
+        <svg
+          class="barra"
+          :style="{ height: alturaDe(estimativa) }"
+          aria-hidden="true"
+          focusable="false"
+        >
           <!-- Traço de 3 px centrado na borda: o SVG corta a metade de fora e sobra 1,5 px. -->
           <rect
             v-if="estimativa.tipo === 'sem-dado'"
@@ -98,17 +136,35 @@ const horasDoEixo = computed(() =>
             stroke-width="3"
             stroke-dasharray="4 3"
           />
-          <rect v-else width="100%" height="100%" rx="3" :fill="preenchimentoDe(estimativa.faixaDeChance)" />
+          <rect
+            v-else
+            width="100%"
+            height="100%"
+            rx="3"
+            :fill="preenchimentoDe(estimativa.faixaDeChance)"
+          />
         </svg>
       </button>
     </div>
 
-    <div class="eixo" aria-hidden="true">
-      <span v-for="hora in horasDoEixo" :key="hora">{{ hora }}</span>
+    <div
+      class="eixo"
+      aria-hidden="true"
+    >
+      <span
+        v-for="hora in horasDoEixo"
+        :key="hora"
+      >{{ hora }}</span>
     </div>
 
-    <ul class="legenda" aria-label="Legenda">
-      <li v-for="estado in LEGENDA" :key="estado">
+    <ul
+      class="legenda"
+      aria-label="Legenda"
+    >
+      <li
+        v-for="estado in LEGENDA"
+        :key="estado"
+      >
         <AmostraDeFaixaDeChance :estado="estado" />
         {{ estado }}
       </li>
