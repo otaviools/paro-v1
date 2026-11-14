@@ -14,9 +14,9 @@ describe('Confirmação de registro', () => {
   it('aparece uma vez depois de Registrar vaga', () => {
     useConfirmacaoDeRegistroStore().marcar()
 
-    const minhaVaga = useConfirmacaoDeRegistroStore()
+    const confirmacao = useConfirmacaoDeRegistroStore()
 
-    expect(minhaVaga.consumir()).toBe(true)
-    expect(minhaVaga.consumir()).toBe(false)
+    expect(confirmacao.consumir()).toBe(true)
+    expect(confirmacao.consumir()).toBe(false)
   })
 })

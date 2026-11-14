@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { readonly, ref } from 'vue'
+import { ref } from 'vue'
 
 /**
  * Confirmação de registro, mostrada uma vez em Minha vaga depois de Registrar
@@ -20,5 +20,5 @@ export const useConfirmacaoDeRegistroStore = defineStore('confirmacao-de-registr
     return mostrar
   }
 
-  return { pendente: readonly(pendente), marcar, consumir }
+  return { marcar, consumir }
 })
