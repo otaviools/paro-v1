@@ -5,7 +5,7 @@
   rodapé, para não cobrir "Saí" em Minha vaga.
 -->
 <script setup lang="ts">
-const { texto } = useAvisoFlutuante()
+const { texto } = storeToRefs(useAvisoFlutuanteStore())
 </script>
 
 <template>

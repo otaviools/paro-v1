@@ -65,7 +65,7 @@ const confirmacao = ref<{ abrir: () => void, fechar: () => void }>()
 /** Registro de vaga aberto nesta noite: sem o código, não dá mais para tocar em "Saí" (ADR 0014). */
 const temRegistroAberto = ref(false)
 
-const { avisar } = useAvisoFlutuante()
+const { avisar } = useAvisoFlutuanteStore()
 
 /**
  * Sem a noite de agora (ainda carregando ou sem conexão), não dá para saber

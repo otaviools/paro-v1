@@ -43,7 +43,7 @@ onMounted(() => {
   confirmarRegistro.value = confirmacaoDeRegistro.consumir()
 })
 
-const { avisar } = useAvisoFlutuante()
+const { avisar } = useAvisoFlutuanteStore()
 
 /** O servidor recusou o código: o registro foi encerrado ou é de outra noite. */
 function esquecerRegistro() {
