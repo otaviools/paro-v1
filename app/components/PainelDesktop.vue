@@ -1,7 +1,7 @@
 <!--
   Painel desktop de três colunas (design system, "Padrões de navegação ›
   Desktop"; referência Turo), a partir de 1024 px. Este componente monta a
-  barra lateral de 280 px (USidebar do Nuxt UI) e o mapa da área no centro. A
+  barra lateral de 400 px (USidebar do Nuxt UI) e o mapa da área no centro. A
   terceira coluna, o painel da direita de 360 px, é o próprio <NuxtPage /> do
   app.vue: o Detalhe da rua, Minha vaga e Ajustes abrem nele pelas rotas de
   sempre, então os links diretos continuam funcionando e o conteúdo não é
@@ -46,22 +46,23 @@ function abrirRua(id: string) {
 </script>
 
 <template>
+  <!-- Barra lateral de 400 px (w-100), com rolagem própria e margem lateral de 24 px. -->
   <USidebar
     v-model:open="lateralAberta"
     collapsible="offcanvas"
     breakpoint="lg"
     aria-label="Parô"
     :ui="{
-      root: '[--sidebar-width:var(--paro-largura-lateral)]',
-      container: 'lateral-container',
+      root: '[--sidebar-width:--spacing(100)]',
+      container: 'bg-default border-default',
       inner: 'divide-transparent',
-      header: 'lateral-header',
-      body: 'lateral-body',
+      header: 'min-h-0 px-6 pt-8',
+      body: 'gap-0 p-6',
     }"
   >
     <template #header>
       <!-- PROVISÓRIO: nome em texto até os arquivos do logotipo entrarem no repositório. -->
-      <p class="marca">
+      <p class="text-xl font-bold leading-tight tracking-tight">
         Parô
       </p>
     </template>
@@ -70,22 +71,21 @@ function abrirRua(id: string) {
       :items="navegacao"
       orientation="vertical"
       color="neutral"
-      class="navegacao"
       aria-label="Navegação principal"
       :ui="{
-        list: 'grid gap-(--paro-esp-1)',
-        link: 'gap-(--paro-esp-3) min-h-(--paro-alvo-de-toque) px-(--paro-esp-3) py-0 text-(length:--paro-texto-interface) font-medium text-(--paro-texto-fraco) hover:text-(--paro-texto) before:rounded-(--paro-raio-linha) hover:before:bg-transparent data-active:text-(--paro-destaque-texto) data-active:before:bg-(--paro-destaque)',
-        linkLeadingIcon: 'size-(--paro-esp-5) text-current group-hover:text-current group-data-active:text-current',
+        list: 'grid gap-1',
+        link: 'gap-3 min-h-11 px-3 py-0 text-sm font-medium text-muted hover:text-default before:rounded-paro-md hover:before:bg-transparent data-active:text-primary data-active:before:bg-primary-100',
+        linkLeadingIcon: 'size-5 text-current group-hover:text-current group-data-active:text-current',
       }"
     />
 
     <section
-      class="panorama"
+      class="mt-8 border-t border-default pt-2"
       aria-label="Faixa horária e ruas cobertas"
     >
       <AvisoDeDemonstracao
         v-if="panorama?.demonstracao"
-        class="aviso"
+        class="mt-6"
       />
 
       <PanoramaDaFaixaHoraria
@@ -96,192 +96,60 @@ function abrirRua(id: string) {
         :erro="Boolean(error)"
       />
 
-      <PerguntaAjudou class="ajudou" />
+      <PerguntaAjudou class="mt-8" />
     </section>
   </USidebar>
 
-  <!-- Centro: mapa da área. Voltar até o carro abre aqui, no lugar dele. -->
+  <!--
+    Centro: o mapa da área, entre a barra lateral e o painel da direita (360 px).
+    Voltar até o carro abre aqui, no lugar dele.
+  -->
   <div
     v-if="props.painel !== 'centro'"
-    class="centro"
-    :class="{ 'com-painel': props.painel === 'direita', 'sem-lateral': !lateralAberta }"
+    class="fixed inset-y-0 right-0 transition-[left] duration-200 ease-out motion-reduce:transition-none"
+    :class="[lateralAberta ? 'left-100' : 'left-0', { 'right-90': props.painel === 'direita' }]"
   >
     <MapaDaArea
       ref="mapa"
-      class="mapa"
+      class="absolute inset-0"
       :ruas="ruasNoMapa"
       @selecionar-rua="abrirRua"
     />
 
     <!-- Abre e fecha a barra lateral (botão do exemplo do USidebar). -->
-    <div class="controles controles-esquerda">
-      <button
-        type="button"
-        class="botao-icone"
-        :aria-label="lateralAberta ? 'Esconder a barra lateral' : 'Mostrar a barra lateral'"
-        :aria-expanded="lateralAberta"
-        @click="lateralAberta = !lateralAberta"
-      >
-        <UIcon
-          name="i-lucide-panel-left"
-          class="icone"
-          aria-hidden="true"
-        />
-      </button>
-    </div>
+    <UButton
+      color="neutral"
+      variant="outline"
+      icon="i-lucide-panel-left"
+      class="absolute top-8 left-8 z-2 size-9 justify-center"
+      :aria-label="lateralAberta ? 'Esconder a barra lateral' : 'Mostrar a barra lateral'"
+      :aria-expanded="lateralAberta"
+      @click="lateralAberta = !lateralAberta"
+    />
 
-    <div class="controles">
-      <button
-        type="button"
-        class="botao-icone"
-        aria-label="Centralizar nas ruas cobertas"
-        @click="mapa?.centralizar()"
-      >
-        <UIcon
-          name="i-lucide-locate-fixed"
-          class="icone"
-          aria-hidden="true"
-        />
-      </button>
-    </div>
+    <UButton
+      color="neutral"
+      variant="outline"
+      icon="i-lucide-locate-fixed"
+      class="absolute top-8 right-8 z-2 size-9 justify-center"
+      aria-label="Centralizar nas ruas cobertas"
+      @click="mapa?.centralizar()"
+    />
 
     <!-- Legenda no canto inferior do mapa (referência Turo). -->
-    <section
-      class="legenda-do-mapa"
+    <UCard
+      as="section"
+      class="absolute right-8 bottom-8 z-2 w-62"
+      :ui="{ body: 'grid gap-3 p-4 sm:p-4' }"
       aria-labelledby="titulo-legenda-do-painel"
     >
       <h2
         id="titulo-legenda-do-painel"
-        class="etiqueta"
+        class="text-xs font-semibold uppercase tracking-wider text-muted"
       >
         Legenda
       </h2>
       <LegendaDoMapa />
-    </section>
+    </UCard>
   </div>
 </template>
-
-<style scoped>
-/* Barra lateral de 280 px (USidebar), com as cores da paleta Papel. */
-:deep(.lateral-container) {
-  background: var(--paro-fundo);
-  border-color: var(--paro-borda);
-}
-
-:deep(.lateral-header) {
-  min-height: 0;
-  padding: var(--paro-esp-8) var(--paro-esp-6) 0;
-}
-
-:deep(.lateral-body) {
-  gap: 0;
-  padding: var(--paro-esp-6);
-}
-
-/* Figtree 22 px, o tamanho de --paro-texto-stat. */
-.marca {
-  font-size: var(--paro-texto-stat);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  line-height: 1.2;
-  color: var(--paro-texto);
-}
-
-.panorama {
-  margin-top: var(--paro-esp-8);
-  padding-top: var(--paro-esp-2);
-  border-top: 1px solid var(--paro-borda);
-}
-
-.aviso {
-  margin-top: var(--paro-esp-6);
-}
-
-.ajudou {
-  margin-top: var(--paro-esp-8);
-}
-
-.icone {
-  flex: none;
-  width: var(--paro-esp-5);
-  height: var(--paro-esp-5);
-}
-
-/* Centro: o mapa ocupa o espaço entre a barra lateral e o painel da direita. */
-.centro {
-  position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: var(--paro-largura-lateral);
-  transition: left 200ms ease-out;
-}
-
-.centro.sem-lateral {
-  left: 0;
-}
-
-.centro.com-painel {
-  right: var(--paro-largura-painel);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .centro {
-    transition: none;
-  }
-}
-
-.mapa {
-  position: absolute;
-  inset: 0;
-}
-
-/* Botão de ícone (design system, "Botões"), nos cantos de cima do mapa. */
-.controles {
-  position: absolute;
-  top: var(--paro-margem);
-  right: var(--paro-margem);
-  z-index: 2;
-  display: grid;
-  gap: var(--paro-esp-2);
-}
-
-.controles-esquerda {
-  right: auto;
-  left: var(--paro-margem);
-}
-
-.botao-icone {
-  display: grid;
-  place-items: center;
-  width: calc(var(--paro-esp-8) + var(--paro-esp-1));
-  height: calc(var(--paro-esp-8) + var(--paro-esp-1));
-  color: var(--paro-texto);
-  background: var(--paro-superficie);
-  border: 1px solid var(--paro-borda);
-  border-radius: var(--paro-raio-botao);
-  cursor: pointer;
-}
-
-.legenda-do-mapa {
-  position: absolute;
-  right: var(--paro-margem);
-  bottom: var(--paro-margem);
-  z-index: 2;
-  display: grid;
-  gap: var(--paro-esp-3);
-  width: calc(var(--paro-largura-lateral) - var(--paro-esp-8));
-  padding: var(--paro-esp-4);
-  background: var(--paro-superficie);
-  border: 1px solid var(--paro-borda);
-  border-radius: var(--paro-raio-card);
-}
-
-.etiqueta {
-  font-size: var(--paro-texto-etiqueta);
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--paro-texto-fraco);
-}
-</style>
