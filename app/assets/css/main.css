@@ -83,12 +83,41 @@
 }
 
 /*
- * TEMPORÁRIO: tokens --paro-* antigos. Os componentes ainda usam estes nomes.
- * Saem nos tickets das telas (#36 a #39), quando cada tela passar para as
- * classes do Tailwind e do Nuxt UI (ADR 0027). Não use em código novo.
+ * Cores do mapa. O Nuxt UI não tem variável de mapa; o Mapa da área lê estes
+ * valores para o estilo do MapLibre. O rótulo das ruas usa --ui-text-muted.
  */
 :root {
-  /* TEMPORÁRIO: cores, agora apelidos das variáveis do Nuxt UI. */
+  --paro-mapa-fundo: #F3F2EE;
+  --paro-mapa-quadra: #EBEAE5;
+  --paro-mapa-parque: #E8EEE6;
+  --paro-mapa-via: #FFFFFF;
+  --paro-mapa-meio-fio: #E0DED8;
+}
+
+.dark {
+  --paro-mapa-fundo: #1E1E1E;
+  --paro-mapa-quadra: #252525;
+  --paro-mapa-parque: #1F2620;
+  --paro-mapa-via: #2E2E2E;
+  --paro-mapa-meio-fio: #363636;
+}
+
+/*
+ * Raio base do Nuxt UI: 8 px. Assim o rounded-md dos componentes do Nuxt UI
+ * sem ajuste no app.config.ts fica em 12 px, o mesmo de --radius-paro-md.
+ */
+:root {
+  --ui-radius: 8px;
+}
+
+/*
+ * TEMPORÁRIO: tokens --paro-* antigos que as telas de Detalhe da rua (#37),
+ * Minha vaga (#38), Ajustes, Primeira visita e equipe (#39) ainda usam.
+ * Saem nesses tickets, quando cada tela passar para as classes do Tailwind e
+ * do Nuxt UI (ADR 0027). Não use em código novo.
+ */
+:root {
+  /* TEMPORÁRIO: cores, apelidos das variáveis do Nuxt UI. */
   --paro-fundo: var(--ui-bg);
   --paro-superficie: var(--ui-bg-elevated);
   --paro-superficie-suave: var(--ui-bg-muted);
@@ -100,24 +129,12 @@
   --paro-acao-hover: var(--ui-color-neutral-800);
   --paro-destaque: var(--ui-color-primary-100);
   --paro-destaque-texto: var(--ui-primary);
-  --paro-foco: var(--ui-primary);
   --paro-alerta: var(--ui-color-warning-100);
   --paro-alerta-texto: var(--ui-warning);
   --paro-perigo: var(--ui-color-error-100);
   --paro-perigo-texto: var(--ui-error);
   --paro-sucesso: var(--ui-color-success-100);
   --paro-sucesso-texto: var(--ui-success);
-
-  /*
-   * TEMPORÁRIO: mapa. O Mapa da área lê estes valores para o estilo do
-   * MapLibre. O Nuxt UI não tem variável de mapa; o destino sai no ticket do mapa.
-   */
-  --paro-mapa-fundo: #F3F2EE;
-  --paro-mapa-quadra: #EBEAE5;
-  --paro-mapa-parque: #E8EEE6;
-  --paro-mapa-via: #FFFFFF;
-  --paro-mapa-meio-fio: #E0DED8;
-  --paro-mapa-rotulo: var(--ui-text-muted);
 
   /* TEMPORÁRIO: tipografia. Passa para a escala do Tailwind (ADR 0027). */
   --paro-texto-titulo: 26px;
@@ -141,53 +158,28 @@
   --paro-esp-12: 48px;
   --paro-esp-16: 64px;
 
-  /* TEMPORÁRIO: alvo de toque mínimo. */
-  --paro-alvo-de-toque: 44px;
-
   /* TEMPORÁRIO: raios antigos. Passam para --radius-paro-sm, -md e -lg. */
   --paro-raio-amostra: 3px;
   --paro-raio-botao: 10px;
   --paro-raio-linha: 12px;
   --paro-raio-card: 16px;
-  --paro-raio-abas: 20px;
   --paro-raio-pilula: 999px;
 
-  /* TEMPORÁRIO: margem lateral das telas. */
+  /*
+   * TEMPORÁRIO: margem lateral das telas. No painel da direita do desktop, o
+   * app.vue troca para 24 px.
+   */
   --paro-margem: var(--paro-esp-5);
 
   /* TEMPORÁRIO: largura máxima do conteúdo das telas do celular. */
   --paro-largura-conteudo: 640px;
-
-  /* TEMPORÁRIO: largura da barra lateral do desktop. */
-  --paro-largura-lateral: 280px;
-
-  /* TEMPORÁRIO: largura do painel à direita do desktop. */
-  --paro-largura-painel: 360px;
-
-  /* TEMPORÁRIO: raio base do Nuxt UI, igual ao raio antigo dos botões. */
-  --ui-radius: var(--paro-raio-botao);
-}
-
-.dark {
-  /* TEMPORÁRIO: mapa no tema escuro. */
-  --paro-mapa-fundo: #1E1E1E;
-  --paro-mapa-quadra: #252525;
-  --paro-mapa-parque: #1F2620;
-  --paro-mapa-via: #2E2E2E;
-  --paro-mapa-meio-fio: #363636;
 }
 
 @media (min-width: 1024px) {
   :root { --paro-margem: var(--paro-esp-8); }
 }
 
-body {
-  background: var(--ui-bg);
-  color: var(--ui-text);
-  font-family: var(--font-sans);
-  line-height: 1.5;
-}
-
+/* Anel de foco (design system, "Botões"): 2 px em --ui-primary, afastado 2 px. */
 :focus-visible {
   outline: 2px solid var(--ui-primary);
   outline-offset: 2px;
