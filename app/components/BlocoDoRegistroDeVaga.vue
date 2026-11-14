@@ -1,5 +1,5 @@
 <!--
-  Bloco da vaga ativa no Início (design system, "Fluxos": Voltar ao carro;
+  Bloco do registro de vaga no Início (design system, "Fluxos": Voltar ao carro;
   referência Rivian): com um registro de vaga aberto nesta noite, mostra a
   saída prevista e a rua coberta, com a entrada para "Voltar até o carro" no
   registro com localização ligada. Sem registro aberto, não aparece. Lê só os
@@ -25,10 +25,10 @@ watch(agora, (valor) => {
 </script>
 
 <template>
-  <!-- Card Vaga ativa (design system, "Cards"; referência Waymo). -->
-  <section v-if="registro" class="card" aria-labelledby="titulo-vaga-ativa">
+  <!-- Card Seu registro de vaga (design system, "Cards"; referência Waymo). -->
+  <section v-if="registro" class="card" aria-labelledby="titulo-registro-de-vaga">
     <p class="etiqueta">Seu registro de vaga</p>
-    <h2 id="titulo-vaga-ativa" class="saida">Saída prevista: {{ rotuloDaFaixaHoraria(registro.saídaPrevista) }}</h2>
+    <h2 id="titulo-registro-de-vaga" class="saida">Saída prevista: {{ rotuloDaFaixaHoraria(registro.saídaPrevista) }}</h2>
     <p class="rua">{{ registro.ruaCoberta.nome }}</p>
 
     <div class="acoes">

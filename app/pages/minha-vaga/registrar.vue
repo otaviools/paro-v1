@@ -39,7 +39,7 @@ onMounted(() => {
 })
 const comLocalizacao = computed(() => forma.value === 'localização-ligada')
 
-// Com um registro aberto nesta noite, a tela é a Vaga ativa.
+// Com um registro aberto nesta noite, a tela é Seu registro de vaga.
 watch(agora, (valor) => {
   if (!valor) return
   dados ??= dadosDoCelularDoAparelho()

@@ -28,7 +28,7 @@ export type Noite = string
 /**
  * Registro de vaga aberto, como o celular guarda. O código é o que permite
  * mudar a saída prevista ou tocar em "Saí" (ADR 0014); a rua e as faixas
- * horárias ficam aqui para a tela Vaga ativa.
+ * horárias ficam aqui para a tela Seu registro de vaga.
  */
 export interface RegistroNoCelular {
   código: string

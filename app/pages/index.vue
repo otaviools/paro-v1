@@ -8,7 +8,7 @@ const { abas, faixaHoraria, panorama, error, carregando } = usePanoramaDaNoite()
 
     <h1 class="titulo">Início</h1>
 
-    <BlocoDaVagaAtiva class="vaga-ativa" />
+    <BlocoDoRegistroDeVaga class="registro-de-vaga" />
 
     <div class="abas" role="tablist" aria-label="Faixa horária">
       <ChipDeFaixaHoraria
@@ -67,7 +67,7 @@ const { abas, faixaHoraria, panorama, error, carregando } = usePanoramaDaNoite()
   line-height: 1.2;
 }
 
-.vaga-ativa {
+.registro-de-vaga {
   margin-top: var(--paro-esp-6);
 }
 
