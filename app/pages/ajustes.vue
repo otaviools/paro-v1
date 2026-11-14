@@ -32,6 +32,19 @@ function escolher(faixaHoraria: string | null) {
   rotina.value = faixaHoraria
 }
 
+/** "Sem rotina" é uma opção do menu; no celular, é a rotina nula. */
+const SEM_ROTINA = 'sem-rotina'
+
+const opcoesDeRotina = computed(() => [
+  { label: 'Sem rotina', value: SEM_ROTINA },
+  ...(faixasHorarias.value ?? []).map(f => ({ label: rotuloDaFaixaHoraria(f), value: f })),
+])
+
+const rotinaEscolhida = computed({
+  get: () => rotina.value ?? SEM_ROTINA,
+  set: (valor: string | undefined) => escolher(!valor || valor === SEM_ROTINA ? null : valor),
+})
+
 // --- Forma de colaborar (ADR 0010) ---------------------------------------------
 
 function mudarForma(nova: FormaDeColaborar) {
@@ -42,6 +55,13 @@ function mudarForma(nova: FormaDeColaborar) {
 /** Ligar o registro de vaga começa no manual: a localização continua desligada. */
 function mudarRegistro(ligado: boolean) {
   mudarForma(ligado ? 'manual' : 'nenhuma')
+}
+
+const { escuro, definirEscuro } = useTrocaDeTema()
+
+/** O círculo da troca de tema parte do seletor tocado (o elemento em foco). */
+function mudarTema(ligado: boolean) {
+  definirEscuro(ligado, document.activeElement)
 }
 
 function mudarLocalizacao(ligada: boolean) {
@@ -96,6 +116,31 @@ function apagarHistorico() {
 
     <section
       class="mt-8"
+      aria-labelledby="titulo-aparencia"
+    >
+      <h2
+        id="titulo-aparencia"
+        class="text-xs font-semibold uppercase tracking-wider text-muted"
+      >
+        Aparência
+      </h2>
+
+      <UCard class="mt-3">
+        <!-- O tema escolhido só é conhecido no navegador. -->
+        <ClientOnly>
+          <LinhaComSeletor
+            titulo="Tema escuro"
+            explicacao=""
+            icone="i-lucide-moon"
+            :ligado="escuro"
+            @mudar="mudarTema"
+          />
+        </ClientOnly>
+      </UCard>
+    </section>
+
+    <section
+      class="mt-8"
       aria-labelledby="titulo-rotina"
     >
       <h2
@@ -120,30 +165,16 @@ function apagarHistorico() {
           Fica guardada só neste celular.
         </p>
 
-        <div
-          class="mt-2 flex flex-wrap gap-2"
-          role="radiogroup"
+        <UInputMenu
+          v-model="rotinaEscolhida"
+          class="mt-2 w-full"
+          :items="opcoesDeRotina"
+          value-key="value"
+          open-on-click
           aria-labelledby="nome-rotina"
-        >
-          <ChipDeFaixaHoraria
-            role="radio"
-            :ativo="rotina === null"
-            :aria-checked="rotina === null"
-            @click="escolher(null)"
-          >
-            Sem rotina
-          </ChipDeFaixaHoraria>
-          <ChipDeFaixaHoraria
-            v-for="faixaHoraria in faixasHorarias"
-            :key="faixaHoraria"
-            role="radio"
-            :ativo="rotina === faixaHoraria"
-            :aria-checked="rotina === faixaHoraria"
-            @click="escolher(faixaHoraria)"
-          >
-            {{ rotuloDaFaixaHoraria(faixaHoraria) }}
-          </ChipDeFaixaHoraria>
-        </div>
+          placeholder="Escolha um horário"
+          :ui="{ base: 'h-12 rounded-paro-md lg:h-10' }"
+        />
       </UCard>
     </section>
 
@@ -162,7 +193,7 @@ function apagarHistorico() {
       <UCard class="mt-3">
         <LinhaComSeletor
           titulo="Registrar vagas"
-          explicacao="Ao estacionar, registre a vaga com a saída prevista para avisar quem está chegando. Desligado, o registro de vaga não aparece."
+          explicacao="Ao estacionar, registre a vaga com a saída prevista para avisar quem está chegando."
           icone="i-lucide-car"
           :ligado="forma !== 'nenhuma'"
           @mudar="mudarRegistro"
@@ -171,7 +202,7 @@ function apagarHistorico() {
           v-if="forma !== 'nenhuma'"
           class="mt-4 border-t border-default pt-4"
           titulo="Usar localização"
-          explicacao="Ao registrar, o celular lê a sua posição uma vez e propõe a rua coberta mais próxima. Desligada, você escolhe a rua numa lista e o Parô não lê a localização. A permissão do navegador se tira nos ajustes dele."
+          explicacao=""
           icone="i-lucide-locate"
           :ligado="forma === 'localizacao-ligada'"
           @mudar="mudarLocalizacao"
