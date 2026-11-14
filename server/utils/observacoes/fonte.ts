@@ -1,4 +1,4 @@
-import { configuracaoDaAreaCoberta } from '../area-coberta/configuracao'
+import { configuracaoDaAreaCoberta } from '#shared/utils/area-coberta/configuracao'
 import { criarObservacoesFicticias } from './ficticias'
 import type { Observacoes } from '.'
 

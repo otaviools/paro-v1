@@ -1,4 +1,4 @@
-import { areaCoberta } from '../area-coberta'
+import { areaCoberta } from '#shared/utils/area-coberta'
 import { bancoDoApp } from '../banco/do-app'
 import { criarRegistrosDeVaga } from '.'
 

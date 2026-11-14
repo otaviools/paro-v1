@@ -6,8 +6,6 @@
   depois de ler (ADR 0021). Não muda o mapa.
 -->
 <script setup lang="ts">
-import { MAXIMO_DA_SUGESTAO, MINIMO_DA_SUGESTAO } from '#shared/sugestao-de-rua'
-
 const emit = defineEmits<{ enviada: [] }>()
 
 const id = useId()
@@ -31,7 +29,7 @@ async function enviar() {
   enviando.value = true
   erro.value = null
   try {
-    await $fetch('/api/sugestoes', { method: 'POST', body: { texto: texto.value } })
+    await $fetch('/api/sugestoes', { method: 'POST', body: { texto: texto.value } satisfies CorpoDaSugestao })
     limpar()
     emit('enviada')
   }

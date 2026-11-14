@@ -1,36 +1,7 @@
-import type { Data } from '../area-coberta'
+import type { Data } from '#shared/types/area-coberta'
+import type { RegistrosDaNoite, Relatorio } from '#shared/types/metricas-de-uso'
 import type { Banco } from '../banco'
-import type { RegistrosDeVaga, TotalDeRegistros } from '../registros-de-vaga'
-
-/** Recorrência de uma semana (de segunda a domingo). */
-export interface RecorrenciaDaSemana {
-  /** Segunda-feira da semana. */
-  semana: Data
-  /** Motoristas distintos na semana, pelo identificador mensal. */
-  motoristas: number
-  /** Desses, quantos voltaram na semana seguinte. */
-  voltaramNaSemanaSeguinte: number
-}
-
-/** Respostas a "A previsão ajudou hoje?" numa data. */
-export interface RespostasDoDia {
-  data: Data
-  sim: number
-  nao: number
-}
-
-/** Total de registros de vaga de uma noite fechada, gravado pelo fechamento da noite. */
-export interface RegistrosDaNoite {
-  noite: Data
-  total: number
-  porRuaEFaixaHoraria: TotalDeRegistros[]
-}
-
-export interface Relatorio {
-  recorrencia: RecorrenciaDaSemana[]
-  ajudou: RespostasDoDia[]
-  registrosPorNoite: RegistrosDaNoite[]
-}
+import type { RegistrosDeVaga } from '../registros-de-vaga'
 
 /** O que uma consolidação fez. */
 export interface Consolidacao {

@@ -3,9 +3,9 @@
  * (`NUXT_CHAVE_DA_EQUIPE`, enviada em `Authorization: Bearer <chave>`).
  * `?de=AAAA-MM-DD&ate=AAAA-MM-DD`, até 366 dias.
  */
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async (event): Promise<RespostaDasMetricas> => {
   exigirSegredo(event, process.env.NUXT_CHAVE_DA_EQUIPE)
-  const { de, ate } = getQuery(event)
+  const { de, ate } = getQuery<EntradaNaoValidada<ConsultaDasMetricas>>(event)
   try {
     if (typeof de !== 'string' || typeof ate !== 'string') throw new PeriodoInvalido()
     return { de, ate, ...await metricasDeUsoDoApp.relatorio(de, ate) }

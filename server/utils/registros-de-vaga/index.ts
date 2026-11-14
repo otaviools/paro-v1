@@ -1,5 +1,7 @@
 import { createHash, randomBytes } from 'node:crypto'
-import type { AreaCoberta, Data, FaixaHoraria } from '../area-coberta'
+import type { Data, FaixaHoraria } from '#shared/types/area-coberta'
+import type { Registrado, TotalDeRegistros } from '#shared/types/registros-de-vaga'
+import type { AreaCoberta } from '#shared/utils/area-coberta'
 import type { Banco } from '../banco'
 
 /** Faixa horária de chegada informada: uma faixa horária ou "agora". */
@@ -11,28 +13,9 @@ export interface NovoRegistro {
   saidaPrevista: FaixaHoraria
 }
 
-/** O que o celular guarda depois de registrar (Dados do celular). */
-export interface Registrado {
-  /** Código aleatório de uso único; o servidor guarda só o hash (ADR 0014). */
-  codigo: string
-  noite: Data
-  chegada: FaixaHoraria
-}
-
 /** Quantos registros abertos indicam saída numa rua coberta e faixa horária. */
 export interface SaidaPrevista {
   ruaCoberta: string
-  faixaHoraria: FaixaHoraria
-  quantidade: number
-}
-
-/**
- * Total de registros por noite (ADR 0021): quantos registros de vaga chegaram
- * numa rua coberta e faixa horária, numa noite fechada. Sem identificador nem código.
- */
-export interface TotalDeRegistros {
-  ruaCoberta: string
-  /** Faixa horária de chegada dos registros. */
   faixaHoraria: FaixaHoraria
   quantidade: number
 }

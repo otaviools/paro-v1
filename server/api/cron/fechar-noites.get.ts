@@ -1,3 +1,5 @@
+import { areaCoberta } from '#shared/utils/area-coberta'
+
 /**
  * Rotina diária (Vercel Cron, agendada em `nitro.vercel.config` no
  * `nuxt.config.ts`), protegida por `CRON_SECRET`; a Vercel manda
@@ -5,7 +7,7 @@
  * 1. fecha as noites anteriores à noite de agora que ainda têm registros de vaga;
  * 2. consolida as sessões em totais por semana e apaga as com mais de 60 dias.
  */
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async (event): Promise<RespostaDoFechamentoDasNoites> => {
   exigirSegredo(event, process.env.CRON_SECRET)
   const agora = new Date()
   const noitesFechadas = await registrosDeVagaDoApp.fecharNoitesAnteriores(agora)

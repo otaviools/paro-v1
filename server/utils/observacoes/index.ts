@@ -1,4 +1,4 @@
-import type { Data, FaixaHoraria } from '../area-coberta'
+import type { Data, FaixaHoraria } from '#shared/types/area-coberta'
 
 /**
  * Contagem feita em campo, numa noite, das vagas existentes e ocupadas de uma

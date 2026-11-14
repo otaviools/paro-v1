@@ -1,5 +1,6 @@
-import { criarAreaCoberta } from '../area-coberta'
-import type { ConfiguracaoDaAreaCoberta, Data, SemestreLetivo } from '../area-coberta'
+import type { Data } from '#shared/types/area-coberta'
+import { criarAreaCoberta } from '#shared/utils/area-coberta'
+import type { ConfiguracaoDaAreaCoberta, SemestreLetivo } from '#shared/utils/area-coberta'
 import { configuracaoDaChance } from '../chance/configuracao'
 import type { Observacao, Observacoes } from '.'
 

@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import { criarAreaCoberta } from '../area-coberta'
-import type { ConfiguracaoDaAreaCoberta } from '../area-coberta'
+import { criarAreaCoberta } from '#shared/utils/area-coberta'
+import type { ConfiguracaoDaAreaCoberta } from '#shared/utils/area-coberta'
 import { criarBancoDeTeste } from '../../testes/banco-de-teste'
 import { CodigoRecusado, criarRegistrosDeVaga, RegistroInvalido } from '.'
 

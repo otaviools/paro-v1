@@ -15,7 +15,7 @@
   e a tela volta para Minha vaga.
 -->
 <script setup lang="ts">
-import { areaCoberta } from '~~/server/utils/area-coberta'
+import { areaCoberta } from '#shared/utils/area-coberta'
 import { dadosDoCelularDoAparelho } from '~/dados-do-celular'
 import type { DadosDoCelular, FormaDeColaborar, Ponto } from '~/dados-do-celular'
 
@@ -24,10 +24,10 @@ definePageMeta({ semBarraDeAbas: true, painelDesktop: 'direita' })
 
 const router = useRouter()
 
-const { data: ruas } = await useFetch('/api/ruas')
-const { data: faixasHorarias } = await useFetch('/api/faixas-horarias')
+const { data: ruas } = await useFetch<RespostaDasRuas>('/api/ruas')
+const { data: faixasHorarias } = await useFetch<RespostaDasFaixasHorarias>('/api/faixas-horarias')
 /** Noite e faixa horária de agora; lidas no navegador, na hora de abrir a tela. */
-const { data: agora, error: erroDoAgora } = useFetch('/api/agora', { key: 'agora-registrar', server: false })
+const { data: agora, error: erroDoAgora } = useFetch<RespostaDeAgora>('/api/agora', { key: 'agora-registrar', server: false })
 
 let dados: DadosDoCelular | undefined
 
@@ -111,9 +111,9 @@ async function registrar() {
   enviando.value = true
   erroDoEnvio.value = null
   try {
-    const registrado = await $fetch('/api/registros', {
+    const registrado = await $fetch<Registrado>('/api/registros', {
       method: 'POST',
-      body: { ruaCoberta: rua.id, saidaPrevista: saidaPrevista.value },
+      body: { ruaCoberta: rua.id, saidaPrevista: saidaPrevista.value } satisfies CorpoDoRegistro,
     })
     dados ??= dadosDoCelularDoAparelho()
     dados.guardarRegistro({
