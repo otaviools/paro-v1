@@ -4,7 +4,7 @@
   não mostra nada, porque o painel da direita começa fechado.
 -->
 <script setup lang="ts">
-const desktop = useDesktop()
+const { desktop } = storeToRefs(usePainelDesktopStore())
 </script>
 
 <template>

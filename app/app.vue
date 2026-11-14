@@ -10,8 +10,7 @@ const route = useRoute()
 // sem isso, o painel da direita fica fechado. A Primeira visita e as telas da
 // equipe (`foraDoPainelDesktop`) continuam como no celular.
 
-const desktop = useDesktop()
-const lateralAberta = useLateralAberta()
+const { desktop, lateralAberta } = storeToRefs(usePainelDesktopStore())
 
 onMounted(() => {
   const consulta = window.matchMedia(CONSULTA_DO_DESKTOP)

@@ -4,7 +4,7 @@
   mostra o mesmo que o Início, com o painel da direita fechado.
 -->
 <script setup lang="ts">
-const desktop = useDesktop()
+const { desktop } = storeToRefs(usePainelDesktopStore())
 </script>
 
 <template>
