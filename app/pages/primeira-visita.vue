@@ -35,6 +35,27 @@ const formas: { valor: FormaDeColaborar, titulo: string, descricao: string }[] =
   },
 ]
 
+const cards: { icone: string, titulo: string, texto: string }[] = [
+  {
+    icone: 'i-lucide-user-x',
+    titulo: 'Sem cadastro',
+    texto: 'Sem conta e sem login. O Parô não pede nada que identifique você.',
+  },
+  {
+    icone: 'i-lucide-info',
+    titulo: 'Chance, não garantia',
+    texto: 'A chance diz com que frequência a rua coberta não estava cheia em noites anteriores, sempre com a base.',
+  },
+  {
+    icone: 'i-lucide-car',
+    titulo: 'Avise quem está chegando',
+    texto: 'Se quiser, registre a sua vaga com a saída prevista. É opcional.',
+  },
+]
+
+/** Ação principal fixa no rodapé (design system, "Padrões de navegação"). */
+const rodape = 'fixed inset-x-0 bottom-0 z-10 mx-auto max-w-160 bg-default px-5 pt-3 pb-[calc(--spacing(3)+env(safe-area-inset-bottom))] lg:px-8'
+
 const privacidade = ref<{ abrir: () => void }>()
 
 function comecar() {
@@ -46,355 +67,155 @@ function comecar() {
 </script>
 
 <template>
-  <main class="primeira-visita">
-    <template v-if="passo === 'boas-vindas'">
-      <section
-        class="conteudo"
-        aria-labelledby="titulo-boas-vindas"
-      >
-        <h1
-          id="titulo-boas-vindas"
-          class="titulo"
+  <div>
+    <!--
+      Raiz <div>, e não <main>: o servidor desenha a tela pedida (o Início, por
+      exemplo) e o middleware leva para cá só no navegador, antes da hidratação.
+      Com a mesma tag na raiz, o Vue aproveitaria o <main> do servidor sem trocar
+      as classes (o lg:hidden do Início esconderia esta tela no desktop); com
+      outra tag, ele troca o elemento.
+    -->
+    <main class="mx-auto min-h-dvh max-w-160 px-5 pt-12 pb-8 lg:px-8">
+      <template v-if="passo === 'boas-vindas'">
+        <section
+          class="grid gap-6 motion-safe:animate-[slide-in-from-bottom-and-fade_300ms_cubic-bezier(0.16,1,0.3,1)]"
+          aria-labelledby="titulo-boas-vindas"
         >
-          Chance de vaga nas ruas cobertas
-        </h1>
-        <p class="explicacao">
-          O Parô mostra em quais ruas cobertas e faixas horárias costuma haver vaga à noite, para você decidir
-          antes de sair de casa.
-        </p>
+          <h1
+            id="titulo-boas-vindas"
+            class="text-2xl font-bold leading-tight tracking-tight"
+          >
+            Chance de vaga nas ruas cobertas
+          </h1>
+          <p class="-mt-4 max-w-[70ch] text-sm text-muted">
+            O Parô mostra em quais ruas cobertas e faixas horárias costuma haver vaga à noite, para você decidir
+            antes de sair de casa.
+          </p>
 
-        <ul class="cards">
-          <li class="card">
-            <UIcon
-              name="i-lucide-user-x"
-              class="icone-card"
-              aria-hidden="true"
-            />
-            <h2 class="nome-card">
-              Sem cadastro
-            </h2>
-            <p class="texto-card">
-              Sem conta e sem login. O Parô não pede nada que identifique você.
-            </p>
-          </li>
-          <li class="card">
-            <UIcon
-              name="i-lucide-info"
-              class="icone-card"
-              aria-hidden="true"
-            />
-            <h2 class="nome-card">
-              Chance, não garantia
-            </h2>
-            <p class="texto-card">
-              A chance diz com que frequência a rua coberta não estava cheia em noites anteriores, sempre com a base.
-            </p>
-          </li>
-          <li class="card">
-            <UIcon
-              name="i-lucide-car"
-              class="icone-card"
-              aria-hidden="true"
-            />
-            <h2 class="nome-card">
-              Avise quem está chegando
-            </h2>
-            <p class="texto-card">
-              Se quiser, registre a sua vaga com a saída prevista. É opcional.
-            </p>
-          </li>
-        </ul>
+          <ul class="grid gap-3 lg:gap-4">
+            <UCard
+              v-for="card in cards"
+              :key="card.titulo"
+              as="li"
+              :ui="{ body: 'grid gap-1' }"
+            >
+              <UIcon
+                :name="card.icone"
+                class="mb-1 size-5"
+                aria-hidden="true"
+              />
+              <h2 class="text-base font-semibold leading-tight">
+                {{ card.titulo }}
+              </h2>
+              <p class="max-w-[70ch] text-xs text-muted">
+                {{ card.texto }}
+              </p>
+            </UCard>
+          </ul>
 
-        <button
-          type="button"
-          class="link"
-          aria-haspopup="dialog"
-          @click="privacidade?.abrir()"
-        >
-          Como o Parô trata os seus dados
-        </button>
-      </section>
+          <UButton
+            color="primary"
+            variant="link"
+            label="Como o Parô trata os seus dados"
+            aria-haspopup="dialog"
+            class="min-h-11 justify-self-start px-0 text-sm"
+            @click="privacidade?.abrir()"
+          />
+        </section>
 
-      <footer class="rodape">
-        <button
-          type="button"
-          class="principal"
-          @click="passo = 'forma-de-colaborar'"
-        >
-          Continuar
-        </button>
-      </footer>
-    </template>
+        <footer :class="rodape">
+          <UButton
+            color="neutral"
+            size="xl"
+            block
+            label="Continuar"
+            class="h-13 text-lg lg:h-11"
+            @click="passo = 'forma-de-colaborar'"
+          />
+        </footer>
+      </template>
 
-    <template v-else>
-      <button
-        type="button"
-        class="voltar"
-        aria-label="Voltar"
-        @click="passo = 'boas-vindas'"
-      >
-        <UIcon
-          name="i-lucide-arrow-left"
-          class="icone-voltar"
-          aria-hidden="true"
+      <template v-else>
+        <UButton
+          color="neutral"
+          variant="outline"
+          icon="i-lucide-arrow-left"
+          aria-label="Voltar"
+          class="-mt-8 mb-4 size-10 justify-center lg:size-9"
+          :ui="{ leadingIcon: 'size-5' }"
+          @click="passo = 'boas-vindas'"
         />
-      </button>
 
-      <section
-        class="conteudo"
-        aria-labelledby="titulo-forma"
-      >
-        <h1
-          id="titulo-forma"
-          class="titulo"
-        >
-          Como você quer colaborar?
-        </h1>
-        <p class="explicacao">
-          Ao estacionar, você pode fazer um registro de vaga para avisar quem está chegando quando a sua vaga deve
-          ficar livre. Tudo começa desligado, e você muda quando quiser em Ajustes.
-        </p>
-
-        <!-- Card de escolha única (design system, "Formulários"). -->
-        <div
-          class="escolhas"
-          role="radiogroup"
+        <section
+          class="grid gap-6 motion-safe:animate-[slide-in-from-bottom-and-fade_300ms_cubic-bezier(0.16,1,0.3,1)]"
           aria-labelledby="titulo-forma"
         >
-          <button
-            v-for="opcao in formas"
-            :key="opcao.valor"
-            type="button"
-            role="radio"
-            class="escolha"
-            :class="{ escolhida: forma === opcao.valor }"
-            :aria-checked="forma === opcao.valor"
-            @click="forma = opcao.valor"
+          <h1
+            id="titulo-forma"
+            class="text-2xl font-bold leading-tight tracking-tight"
           >
-            <span class="nome-card">{{ opcao.titulo }}</span>
-            <span class="texto-card">{{ opcao.descricao }}</span>
-          </button>
-        </div>
+            Como você quer colaborar?
+          </h1>
+          <p class="-mt-4 max-w-[70ch] text-sm text-muted">
+            Ao estacionar, você pode fazer um registro de vaga para avisar quem está chegando quando a sua vaga deve
+            ficar livre. Tudo começa desligado, e você muda quando quiser em Ajustes.
+          </p>
 
-        <p class="nota">
-          A localização nunca é acompanhada e a posição exata nunca sai do celular.
-          <button
-            type="button"
-            class="link link-na-linha"
-            aria-haspopup="dialog"
-            @click="privacidade?.abrir()"
-          >
-            Como o Parô trata os seus dados
-          </button>
-        </p>
-      </section>
+          <!--
+            Card de escolha única (design system, "Formulários"): sem o círculo do
+            rádio; o escolhido ganha borda mais grossa em border-inverted.
+          -->
+          <URadioGroup
+            v-model="forma"
+            :items="formas"
+            value-key="valor"
+            label-key="titulo"
+            description-key="descricao"
+            variant="card"
+            indicator="hidden"
+            color="neutral"
+            aria-labelledby="titulo-forma"
+            :ui="{
+              fieldset: 'gap-3 lg:gap-4',
+              item: 'cursor-pointer rounded-paro-lg bg-elevated p-4 lg:p-6 has-data-[state=checked]:border-inverted has-data-[state=checked]:ring-[0.5px] has-data-[state=checked]:ring-inverted has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-primary',
+              wrapper: 'items-start gap-1 text-start',
+              label: 'text-base font-semibold leading-tight',
+              description: 'max-w-[70ch] text-xs',
+            }"
+          />
 
-      <footer class="rodape">
-        <button
-          type="button"
-          class="principal"
-          @click="comecar"
-        >
-          Começar
-        </button>
-      </footer>
-    </template>
+          <p class="max-w-[70ch] text-xs text-muted">
+            A localização nunca é acompanhada e a posição exata nunca sai do celular.
+            <!-- O link vai para a linha de baixo, com o alvo de toque inteiro. -->
+            <UButton
+              color="primary"
+              variant="link"
+              label="Como o Parô trata os seus dados"
+              aria-haspopup="dialog"
+              class="flex min-h-11 px-0 text-sm"
+              @click="privacidade?.abrir()"
+            />
+          </p>
+        </section>
 
-    <Gaveta
-      ref="privacidade"
-      titulo="Como o Parô trata os seus dados"
-    >
-      <AvisoDePrivacidade />
-    </Gaveta>
-  </main>
+        <footer :class="rodape">
+          <UButton
+            color="neutral"
+            size="xl"
+            block
+            label="Começar"
+            class="h-13 text-lg lg:h-11"
+            @click="comecar"
+          />
+        </footer>
+      </template>
+
+      <Gaveta
+        ref="privacidade"
+        titulo="Como o Parô trata os seus dados"
+      >
+        <AvisoDePrivacidade />
+      </Gaveta>
+    </main>
+  </div>
 </template>
-
-<style scoped>
-.primeira-visita {
-  max-width: var(--paro-largura-conteudo);
-  min-height: 100dvh;
-  margin: 0 auto;
-  padding: var(--paro-esp-12) var(--paro-margem) var(--paro-esp-8);
-}
-
-/* Botão de ícone (design system, "Botões"). */
-.voltar {
-  display: grid;
-  place-items: center;
-  width: calc(var(--paro-esp-8) + var(--paro-esp-2));
-  height: calc(var(--paro-esp-8) + var(--paro-esp-2));
-  margin-top: calc(var(--paro-esp-8) * -1);
-  margin-bottom: var(--paro-esp-4);
-  color: var(--paro-texto);
-  background: var(--paro-superficie);
-  border: 1px solid var(--paro-borda);
-  border-radius: var(--paro-raio-botao);
-  cursor: pointer;
-}
-
-@media (min-width: 1024px) {
-  .voltar {
-    width: calc(var(--paro-esp-8) + var(--paro-esp-1));
-    height: calc(var(--paro-esp-8) + var(--paro-esp-1));
-  }
-}
-
-.icone-voltar {
-  width: var(--paro-esp-5);
-  height: var(--paro-esp-5);
-}
-
-.conteudo {
-  display: grid;
-  gap: var(--paro-esp-6);
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .conteudo {
-    animation: entrar 300ms cubic-bezier(0.16, 1, 0.3, 1);
-  }
-}
-
-@keyframes entrar {
-  from { opacity: 0; transform: translateY(var(--paro-esp-2)); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.titulo {
-  font-size: var(--paro-texto-titulo);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  line-height: 1.2;
-}
-
-.explicacao {
-  max-width: 70ch;
-  margin-top: calc(var(--paro-esp-4) * -1);
-  font-size: var(--paro-texto-corpo);
-  color: var(--paro-texto-fraco);
-}
-
-.cards,
-.escolhas {
-  display: grid;
-  gap: var(--paro-esp-3);
-}
-
-@media (min-width: 1024px) {
-  .cards,
-  .escolhas { gap: var(--paro-esp-4); }
-}
-
-/* Cards (design system, "Cards"): superfície, borda de 1 px, raio de 16 px. */
-.card,
-.escolha {
-  display: grid;
-  gap: var(--paro-esp-1);
-  padding: var(--paro-esp-4);
-  text-align: left;
-  color: var(--paro-texto);
-  background: var(--paro-superficie);
-  border: 1px solid var(--paro-borda);
-  border-radius: var(--paro-raio-card);
-}
-
-@media (min-width: 1024px) {
-  .card,
-  .escolha { padding: var(--paro-esp-6); }
-}
-
-.escolha {
-  cursor: pointer;
-}
-
-/* O escolhido com borda de 1,5 px em --paro-texto; o padding perde 0,5 px. */
-.escolha.escolhida {
-  padding: calc(var(--paro-esp-4) - 0.5px);
-  border: 1.5px solid var(--paro-texto);
-}
-
-@media (min-width: 1024px) {
-  .escolha.escolhida { padding: calc(var(--paro-esp-6) - 0.5px); }
-}
-
-.icone-card {
-  width: var(--paro-esp-5);
-  height: var(--paro-esp-5);
-  margin-bottom: var(--paro-esp-1);
-}
-
-.nome-card {
-  font-size: var(--paro-texto-card);
-  font-weight: 600;
-  line-height: 1.2;
-}
-
-.texto-card {
-  max-width: 70ch;
-  font-size: var(--paro-texto-legenda);
-  color: var(--paro-texto-fraco);
-}
-
-.nota {
-  max-width: 70ch;
-  font-size: var(--paro-texto-legenda);
-  color: var(--paro-texto-fraco);
-}
-
-/* Botão link (design system, "Botões"). */
-.link {
-  justify-self: start;
-  min-height: calc(var(--paro-esp-8) + var(--paro-esp-3));
-  font-size: var(--paro-texto-interface);
-  font-weight: 600;
-  text-align: left;
-  color: var(--paro-destaque-texto);
-  cursor: pointer;
-}
-
-/* Na nota, o link vai para a linha de baixo, com o alvo de toque inteiro. */
-.link-na-linha {
-  display: block;
-}
-
-/* Ação principal fixa no rodapé (design system, "Padrões de navegação"). */
-.rodape {
-  position: fixed;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  z-index: 10;
-  max-width: var(--paro-largura-conteudo);
-  margin: 0 auto;
-  padding: var(--paro-esp-3) var(--paro-margem) calc(var(--paro-esp-3) + env(safe-area-inset-bottom));
-  background: var(--paro-fundo);
-}
-
-/* Botão principal (design system, "Botões"). */
-.principal {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: calc(var(--paro-esp-12) + var(--paro-esp-1));
-  font-size: var(--paro-texto-botao);
-  font-weight: 600;
-  color: var(--paro-acao-texto);
-  background: var(--paro-acao);
-  border-radius: var(--paro-raio-botao);
-  cursor: pointer;
-}
-
-.principal:hover,
-.principal:active {
-  background: var(--paro-acao-hover);
-}
-
-.principal:active {
-  transform: scale(0.98);
-}
-
-@media (min-width: 1024px) {
-  .principal { height: calc(var(--paro-esp-8) + var(--paro-esp-3)); }
-}
-</style>
