@@ -6,7 +6,7 @@
   é apagada pela equipe depois de lida, sempre com confirmação.
 -->
 <script setup lang="ts">
-definePageMeta({ semBarraDeAbas: true })
+definePageMeta({ semBarraDeAbas: true, foraDoPainelDesktop: true })
 useHead({ title: 'Sugestões de rua · Parô', meta: [{ name: 'robots', content: 'noindex' }] })
 
 interface Sugestao { id: number, texto: string, data: string }

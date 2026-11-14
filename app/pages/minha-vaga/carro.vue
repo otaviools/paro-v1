@@ -13,7 +13,8 @@ import { dadosDoCelularDoAparelho } from '~/dados-do-celular'
 import type { Ponto, RegistroNoCelular } from '~/dados-do-celular'
 import type { RuaNoMapa } from '~/components/MapaDaArea.vue'
 
-definePageMeta({ semBarraDeAbas: true })
+// No desktop, abre no centro, no lugar do mapa da área.
+definePageMeta({ semBarraDeAbas: true, painelDesktop: 'centro' })
 
 const router = useRouter()
 

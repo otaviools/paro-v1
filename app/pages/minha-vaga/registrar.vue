@@ -19,7 +19,8 @@ import { areaCoberta } from '~~/server/area-coberta'
 import { dadosDoCelularDoAparelho } from '~/dados-do-celular'
 import type { DadosDoCelular, FormaDeColaborar, Ponto } from '~/dados-do-celular'
 
-definePageMeta({ semBarraDeAbas: true })
+// No desktop, abre no painel da direita, como Minha vaga.
+definePageMeta({ semBarraDeAbas: true, painelDesktop: 'direita' })
 
 const router = useRouter()
 

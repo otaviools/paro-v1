@@ -11,7 +11,7 @@
 import { dadosDoCelularDoAparelho } from '~/dados-do-celular'
 import type { FormaDeColaborar } from '~/dados-do-celular'
 
-definePageMeta({ semBarraDeAbas: true })
+definePageMeta({ semBarraDeAbas: true, foraDoPainelDesktop: true })
 
 const passo = ref<'boas-vindas' | 'forma-de-colaborar'>('boas-vindas')
 const forma = ref<FormaDeColaborar>('nenhuma')
