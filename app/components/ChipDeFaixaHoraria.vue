@@ -15,7 +15,7 @@ defineProps<{ ativo: boolean }>()
 
 <style scoped>
 .chip {
-  height: var(--paro-esp-8);
+  height: var(--paro-alvo-de-toque);
   padding: 0 var(--paro-esp-4);
   font-size: var(--paro-texto-etiqueta);
   font-weight: 600;

@@ -58,6 +58,9 @@
   --paro-esp-12: 48px;
   --paro-esp-16: 64px;
 
+  /* Alvo de toque mínimo (design system) */
+  --paro-alvo-de-toque: 44px;
+
   /* Raios (modelo 3 · Arredondado) */
   --paro-raio-amostra: 3px;
   --paro-raio-botao: 10px;
