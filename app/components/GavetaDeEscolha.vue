@@ -41,19 +41,57 @@ defineExpose({ abrir, fechar })
 </script>
 
 <template>
-  <dialog ref="gaveta" class="gaveta" :aria-labelledby="`${id}-titulo`" @click.self="fechar">
-    <div class="alca" aria-hidden="true" />
+  <dialog
+    ref="gaveta"
+    class="gaveta"
+    :aria-labelledby="`${id}-titulo`"
+    @click.self="fechar"
+  >
+    <div
+      class="alca"
+      aria-hidden="true"
+    />
     <header class="topo">
-      <h2 :id="`${id}-titulo`" class="titulo">{{ titulo }}</h2>
-      <button type="button" class="link" :disabled="salvando" @click="salvar">
-        <UIcon v-if="salvando" name="i-lucide-loader-circle" class="carregando" aria-label="Salvando" />
-        <template v-else>Salvar</template>
+      <h2
+        :id="`${id}-titulo`"
+        class="titulo"
+      >
+        {{ titulo }}
+      </h2>
+      <button
+        type="button"
+        class="link"
+        :disabled="salvando"
+        @click="salvar"
+      >
+        <UIcon
+          v-if="salvando"
+          name="i-lucide-loader-circle"
+          class="carregando"
+          aria-label="Salvando"
+        />
+        <template v-else>
+          Salvar
+        </template>
       </button>
     </header>
 
-    <section v-for="(grupo, i) in grupos" :key="grupo.rotulo" class="grupo">
-      <h3 :id="`${id}-grupo-${i}`" class="etiqueta">{{ grupo.rotulo }}</h3>
-      <div class="chips" role="radiogroup" :aria-labelledby="`${id}-grupo-${i}`">
+    <section
+      v-for="(grupo, i) in grupos"
+      :key="grupo.rotulo"
+      class="grupo"
+    >
+      <h3
+        :id="`${id}-grupo-${i}`"
+        class="etiqueta"
+      >
+        {{ grupo.rotulo }}
+      </h3>
+      <div
+        class="chips"
+        role="radiogroup"
+        :aria-labelledby="`${id}-grupo-${i}`"
+      >
         <ChipDeFaixaHoraria
           v-for="faixaHoraria in grupo.faixasHorarias"
           :key="faixaHoraria"

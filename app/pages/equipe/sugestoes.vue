@@ -108,7 +108,7 @@ async function apagar() {
   apagando.value = true
   try {
     await $fetch(`/api/equipe/sugestoes/${sugestao.id}`, { method: 'DELETE', headers: cabecalho(chave.value) })
-    sugestoes.value = sugestoes.value.filter((s) => s.id !== sugestao.id)
+    sugestoes.value = sugestoes.value.filter(s => s.id !== sugestao.id)
     confirmacao.value?.fechar()
     avisar('Sugestão apagada.')
   }
@@ -131,15 +131,25 @@ function dataCompleta(data: string) {
 
 <template>
   <main class="equipe">
-    <h1 class="titulo">Sugestões de rua</h1>
+    <h1 class="titulo">
+      Sugestões de rua
+    </h1>
     <p class="explicacao">
       Ruas ou trechos fora da área coberta sugeridos pelos motoristas, sem identificação. Apague cada sugestão
       depois de ler: é texto livre e pode conter dado pessoal.
     </p>
 
-    <form v-if="!chave" class="card" novalidate @submit.prevent="entrar">
+    <form
+      v-if="!chave"
+      class="card"
+      novalidate
+      @submit.prevent="entrar"
+    >
       <div class="campo">
-        <label :for="`${id}-chave`" class="rotulo">Chave da equipe</label>
+        <label
+          :for="`${id}-chave`"
+          class="rotulo"
+        >Chave da equipe</label>
         <input
           :id="`${id}-chave`"
           v-model="digitada"
@@ -149,59 +159,146 @@ function dataCompleta(data: string) {
           :aria-invalid="erroDaChave !== null"
           :aria-describedby="`${id}-nota${erroDaChave ? ` ${id}-erro` : ''}`"
         >
-        <p :id="`${id}-nota`" class="nota">Fica só nesta aba do navegador e some ao fechá-la.</p>
-        <p v-if="erroDaChave" :id="`${id}-erro`" class="erro" role="alert">
-          <UIcon name="i-lucide-circle-alert" class="icone-pequeno" aria-hidden="true" />
+        <p
+          :id="`${id}-nota`"
+          class="nota"
+        >
+          Fica só nesta aba do navegador e some ao fechá-la.
+        </p>
+        <p
+          v-if="erroDaChave"
+          :id="`${id}-erro`"
+          class="erro"
+          role="alert"
+        >
+          <UIcon
+            name="i-lucide-circle-alert"
+            class="icone-pequeno"
+            aria-hidden="true"
+          />
           {{ erroDaChave }}
         </p>
       </div>
 
-      <button type="submit" class="principal" :aria-busy="carregando">
-        <UIcon v-if="carregando" name="i-lucide-loader-circle" class="carregando" aria-label="Carregando" />
-        <template v-else>Ver sugestões</template>
+      <button
+        type="submit"
+        class="principal"
+        :aria-busy="carregando"
+      >
+        <UIcon
+          v-if="carregando"
+          name="i-lucide-loader-circle"
+          class="carregando"
+          aria-label="Carregando"
+        />
+        <template v-else>
+          Ver sugestões
+        </template>
       </button>
     </form>
 
-    <section v-else class="secao" aria-labelledby="titulo-lista">
+    <section
+      v-else
+      class="secao"
+      aria-labelledby="titulo-lista"
+    >
       <div class="topo">
-        <h2 id="titulo-lista" class="etiqueta">
+        <h2
+          id="titulo-lista"
+          class="etiqueta"
+        >
           {{ sugestoes.length === 1 ? '1 sugestão' : `${sugestoes.length} sugestões` }}
         </h2>
         <div class="acoes">
-          <button type="button" class="link" :aria-busy="carregando" @click="carregar(chave)">
-            <UIcon name="i-lucide-refresh-cw" class="icone-pequeno" aria-hidden="true" />
+          <button
+            type="button"
+            class="link"
+            :aria-busy="carregando"
+            @click="carregar(chave)"
+          >
+            <UIcon
+              name="i-lucide-refresh-cw"
+              class="icone-pequeno"
+              aria-hidden="true"
+            />
             Atualizar
           </button>
-          <button type="button" class="link" @click="sair()">
-            <UIcon name="i-lucide-log-out" class="icone-pequeno" aria-hidden="true" />
+          <button
+            type="button"
+            class="link"
+            @click="sair()"
+          >
+            <UIcon
+              name="i-lucide-log-out"
+              class="icone-pequeno"
+              aria-hidden="true"
+            />
             Sair
           </button>
         </div>
       </div>
 
-      <p v-if="erroDaLista" class="erro" role="alert">
-        <UIcon name="i-lucide-circle-alert" class="icone-pequeno" aria-hidden="true" />
+      <p
+        v-if="erroDaLista"
+        class="erro"
+        role="alert"
+      >
+        <UIcon
+          name="i-lucide-circle-alert"
+          class="icone-pequeno"
+          aria-hidden="true"
+        />
         {{ erroDaLista }}
       </p>
 
-      <p v-if="sugestoes.length === 0" class="vazio">Nenhuma sugestão de rua para ler.</p>
+      <p
+        v-if="sugestoes.length === 0"
+        class="vazio"
+      >
+        Nenhuma sugestão de rua para ler.
+      </p>
 
       <!-- Tabela (design system, "Tabelas"); no celular, cada linha vira um bloco. -->
-      <table v-else class="tabela">
+      <table
+        v-else
+        class="tabela"
+      >
         <thead>
           <tr>
-            <th scope="col">Data</th>
-            <th scope="col">Sugestão</th>
-            <th scope="col"><span class="so-leitor">Ação</span></th>
+            <th scope="col">
+              Data
+            </th>
+            <th scope="col">
+              Sugestão
+            </th>
+            <th scope="col">
+              <span class="so-leitor">Ação</span>
+            </th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="sugestao in sugestoes" :key="sugestao.id">
-            <td class="data">{{ dataCompleta(sugestao.data) }}</td>
-            <td class="texto">{{ sugestao.texto }}</td>
+          <tr
+            v-for="sugestao in sugestoes"
+            :key="sugestao.id"
+          >
+            <td class="data">
+              {{ dataCompleta(sugestao.data) }}
+            </td>
+            <td class="texto">
+              {{ sugestao.texto }}
+            </td>
             <td class="acao">
-              <button type="button" class="destrutivo" aria-haspopup="dialog" @click="pedirConfirmacao(sugestao)">
-                <UIcon name="i-lucide-trash-2" class="icone-pequeno" aria-hidden="true" />
+              <button
+                type="button"
+                class="destrutivo"
+                aria-haspopup="dialog"
+                @click="pedirConfirmacao(sugestao)"
+              >
+                <UIcon
+                  name="i-lucide-trash-2"
+                  class="icone-pequeno"
+                  aria-hidden="true"
+                />
                 Apagar
               </button>
             </td>
@@ -210,17 +307,40 @@ function dataCompleta(data: string) {
       </table>
     </section>
 
-    <Gaveta ref="confirmacao" titulo="Apagar sugestão?">
+    <Gaveta
+      ref="confirmacao"
+      titulo="Apagar sugestão?"
+    >
       <div class="confirmacao">
         <p class="texto-confirmacao">
           "{{ aApagar?.texto }}" sai do servidor. Não dá para desfazer.
         </p>
         <div class="botoes">
-          <button type="button" class="link link-grande" @click="confirmacao?.fechar()">Cancelar</button>
-          <button type="button" class="secundario destrutivo-confirmar" :aria-busy="apagando" @click="apagar">
-            <UIcon v-if="apagando" name="i-lucide-loader-circle" class="carregando" aria-label="Apagando" />
+          <button
+            type="button"
+            class="link link-grande"
+            @click="confirmacao?.fechar()"
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            class="secundario destrutivo-confirmar"
+            :aria-busy="apagando"
+            @click="apagar"
+          >
+            <UIcon
+              v-if="apagando"
+              name="i-lucide-loader-circle"
+              class="carregando"
+              aria-label="Apagando"
+            />
             <template v-else>
-              <UIcon name="i-lucide-trash-2" class="icone-pequeno" aria-hidden="true" />
+              <UIcon
+                name="i-lucide-trash-2"
+                class="icone-pequeno"
+                aria-hidden="true"
+              />
               Apagar
             </template>
           </button>

@@ -30,20 +30,41 @@ function subtitulo(estimativa: RuaNaLista['estimativa']) {
 </script>
 
 <template>
-  <ul v-if="carregando" class="lista" aria-busy="true" aria-label="Carregando ruas cobertas">
-    <li v-for="n in 5" :key="n" class="linha esqueleto" />
+  <ul
+    v-if="carregando"
+    class="lista"
+    aria-busy="true"
+    aria-label="Carregando ruas cobertas"
+  >
+    <li
+      v-for="n in 5"
+      :key="n"
+      class="linha esqueleto"
+    />
   </ul>
 
-  <p v-else-if="erro" class="mensagem">
+  <p
+    v-else-if="erro"
+    class="mensagem"
+  >
     Não foi possível carregar a chance agora. Tente de novo em instantes.
   </p>
 
-  <p v-else-if="panorama && panorama.faixaHorária === null" class="mensagem">
+  <p
+    v-else-if="panorama && panorama.faixaHorária === null"
+    class="mensagem"
+  >
     Agora está fora da área coberta, que vai das 17h às 23h. Escolha 19h, 21h ou 22h para ver a chance.
   </p>
 
-  <ul v-else class="lista">
-    <li v-for="{ rua, estimativa, distânciaAoDestino } in panorama?.ruas" :key="rua.id">
+  <ul
+    v-else
+    class="lista"
+  >
+    <li
+      v-for="{ rua, estimativa, distânciaAoDestino } in panorama?.ruas"
+      :key="rua.id"
+    >
       <NuxtLink
         class="linha"
         :to="{ path: `/ruas/${rua.id}`, query: { faixaHoraria: panorama?.faixaHorária } }"

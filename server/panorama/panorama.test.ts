@@ -61,7 +61,7 @@ function fonte(lista: Observação[], demonstração = false): Observações {
 const semRegistrosDeVaga = { async saídasPrevistas() { return [] } }
 
 function estimativaDe(resultado: Awaited<ReturnType<ReturnType<typeof criarPanorama>['panorama']>>, rua: string) {
-  return resultado.ruas.find((r) => r.rua.id === rua)!.estimativa
+  return resultado.ruas.find(r => r.rua.id === rua)!.estimativa
 }
 
 describe('Panorama da noite', () => {
@@ -189,7 +189,7 @@ describe('Panorama da noite', () => {
 
     const resultado = await panorama('19:00', agora)
 
-    expect(resultado.ruas.map((r) => [r.rua.id, r.distânciaAoDestino])).toEqual([
+    expect(resultado.ruas.map(r => [r.rua.id, r.distânciaAoDestino])).toEqual([
       ['rua-c', 200],
       ['rua-a', 300],
       ['rua-b', 120],
@@ -209,7 +209,7 @@ describe('Panorama da noite', () => {
 
     const resultado = await panorama('19:00', agora)
 
-    expect(resultado.ruas.map((r) => r.rua.id)).toEqual(['rua-b', 'rua-c', 'rua-a'])
+    expect(resultado.ruas.map(r => r.rua.id)).toEqual(['rua-b', 'rua-c', 'rua-a'])
   })
 
   describe('melhor chance', () => {
@@ -555,7 +555,7 @@ describe('Saídas previstas no Panorama da noite', () => {
     await registrosDeVaga.encerrar(código, agora)
 
     const resultado = await panorama('21:00', agora)
-    expect(resultado.ruas.find((r) => r.rua.id === 'rua-a')!.saídasPrevistas).toBe(0)
+    expect(resultado.ruas.find(r => r.rua.id === 'rua-a')!.saídasPrevistas).toBe(0)
   })
 })
 

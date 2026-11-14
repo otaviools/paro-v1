@@ -61,7 +61,9 @@ function abrirRua(id: string) {
   >
     <template #header>
       <!-- PROVISÓRIO: nome em texto até os arquivos do logotipo entrarem no repositório. -->
-      <p class="marca">Parô</p>
+      <p class="marca">
+        Parô
+      </p>
     </template>
 
     <UNavigationMenu
@@ -77,8 +79,14 @@ function abrirRua(id: string) {
       }"
     />
 
-    <section class="panorama" aria-label="Faixa horária e ruas cobertas">
-      <AvisoDeDemonstracao v-if="panorama?.demonstração" class="aviso" />
+    <section
+      class="panorama"
+      aria-label="Faixa horária e ruas cobertas"
+    >
+      <AvisoDeDemonstracao
+        v-if="panorama?.demonstração"
+        class="aviso"
+      />
 
       <PanoramaDaFaixaHoraria
         v-model:faixa-horaria="faixaHoraria"
@@ -114,7 +122,11 @@ function abrirRua(id: string) {
         :aria-expanded="lateralAberta"
         @click="lateralAberta = !lateralAberta"
       >
-        <UIcon name="i-lucide-panel-left" class="icone" aria-hidden="true" />
+        <UIcon
+          name="i-lucide-panel-left"
+          class="icone"
+          aria-hidden="true"
+        />
       </button>
     </div>
 
@@ -125,13 +137,25 @@ function abrirRua(id: string) {
         aria-label="Centralizar nas ruas cobertas"
         @click="mapa?.centralizar()"
       >
-        <UIcon name="i-lucide-locate-fixed" class="icone" aria-hidden="true" />
+        <UIcon
+          name="i-lucide-locate-fixed"
+          class="icone"
+          aria-hidden="true"
+        />
       </button>
     </div>
 
     <!-- Legenda no canto inferior do mapa (referência Turo). -->
-    <section class="legenda-do-mapa" aria-labelledby="titulo-legenda-do-painel">
-      <h2 id="titulo-legenda-do-painel" class="etiqueta">Legenda</h2>
+    <section
+      class="legenda-do-mapa"
+      aria-labelledby="titulo-legenda-do-painel"
+    >
+      <h2
+        id="titulo-legenda-do-painel"
+        class="etiqueta"
+      >
+        Legenda
+      </h2>
       <LegendaDoMapa />
     </section>
   </div>

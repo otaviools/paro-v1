@@ -1,11 +1,11 @@
 import type { Ponto } from '~/dados-do-celular'
 
-export type LeituraDaLocalizacao =
-  | { tipo: 'lida', ponto: Ponto }
+export type LeituraDaLocalizacao
+  = | { tipo: 'lida', ponto: Ponto }
   /** A pessoa não liberou a localização, ou o navegador não oferece. */
-  | { tipo: 'negada' }
+    | { tipo: 'negada' }
   /** A localização foi liberada, mas não deu para ler (sem sinal, tempo esgotado). */
-  | { tipo: 'falhou' }
+    | { tipo: 'falhou' }
 
 /**
  * Lê a posição do celular uma única vez, com o app aberto e só quando a
@@ -19,7 +19,7 @@ export function lerLocalizacao(): Promise<LeituraDaLocalizacao> {
   return new Promise((resolver) => {
     navigator.geolocation.getCurrentPosition(
       ({ coords }) => resolver({ tipo: 'lida', ponto: { lat: coords.latitude, lon: coords.longitude } }),
-      (erro) => resolver({ tipo: erro.code === erro.PERMISSION_DENIED ? 'negada' : 'falhou' }),
+      erro => resolver({ tipo: erro.code === erro.PERMISSION_DENIED ? 'negada' : 'falhou' }),
       { enableHighAccuracy: true, timeout: 15_000, maximumAge: 0 },
     )
   })

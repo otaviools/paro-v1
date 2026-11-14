@@ -10,9 +10,14 @@ const { abas, faixaHoraria, panorama, error, carregando } = usePanoramaDaNoite()
 
 <template>
   <main class="inicio">
-    <AvisoDeDemonstracao v-if="panorama?.demonstração" class="aviso" />
+    <AvisoDeDemonstracao
+      v-if="panorama?.demonstração"
+      class="aviso"
+    />
 
-    <h1 class="titulo">Início</h1>
+    <h1 class="titulo">
+      Início
+    </h1>
 
     <BlocoDoRegistroDeVaga class="registro-de-vaga" />
 

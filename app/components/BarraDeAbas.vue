@@ -12,9 +12,21 @@ const abas = [
 </script>
 
 <template>
-  <nav class="barra" aria-label="Navegação principal">
-    <NuxtLink v-for="aba in abas" :key="aba.para" :to="aba.para" class="aba">
-      <UIcon :name="aba.icone" class="icone" aria-hidden="true" />
+  <nav
+    class="barra"
+    aria-label="Navegação principal"
+  >
+    <NuxtLink
+      v-for="aba in abas"
+      :key="aba.para"
+      :to="aba.para"
+      class="aba"
+    >
+      <UIcon
+        :name="aba.icone"
+        class="icone"
+        aria-hidden="true"
+      />
       <span>{{ aba.rotulo }}</span>
     </NuxtLink>
   </nav>

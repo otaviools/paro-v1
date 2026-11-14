@@ -179,8 +179,8 @@ export function criarMetricasDeUso({ banco, registrosDeVaga }: DependênciasDasM
         registrosPorNoite.push({ noite, total: totais.reduce((soma, t) => soma + t.quantidade, 0), porRuaEFaixaHorária: totais })
       }
       return {
-        recorrência: rows.map((r) => ({ semana: r.semana, motoristas: r.motoristas, voltaramNaSemanaSeguinte: r.voltaram })),
-        ajudou: respostas.map((r) => ({ data: r.data, sim: r.sim, não: r.nao })),
+        recorrência: rows.map(r => ({ semana: r.semana, motoristas: r.motoristas, voltaramNaSemanaSeguinte: r.voltaram })),
+        ajudou: respostas.map(r => ({ data: r.data, sim: r.sim, não: r.nao })),
         registrosPorNoite,
       }
     },

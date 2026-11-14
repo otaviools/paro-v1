@@ -42,7 +42,10 @@ function aoTeclar(evento: KeyboardEvent) {
 
 <template>
   <UApp>
-    <PainelDesktop v-if="desktop && noPainelDesktop" :painel="painel" />
+    <PainelDesktop
+      v-if="desktop && noPainelDesktop"
+      :painel="painel"
+    />
     <div
       class="conteudo"
       :class="noPainelDesktop && {
@@ -53,9 +56,21 @@ function aoTeclar(evento: KeyboardEvent) {
       }"
     >
       <!-- Só aparece no desktop, com o painel da direita aberto. -->
-      <header v-if="noPainelDesktop && painel === 'direita'" class="topo-do-painel">
-        <button type="button" class="fechar" aria-label="Fechar painel" @click="fecharPainel">
-          <UIcon name="i-lucide-x" class="icone" aria-hidden="true" />
+      <header
+        v-if="noPainelDesktop && painel === 'direita'"
+        class="topo-do-painel"
+      >
+        <button
+          type="button"
+          class="fechar"
+          aria-label="Fechar painel"
+          @click="fecharPainel"
+        >
+          <UIcon
+            name="i-lucide-x"
+            class="icone"
+            aria-hidden="true"
+          />
         </button>
       </header>
       <div class="rolagem">

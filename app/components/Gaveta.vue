@@ -31,11 +31,28 @@ defineExpose({ abrir, fechar })
     @click.self="fechar"
     @close="emit('fechada')"
   >
-    <div class="alca" aria-hidden="true" />
+    <div
+      class="alca"
+      aria-hidden="true"
+    />
     <header class="topo">
-      <h2 :id="`${id}-titulo`" class="titulo">{{ titulo }}</h2>
-      <button type="button" class="fechar" aria-label="Fechar" @click="fechar">
-        <UIcon name="i-lucide-x" class="icone" aria-hidden="true" />
+      <h2
+        :id="`${id}-titulo`"
+        class="titulo"
+      >
+        {{ titulo }}
+      </h2>
+      <button
+        type="button"
+        class="fechar"
+        aria-label="Fechar"
+        @click="fechar"
+      >
+        <UIcon
+          name="i-lucide-x"
+          class="icone"
+          aria-hidden="true"
+        />
       </button>
     </header>
     <div class="corpo">

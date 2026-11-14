@@ -6,15 +6,31 @@
 -->
 <template>
   <div class="aviso">
-    <section class="bloco" aria-labelledby="privacidade-cadastro">
-      <h3 id="privacidade-cadastro" class="etiqueta">Sem cadastro</h3>
+    <section
+      class="bloco"
+      aria-labelledby="privacidade-cadastro"
+    >
+      <h3
+        id="privacidade-cadastro"
+        class="etiqueta"
+      >
+        Sem cadastro
+      </h3>
       <p>
         O Parô não tem conta nem login. Ele nunca pede nome, CPF, telefone, e-mail ou placa do carro.
       </p>
     </section>
 
-    <section class="bloco" aria-labelledby="privacidade-celular">
-      <h3 id="privacidade-celular" class="etiqueta">O que fica só no seu celular</h3>
+    <section
+      class="bloco"
+      aria-labelledby="privacidade-celular"
+    >
+      <h3
+        id="privacidade-celular"
+        class="etiqueta"
+      >
+        O que fica só no seu celular
+      </h3>
       <ul class="lista">
         <li>A sua rotina, o horário em que você costuma chegar.</li>
         <li>A forma de colaborar que você escolheu.</li>
@@ -28,8 +44,16 @@
       <p>"Apagar histórico", em Ajustes, limpa o que ficou guardado neste celular.</p>
     </section>
 
-    <section class="bloco" aria-labelledby="privacidade-servidor">
-      <h3 id="privacidade-servidor" class="etiqueta">O que vai ao servidor</h3>
+    <section
+      class="bloco"
+      aria-labelledby="privacidade-servidor"
+    >
+      <h3
+        id="privacidade-servidor"
+        class="etiqueta"
+      >
+        O que vai ao servidor
+      </h3>
       <p>
         O registro de vaga leva só a rua coberta e as faixas horárias de chegada e de saída prevista. A sua
         posição exata não vai, e o registro não tem nada que identifique você, nem liga um registro ao outro.
@@ -48,8 +72,16 @@
       </p>
     </section>
 
-    <section class="bloco" aria-labelledby="privacidade-retencao">
-      <h3 id="privacidade-retencao" class="etiqueta">Por quanto tempo</h3>
+    <section
+      class="bloco"
+      aria-labelledby="privacidade-retencao"
+    >
+      <h3
+        id="privacidade-retencao"
+        class="etiqueta"
+      >
+        Por quanto tempo
+      </h3>
       <ul class="lista">
         <li>
           Registros de vaga: apagados no fim de cada noite. Fica só o total de registros por rua coberta e faixa

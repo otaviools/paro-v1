@@ -43,28 +43,73 @@ async function responder(ajudou: boolean) {
 </script>
 
 <template>
-  <section v-if="visivel" class="card" aria-labelledby="titulo-ajudou">
-    <h2 id="titulo-ajudou" class="titulo">A previsão ajudou hoje?</h2>
+  <section
+    v-if="visivel"
+    class="card"
+    aria-labelledby="titulo-ajudou"
+  >
+    <h2
+      id="titulo-ajudou"
+      class="titulo"
+    >
+      A previsão ajudou hoje?
+    </h2>
 
     <div class="botoes">
-      <button type="button" class="secundario" :aria-busy="enviando === true" @click="responder(true)">
-        <UIcon v-if="enviando === true" name="i-lucide-loader-circle" class="icone carregando" aria-label="Enviando" />
+      <button
+        type="button"
+        class="secundario"
+        :aria-busy="enviando === true"
+        @click="responder(true)"
+      >
+        <UIcon
+          v-if="enviando === true"
+          name="i-lucide-loader-circle"
+          class="icone carregando"
+          aria-label="Enviando"
+        />
         <template v-else>
-          <UIcon name="i-lucide-thumbs-up" class="icone" aria-hidden="true" />
+          <UIcon
+            name="i-lucide-thumbs-up"
+            class="icone"
+            aria-hidden="true"
+          />
           Sim
         </template>
       </button>
-      <button type="button" class="secundario" :aria-busy="enviando === false" @click="responder(false)">
-        <UIcon v-if="enviando === false" name="i-lucide-loader-circle" class="icone carregando" aria-label="Enviando" />
+      <button
+        type="button"
+        class="secundario"
+        :aria-busy="enviando === false"
+        @click="responder(false)"
+      >
+        <UIcon
+          v-if="enviando === false"
+          name="i-lucide-loader-circle"
+          class="icone carregando"
+          aria-label="Enviando"
+        />
         <template v-else>
-          <UIcon name="i-lucide-thumbs-down" class="icone" aria-hidden="true" />
+          <UIcon
+            name="i-lucide-thumbs-down"
+            class="icone"
+            aria-hidden="true"
+          />
           Não
         </template>
       </button>
     </div>
 
-    <p v-if="erro" class="erro" role="alert">
-      <UIcon name="i-lucide-circle-alert" class="icone" aria-hidden="true" />
+    <p
+      v-if="erro"
+      class="erro"
+      role="alert"
+    >
+      <UIcon
+        name="i-lucide-circle-alert"
+        class="icone"
+        aria-hidden="true"
+      />
       Não foi possível enviar. Tente de novo.
     </p>
   </section>

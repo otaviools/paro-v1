@@ -19,7 +19,11 @@ const id = useId()
 </script>
 
 <template>
-  <div class="abas" role="tablist" aria-label="Faixa horária">
+  <div
+    class="abas"
+    role="tablist"
+    aria-label="Faixa horária"
+  >
     <ChipDeFaixaHoraria
       v-for="aba in abas"
       :key="aba.valor"
@@ -33,7 +37,11 @@ const id = useId()
     </ChipDeFaixaHoraria>
   </div>
 
-  <div v-if="carregando" class="card-esqueleto" aria-hidden="true" />
+  <div
+    v-if="carregando"
+    class="card-esqueleto"
+    aria-hidden="true"
+  />
   <CardDeMelhorChance
     v-else-if="panorama?.faixaHorária"
     class="melhor-chance"
@@ -41,9 +49,18 @@ const id = useId()
     :melhor-chance="panorama.melhorChance"
   />
 
-  <section :id="`${id}-ruas`" role="tabpanel" :aria-labelledby="`${id}-titulo`">
-    <h2 :id="`${id}-titulo`" class="etiqueta">
-      Ruas cobertas<template v-if="!carregando && panorama?.faixaHorária"> · {{ rotuloDaFaixaHoraria(panorama.faixaHorária) }}</template>
+  <section
+    :id="`${id}-ruas`"
+    role="tabpanel"
+    :aria-labelledby="`${id}-titulo`"
+  >
+    <h2
+      :id="`${id}-titulo`"
+      class="etiqueta"
+    >
+      Ruas cobertas<template v-if="!carregando && panorama?.faixaHorária">
+        · {{ rotuloDaFaixaHoraria(panorama.faixaHorária) }}
+      </template>
     </h2>
 
     <ListaDeRuasCobertas

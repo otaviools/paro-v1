@@ -1,7 +1,14 @@
 <!-- Card Aviso com o sinal de alerta, sem botão de fechar (ADR 0012). -->
 <template>
-  <aside class="aviso" role="note">
-    <UIcon name="i-lucide-info" class="icone" aria-hidden="true" />
+  <aside
+    class="aviso"
+    role="note"
+  >
+    <UIcon
+      name="i-lucide-info"
+      class="icone"
+      aria-hidden="true"
+    />
     <p>
       <strong>Dados de demonstração</strong>
       <span>A chance vem de observações fictícias, não de contagens nas ruas.</span>

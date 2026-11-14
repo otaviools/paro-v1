@@ -105,7 +105,7 @@ const vagaRecemRegistrada = useState('vaga-recem-registrada', () => false)
 async function registrar() {
   erroDaRua.value = ruaEscolhida.value ? null : 'Escolha a rua coberta onde você estacionou.'
   erroDaSaida.value = saidaPrevista.value ? null : 'Escolha a faixa horária em que você pretende sair.'
-  const rua = ruas.value?.find((r) => r.id === ruaEscolhida.value)
+  const rua = ruas.value?.find(r => r.id === ruaEscolhida.value)
   if (!rua || !saidaPrevista.value || enviando.value) return
 
   enviando.value = true
@@ -146,29 +146,65 @@ function voltar() {
 
 <template>
   <main class="registrar">
-    <button type="button" class="voltar" aria-label="Voltar" @click="voltar">
-      <UIcon name="i-lucide-arrow-left" class="icone-voltar" aria-hidden="true" />
+    <button
+      type="button"
+      class="voltar"
+      aria-label="Voltar"
+      @click="voltar"
+    >
+      <UIcon
+        name="i-lucide-arrow-left"
+        class="icone-voltar"
+        aria-hidden="true"
+      />
     </button>
 
-    <h1 class="titulo">Registrar vaga</h1>
+    <h1 class="titulo">
+      Registrar vaga
+    </h1>
     <p class="explicacao">
       Avise quem está chegando quando a sua vaga deve ficar livre. O registro leva só a rua coberta e as
       faixas horárias de chegada e de saída, sem a sua posição e sem nada que identifique você.
     </p>
 
-    <div v-if="!agora && !erroDoAgora" class="esqueleto" aria-busy="true" aria-label="Carregando" />
+    <div
+      v-if="!agora && !erroDoAgora"
+      class="esqueleto"
+      aria-busy="true"
+      aria-label="Carregando"
+    />
 
-    <p v-else-if="erroDoAgora" class="mensagem">
+    <p
+      v-else-if="erroDoAgora"
+      class="mensagem"
+    >
       Não foi possível carregar agora. Tente de novo em instantes.
     </p>
 
-    <p v-else-if="agora && agora.faixaHorária === null" class="mensagem">
+    <p
+      v-else-if="agora && agora.faixaHorária === null"
+      class="mensagem"
+    >
       O registro de vaga vale das 17h às 23h, o horário da área coberta. Registre quando estacionar nesse horário.
     </p>
 
-    <form v-else id="registro" class="formulario" novalidate @submit.prevent="registrar">
-      <section class="secao" aria-labelledby="rotulo-rua">
-        <h2 id="rotulo-rua" class="etiqueta">Rua coberta</h2>
+    <form
+      v-else
+      id="registro"
+      class="formulario"
+      novalidate
+      @submit.prevent="registrar"
+    >
+      <section
+        class="secao"
+        aria-labelledby="rotulo-rua"
+      >
+        <h2
+          id="rotulo-rua"
+          class="etiqueta"
+        >
+          Rua coberta
+        </h2>
 
         <button
           v-if="comLocalizacao"
@@ -178,29 +214,70 @@ function voltar() {
           :aria-describedby="erroDaLocalizacao ? 'erro-localizacao' : 'nota-localizacao'"
           @click="usarMinhaLocalizacao"
         >
-          <UIcon v-if="localizando" name="i-lucide-loader-circle" class="icone carregando" aria-hidden="true" />
-          <UIcon v-else name="i-lucide-locate" class="icone" aria-hidden="true" />
+          <UIcon
+            v-if="localizando"
+            name="i-lucide-loader-circle"
+            class="icone carregando"
+            aria-hidden="true"
+          />
+          <UIcon
+            v-else
+            name="i-lucide-locate"
+            class="icone"
+            aria-hidden="true"
+          />
           {{ localizando ? 'Lendo a sua localização' : 'Usar minha localização' }}
         </button>
-        <p v-if="!comLocalizacao" id="nota-localizacao" class="nota">
+        <p
+          v-if="!comLocalizacao"
+          id="nota-localizacao"
+          class="nota"
+        >
           Escolha na lista a rua coberta onde você estacionou. No registro manual, a localização não é usada.
         </p>
-        <p v-else-if="erroDaLocalizacao" id="erro-localizacao" class="erro" role="alert">
-          <UIcon name="i-lucide-circle-alert" class="icone" aria-hidden="true" />
+        <p
+          v-else-if="erroDaLocalizacao"
+          id="erro-localizacao"
+          class="erro"
+          role="alert"
+        >
+          <UIcon
+            name="i-lucide-circle-alert"
+            class="icone"
+            aria-hidden="true"
+          />
           {{ erroDaLocalizacao }}
         </p>
-        <p v-else-if="ruaProposta" id="nota-localizacao" class="nota" role="status">
-          <UIcon name="i-lucide-locate" class="icone" aria-hidden="true" />
+        <p
+          v-else-if="ruaProposta"
+          id="nota-localizacao"
+          class="nota"
+          role="status"
+        >
+          <UIcon
+            name="i-lucide-locate"
+            class="icone"
+            aria-hidden="true"
+          />
           {{ ruaEscolhida === ruaProposta
             ? 'Rua proposta pela sua localização. Se não for esta, toque na rua certa.'
             : 'Rua trocada. O ponto do carro continua guardado só neste celular.' }}
         </p>
-        <p v-else id="nota-localizacao" class="nota">
+        <p
+          v-else
+          id="nota-localizacao"
+          class="nota"
+        >
           Com a localização, o celular propõe a rua coberta mais próxima e guarda o ponto do carro só neste
           aparelho, para Voltar até o carro. Ou escolha a rua na lista.
         </p>
 
-        <div class="opcoes" role="radiogroup" aria-labelledby="rotulo-rua" :aria-describedby="erroDaRua ? 'erro-rua' : undefined">
+        <div
+          class="opcoes"
+          role="radiogroup"
+          aria-labelledby="rotulo-rua"
+          :aria-describedby="erroDaRua ? 'erro-rua' : undefined"
+        >
           <button
             v-for="rua in ruas"
             :key="rua.id"
@@ -211,19 +288,36 @@ function voltar() {
             :aria-checked="ruaEscolhida === rua.id"
             @click="escolherRua(rua.id)"
           >
-            <UIcon name="i-lucide-signpost" class="icone-opcao" aria-hidden="true" />
+            <UIcon
+              name="i-lucide-signpost"
+              class="icone-opcao"
+              aria-hidden="true"
+            />
             <span class="nome-opcao">{{ rua.nome }}</span>
             <span class="distancia-opcao">{{ distanciaAPe(rua.distânciaAoDestino) }}</span>
           </button>
         </div>
-        <p v-if="erroDaRua" id="erro-rua" class="erro">
-          <UIcon name="i-lucide-circle-alert" class="icone" aria-hidden="true" />
+        <p
+          v-if="erroDaRua"
+          id="erro-rua"
+          class="erro"
+        >
+          <UIcon
+            name="i-lucide-circle-alert"
+            class="icone"
+            aria-hidden="true"
+          />
           {{ erroDaRua }}
         </p>
       </section>
 
       <section class="secao">
-        <h2 id="rotulo-saida" class="etiqueta">Saída prevista</h2>
+        <h2
+          id="rotulo-saida"
+          class="etiqueta"
+        >
+          Saída prevista
+        </h2>
         <button
           type="button"
           class="campo"
@@ -232,27 +326,65 @@ function voltar() {
           aria-haspopup="dialog"
           @click="gaveta?.abrir()"
         >
-          <span id="valor-saida" :class="{ vazio: !saidaPrevista }">
+          <span
+            id="valor-saida"
+            :class="{ vazio: !saidaPrevista }"
+          >
             {{ saidaPrevista ? intervaloDaFaixaHoraria(saidaPrevista) : 'Escolher faixa horária' }}
           </span>
-          <UIcon name="i-lucide-chevron-down" class="icone" aria-hidden="true" />
+          <UIcon
+            name="i-lucide-chevron-down"
+            class="icone"
+            aria-hidden="true"
+          />
         </button>
-        <p v-if="erroDaSaida" id="erro-saida" class="erro">
-          <UIcon name="i-lucide-circle-alert" class="icone" aria-hidden="true" />
+        <p
+          v-if="erroDaSaida"
+          id="erro-saida"
+          class="erro"
+        >
+          <UIcon
+            name="i-lucide-circle-alert"
+            class="icone"
+            aria-hidden="true"
+          />
           {{ erroDaSaida }}
         </p>
       </section>
 
-      <p v-if="erroDoEnvio" class="erro" role="alert">
-        <UIcon name="i-lucide-circle-alert" class="icone" aria-hidden="true" />
+      <p
+        v-if="erroDoEnvio"
+        class="erro"
+        role="alert"
+      >
+        <UIcon
+          name="i-lucide-circle-alert"
+          class="icone"
+          aria-hidden="true"
+        />
         {{ erroDoEnvio }}
       </p>
     </form>
 
-    <footer v-if="agora?.faixaHorária" class="rodape">
-      <button type="submit" form="registro" class="principal" :aria-busy="enviando">
-        <UIcon v-if="enviando" name="i-lucide-loader-circle" class="carregando" aria-label="Registrando" />
-        <template v-else>Registrar vaga</template>
+    <footer
+      v-if="agora?.faixaHorária"
+      class="rodape"
+    >
+      <button
+        type="submit"
+        form="registro"
+        class="principal"
+        :aria-busy="enviando"
+      >
+        <UIcon
+          v-if="enviando"
+          name="i-lucide-loader-circle"
+          class="carregando"
+          aria-label="Registrando"
+        />
+        <template v-else>
+          Registrar vaga
+        </template>
       </button>
     </footer>
 

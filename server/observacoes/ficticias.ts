@@ -76,12 +76,12 @@ export function criarObservaçõesFictícias(configuracao: ConfiguracaoDaAreaCob
     // Uma noite de observação por semana, num dia letivo normal.
     const noites: Data[] = []
     for (let semana = 0; semana < SEMANAS_OBSERVADAS; semana++) {
-      const dias = sorte.embaralhar([0, 1, 2, 3, 4, 5, 6]).map((d) => somarDias(semestre.de, semana * 7 + d))
-      const noite = dias.find((d) => d <= semestre.ate && area.éDiaLetivoNormal(d))
+      const dias = sorte.embaralhar([0, 1, 2, 3, 4, 5, 6]).map(d => somarDias(semestre.de, semana * 7 + d))
+      const noite = dias.find(d => d <= semestre.ate && area.éDiaLetivoNormal(d))
       if (noite) noites.push(noite)
     }
 
-    const vagasPorRua = new Map(configuracao.ruasCobertas.map((r) => [r.id, sorte.inteiro(12, 30)]))
+    const vagasPorRua = new Map(configuracao.ruasCobertas.map(r => [r.id, sorte.inteiro(12, 30)]))
     const observações: Observação[] = []
 
     area.faixasHorárias().forEach((faixaHorária) => {
@@ -111,7 +111,7 @@ export function criarObservaçõesFictícias(configuracao: ConfiguracaoDaAreaCob
 
   return {
     async doSemestre(idDoSemestre) {
-      const semestre = configuracao.calendarioLetivo.find((s) => s.id === idDoSemestre)
+      const semestre = configuracao.calendarioLetivo.find(s => s.id === idDoSemestre)
       return semestre ? gerar(semestre) : []
     },
     éDemonstração() {

@@ -31,7 +31,7 @@ const mapa = ref<{ centralizar: () => void }>()
 const idSelecionado = ref<string | null>(null)
 
 const selecionada = computed(() =>
-  panorama.value?.ruas.find((r) => r.rua.id === idSelecionado.value) ?? null,
+  panorama.value?.ruas.find(r => r.rua.id === idSelecionado.value) ?? null,
 )
 
 function selecionar(id: string) {
@@ -87,15 +87,27 @@ function abrir(gaveta: HTMLDialogElement | undefined) {
 </script>
 
 <template>
-  <main class="tela" @keydown.esc="fecharResumo">
+  <main
+    class="tela"
+    @keydown.esc="fecharResumo"
+  >
     <!-- Abas sobre o mapa. -->
-    <section class="painel" aria-label="Faixa horária e ruas cobertas">
+    <section
+      class="painel"
+      aria-label="Faixa horária e ruas cobertas"
+    >
       <AvisoDeDemonstracao v-if="panorama?.demonstração" />
 
       <!-- O título fica só para leitores de tela; o mapa ocupa a tela. -->
-      <h1 class="titulo">Mapa</h1>
+      <h1 class="titulo">
+        Mapa
+      </h1>
 
-      <div class="abas" role="tablist" aria-label="Faixa horária">
+      <div
+        class="abas"
+        role="tablist"
+        aria-label="Faixa horária"
+      >
         <ChipDeFaixaHoraria
           v-for="aba in abas"
           :key="aba.valor"
@@ -108,22 +120,59 @@ function abrir(gaveta: HTMLDialogElement | undefined) {
         </ChipDeFaixaHoraria>
       </div>
 
-      <p v-if="mensagem" class="mensagem">{{ mensagem }}</p>
+      <p
+        v-if="mensagem"
+        class="mensagem"
+      >
+        {{ mensagem }}
+      </p>
     </section>
 
     <div class="area-do-mapa">
-      <MapaDaArea ref="mapa" class="mapa" :ruas="ruasNoMapa" @selecionar-rua="selecionar" />
+      <MapaDaArea
+        ref="mapa"
+        class="mapa"
+        :ruas="ruasNoMapa"
+        @selecionar-rua="selecionar"
+      />
 
       <!-- Botões de ícone flutuando no canto direito (referência Lime). -->
       <div class="controles">
-        <button type="button" class="botao-icone" aria-label="Lista das ruas cobertas" @click="abrir(gavetaDaLista)">
-          <UIcon name="i-lucide-list" class="icone" aria-hidden="true" />
+        <button
+          type="button"
+          class="botao-icone"
+          aria-label="Lista das ruas cobertas"
+          @click="abrir(gavetaDaLista)"
+        >
+          <UIcon
+            name="i-lucide-list"
+            class="icone"
+            aria-hidden="true"
+          />
         </button>
-        <button type="button" class="botao-icone" aria-label="Legenda" @click="abrir(gavetaDaLegenda)">
-          <UIcon name="i-lucide-circle-help" class="icone" aria-hidden="true" />
+        <button
+          type="button"
+          class="botao-icone"
+          aria-label="Legenda"
+          @click="abrir(gavetaDaLegenda)"
+        >
+          <UIcon
+            name="i-lucide-circle-help"
+            class="icone"
+            aria-hidden="true"
+          />
         </button>
-        <button type="button" class="botao-icone" aria-label="Centralizar nas ruas cobertas" @click="mapa?.centralizar()">
-          <UIcon name="i-lucide-locate-fixed" class="icone" aria-hidden="true" />
+        <button
+          type="button"
+          class="botao-icone"
+          aria-label="Centralizar nas ruas cobertas"
+          @click="mapa?.centralizar()"
+        >
+          <UIcon
+            name="i-lucide-locate-fixed"
+            class="icone"
+            aria-hidden="true"
+          />
         </button>
       </div>
 
@@ -149,13 +198,30 @@ function abrir(gaveta: HTMLDialogElement | undefined) {
             @pointerup="soltar"
             @pointercancel="soltar"
           >
-            <span class="alca" aria-hidden="true" />
+            <span
+              class="alca"
+              aria-hidden="true"
+            />
           </button>
 
           <div class="cabecalho">
-            <h2 id="titulo-resumo" class="nome">{{ selecionada.rua.nome }}</h2>
-            <button type="button" class="botao-icone" aria-label="Fechar" @click="fecharResumo">
-              <UIcon name="i-lucide-x" class="icone" aria-hidden="true" />
+            <h2
+              id="titulo-resumo"
+              class="nome"
+            >
+              {{ selecionada.rua.nome }}
+            </h2>
+            <button
+              type="button"
+              class="botao-icone"
+              aria-label="Fechar"
+              @click="fecharResumo"
+            >
+              <UIcon
+                name="i-lucide-x"
+                class="icone"
+                aria-hidden="true"
+              />
             </button>
           </div>
 
@@ -172,35 +238,90 @@ function abrir(gaveta: HTMLDialogElement | undefined) {
               : 'Ainda não temos observações suficientes nesta faixa horária' }}
           </p>
           <p class="linha">
-            <UIcon name="i-lucide-footprints" class="icone-pequeno" aria-hidden="true" />
+            <UIcon
+              name="i-lucide-footprints"
+              class="icone-pequeno"
+              aria-hidden="true"
+            />
             {{ distanciaAPe(selecionada.distânciaAoDestino) }} até o destino
           </p>
 
-          <button type="button" class="principal" @click="expandir">Ver detalhe da rua</button>
+          <button
+            type="button"
+            class="principal"
+            @click="expandir"
+          >
+            Ver detalhe da rua
+          </button>
         </section>
       </Teleport>
     </div>
 
     <!-- Lista por chance numa gaveta. -->
-    <dialog ref="gavetaDaLista" class="gaveta" aria-labelledby="titulo-lista" @click.self="gavetaDaLista?.close()">
-      <div class="alca" aria-hidden="true" />
+    <dialog
+      ref="gavetaDaLista"
+      class="gaveta"
+      aria-labelledby="titulo-lista"
+      @click.self="gavetaDaLista?.close()"
+    >
+      <div
+        class="alca"
+        aria-hidden="true"
+      />
       <div class="cabecalho">
-        <h2 id="titulo-lista" class="titulo-gaveta">
-          Ruas cobertas<template v-if="!carregando && rotuloDaFaixa"> · {{ rotuloDaFaixa }}</template>
+        <h2
+          id="titulo-lista"
+          class="titulo-gaveta"
+        >
+          Ruas cobertas<template v-if="!carregando && rotuloDaFaixa">
+            · {{ rotuloDaFaixa }}
+          </template>
         </h2>
-        <button type="button" class="botao-icone" aria-label="Fechar" @click="gavetaDaLista?.close()">
-          <UIcon name="i-lucide-x" class="icone" aria-hidden="true" />
+        <button
+          type="button"
+          class="botao-icone"
+          aria-label="Fechar"
+          @click="gavetaDaLista?.close()"
+        >
+          <UIcon
+            name="i-lucide-x"
+            class="icone"
+            aria-hidden="true"
+          />
         </button>
       </div>
-      <ListaDeRuasCobertas :panorama="panorama" :carregando="carregando" :erro="Boolean(error)" />
+      <ListaDeRuasCobertas
+        :panorama="panorama"
+        :carregando="carregando"
+        :erro="Boolean(error)"
+      />
     </dialog>
 
     <!-- Legenda numa gaveta, com botão grande para fechar (referência Lime). -->
-    <dialog ref="gavetaDaLegenda" class="gaveta" aria-labelledby="titulo-legenda" @click.self="gavetaDaLegenda?.close()">
-      <div class="alca" aria-hidden="true" />
-      <h2 id="titulo-legenda" class="titulo-gaveta">Legenda</h2>
+    <dialog
+      ref="gavetaDaLegenda"
+      class="gaveta"
+      aria-labelledby="titulo-legenda"
+      @click.self="gavetaDaLegenda?.close()"
+    >
+      <div
+        class="alca"
+        aria-hidden="true"
+      />
+      <h2
+        id="titulo-legenda"
+        class="titulo-gaveta"
+      >
+        Legenda
+      </h2>
       <LegendaDoMapa />
-      <button type="button" class="principal" @click="gavetaDaLegenda?.close()">Fechar</button>
+      <button
+        type="button"
+        class="principal"
+        @click="gavetaDaLegenda?.close()"
+      >
+        Fechar
+      </button>
     </dialog>
   </main>
 </template>

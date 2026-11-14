@@ -45,14 +45,21 @@ async function enviar() {
 </script>
 
 <template>
-  <form class="formulario" novalidate @submit.prevent="enviar">
+  <form
+    class="formulario"
+    novalidate
+    @submit.prevent="enviar"
+  >
     <p class="texto">
       Sugira uma rua ou trecho fora da área coberta para a equipe observar. A sugestão não muda o mapa: serve de
       pista para quando a área coberta crescer.
     </p>
 
     <div class="campo">
-      <label :for="`${id}-texto`" class="rotulo">Rua ou trecho</label>
+      <label
+        :for="`${id}-texto`"
+        class="rotulo"
+      >Rua ou trecho</label>
       <input
         :id="`${id}-texto`"
         v-model="texto"
@@ -64,24 +71,56 @@ async function enviar() {
         :aria-invalid="erro !== null"
         :aria-describedby="`${id}-aviso ${id}-contagem${erro ? ` ${id}-erro` : ''}`"
       >
-      <p :id="`${id}-contagem`" class="contagem">{{ texto.length }} de {{ MÁXIMO_DA_SUGESTÃO }} caracteres</p>
-      <p v-if="erro" :id="`${id}-erro`" class="erro" role="alert">
-        <UIcon name="i-lucide-circle-alert" class="icone" aria-hidden="true" />
+      <p
+        :id="`${id}-contagem`"
+        class="contagem"
+      >
+        {{ texto.length }} de {{ MÁXIMO_DA_SUGESTÃO }} caracteres
+      </p>
+      <p
+        v-if="erro"
+        :id="`${id}-erro`"
+        class="erro"
+        role="alert"
+      >
+        <UIcon
+          name="i-lucide-circle-alert"
+          class="icone"
+          aria-hidden="true"
+        />
         {{ erro }}
       </p>
     </div>
 
-    <aside :id="`${id}-aviso`" class="aviso">
-      <UIcon name="i-lucide-info" class="icone" aria-hidden="true" />
+    <aside
+      :id="`${id}-aviso`"
+      class="aviso"
+    >
+      <UIcon
+        name="i-lucide-info"
+        class="icone"
+        aria-hidden="true"
+      />
       <p>
         Não escreva nome, telefone, placa ou outro dado pessoal. A sugestão vai sem nada que identifique você e é
         apagada depois que a equipe lê.
       </p>
     </aside>
 
-    <button type="submit" class="principal" :aria-busy="enviando">
-      <UIcon v-if="enviando" name="i-lucide-loader-circle" class="icone carregando" aria-label="Enviando" />
-      <template v-else>Enviar sugestão</template>
+    <button
+      type="submit"
+      class="principal"
+      :aria-busy="enviando"
+    >
+      <UIcon
+        v-if="enviando"
+        name="i-lucide-loader-circle"
+        class="icone carregando"
+        aria-label="Enviando"
+      />
+      <template v-else>
+        Enviar sugestão
+      </template>
     </button>
   </form>
 </template>

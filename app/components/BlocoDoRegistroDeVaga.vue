@@ -26,18 +26,46 @@ watch(agora, (valor) => {
 
 <template>
   <!-- Card Seu registro de vaga (design system, "Cards"; referência Waymo). -->
-  <section v-if="registro" class="card" aria-labelledby="titulo-registro-de-vaga">
-    <p class="etiqueta">Seu registro de vaga</p>
-    <h2 id="titulo-registro-de-vaga" class="saida">Saída prevista: {{ rotuloDaFaixaHoraria(registro.saídaPrevista) }}</h2>
-    <p class="rua">{{ registro.ruaCoberta.nome }}</p>
+  <section
+    v-if="registro"
+    class="card"
+    aria-labelledby="titulo-registro-de-vaga"
+  >
+    <p class="etiqueta">
+      Seu registro de vaga
+    </p>
+    <h2
+      id="titulo-registro-de-vaga"
+      class="saida"
+    >
+      Saída prevista: {{ rotuloDaFaixaHoraria(registro.saídaPrevista) }}
+    </h2>
+    <p class="rua">
+      {{ registro.ruaCoberta.nome }}
+    </p>
 
     <div class="acoes">
-      <NuxtLink v-if="temPontoDoCarro" to="/minha-vaga/carro" class="secundario">
-        <UIcon name="i-lucide-map-pin" class="icone" aria-hidden="true" />
+      <NuxtLink
+        v-if="temPontoDoCarro"
+        to="/minha-vaga/carro"
+        class="secundario"
+      >
+        <UIcon
+          name="i-lucide-map-pin"
+          class="icone"
+          aria-hidden="true"
+        />
         Voltar até o carro
       </NuxtLink>
-      <NuxtLink to="/minha-vaga" class="secundario">
-        <UIcon name="i-lucide-car" class="icone" aria-hidden="true" />
+      <NuxtLink
+        to="/minha-vaga"
+        class="secundario"
+      >
+        <UIcon
+          name="i-lucide-car"
+          class="icone"
+          aria-hidden="true"
+        />
         Ver minha vaga
       </NuxtLink>
     </div>
