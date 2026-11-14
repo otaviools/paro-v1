@@ -51,7 +51,7 @@ function esquecerRegistro() {
   registro.value = null
   temPontoDoCarro.value = false
   confirmarRegistro.value = false
-  avisar('Este registro não vale mais nesta noite. Registre a vaga de novo se precisar.')
+  avisar('Este registro não vale mais nesta noite. Registre a vaga de novo se precisar.', 'erro')
 }
 
 // --- Mudar saída -------------------------------------------------------------
@@ -74,14 +74,14 @@ async function mudarSaida(saidaPrevista: string) {
     const resultado = await alterarSaida(registro.value.codigo, saidaPrevista)
     gaveta.value?.fechar()
     if (resultado === 'registro-invalido') return esquecerRegistro()
-    if (resultado === 'falha') return avisar('Não foi possível mudar a saída agora. Tente de novo em instantes.')
+    if (resultado === 'falha') return avisar('Não foi possível mudar a saída agora. Tente de novo em instantes.', 'erro')
     dados?.mudarSaidaDoRegistro(saidaPrevista)
     if (registro.value) registro.value = { ...registro.value, saidaPrevista: saidaPrevista }
     avisar(`Saída prevista mudada para ${rotuloDaFaixaHoraria(saidaPrevista)}.`)
   }
   catch {
     gaveta.value?.fechar()
-    avisar('Não foi possível mudar a saída agora. Tente de novo em instantes.')
+    avisar('Não foi possível mudar a saída agora. Tente de novo em instantes.', 'erro')
   }
   finally {
     mudandoSaida.value = false
@@ -98,7 +98,7 @@ async function sair() {
   // Código recusado conta como encerrado: o registro já não conta, então o "Saí" vale do mesmo jeito.
   if (await encerrar(registro.value.codigo) === 'falha') {
     saindo.value = false
-    avisar('Não foi possível avisar a saída agora. Tente de novo em instantes.')
+    avisar('Não foi possível avisar a saída agora. Tente de novo em instantes.', 'erro')
     return
   }
   dados?.apagarRegistro()
@@ -116,7 +116,7 @@ async function sair() {
 
     <div
       v-if="!lido && !erroDoAgora"
-      class="mt-6 h-44 rounded-paro-lg bg-muted"
+      class="mt-6 h-44 rounded-paro-lg bg-muted brilho"
       aria-busy="true"
       aria-label="Carregando"
     />
@@ -268,8 +268,6 @@ async function sair() {
         </h2>
         <p class="max-w-[70ch] text-xs text-muted">
           Quando estacionar numa rua coberta, registre a vaga com a saída prevista para avisar quem está chegando.
-          O registro leva só a rua coberta e as faixas horárias de chegada e de saída, sem a sua posição e sem
-          nada que identifique você.
         </p>
       </UCard>
 
