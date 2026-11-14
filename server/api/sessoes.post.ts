@@ -1,5 +1,5 @@
 import { areaCoberta } from '../area-coberta'
-import { IdMensalInválido } from '../metricas-de-uso'
+import { IdMensalInvalido } from '../metricas-de-uso'
 import { metricasDeUsoDoApp } from '../metricas-de-uso/do-app'
 
 /**
@@ -12,10 +12,10 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, message: 'Informe o identificador de sessão' })
   }
   try {
-    await metricasDeUsoDoApp.registrarSessão(corpo.idMensal, areaCoberta.noiteDe(new Date()))
+    await metricasDeUsoDoApp.registrarSessao(corpo.idMensal, areaCoberta.noiteDe(new Date()))
   }
   catch (erro) {
-    if (erro instanceof IdMensalInválido) throw createError({ statusCode: 400, message: erro.message })
+    if (erro instanceof IdMensalInvalido) throw createError({ statusCode: 400, message: erro.message })
     throw erro
   }
   setResponseStatus(event, 204)

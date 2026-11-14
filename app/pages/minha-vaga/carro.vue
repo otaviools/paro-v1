@@ -56,7 +56,7 @@ watch(agora, (valor) => {
   const dados = dadosDoCelularDoAparelho()
   registro.value = dados.registroAtual(valor.noite)
   pontoDoCarro.value = dados.pontoDoCarro(valor.noite)
-  localizacaoLigada.value = dados.formaDeColaborar() === 'localização-ligada'
+  localizacaoLigada.value = dados.formaDeColaborar() === 'localizacao-ligada'
   lido.value = true
   if (pontoDoCarro.value && localizacaoLigada.value) atualizarPosicao()
 }, { immediate: true })

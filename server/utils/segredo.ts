@@ -12,8 +12,8 @@ function mesmoSegredo(recebido: string, esperado: string): boolean {
  * ambiente, ou com outro valor, a rota recusa com 401.
  */
 export function exigirSegredo(event: H3Event, segredo: string | undefined): void {
-  const autorização = getHeader(event, 'authorization') ?? ''
-  if (!segredo || !mesmoSegredo(autorização, `Bearer ${segredo}`)) {
+  const autorizacao = getHeader(event, 'authorization') ?? ''
+  if (!segredo || !mesmoSegredo(autorizacao, `Bearer ${segredo}`)) {
     throw createError({ statusCode: 401, message: 'Não autorizado' })
   }
 }

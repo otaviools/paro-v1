@@ -9,7 +9,7 @@
 import type { EstadoDaChance } from '~/components/AmostraDeFaixaDeChance.vue'
 
 export interface FaixaHorariaDoGrafico {
-  faixaHorária: string
+  faixaHoraria: string
   estimativa: { tipo: 'sem-dado' } | { tipo: 'chance', faixaDeChance: Exclude<EstadoDaChance, 'Sem dado'>, chance: number }
 }
 
@@ -44,7 +44,7 @@ function preenchimentoDe(estado: EstadoDaChance) {
 
 /** Só as horas cheias ganham rótulo no eixo, para caber no celular. */
 const horasDoEixo = computed(() =>
-  props.faixasHorarias.filter(f => f.faixaHorária.endsWith(':00')).map(f => rotuloDaFaixaHoraria(f.faixaHorária)))
+  props.faixasHorarias.filter(f => f.faixaHoraria.endsWith(':00')).map(f => rotuloDaFaixaHoraria(f.faixaHoraria)))
 </script>
 
 <template>
@@ -110,14 +110,14 @@ const horasDoEixo = computed(() =>
 
     <div class="barras">
       <button
-        v-for="{ faixaHorária, estimativa } in faixasHorarias"
-        :key="faixaHorária"
+        v-for="{ faixaHoraria, estimativa } in faixasHorarias"
+        :key="faixaHoraria"
         type="button"
         class="coluna"
-        :class="{ selecionada: selecionada === faixaHorária }"
-        :aria-pressed="selecionada === faixaHorária"
-        :aria-label="`${intervaloDaFaixaHoraria(faixaHorária)}: ${estadoDe(estimativa)}`"
-        @click="selecionada = faixaHorária"
+        :class="{ selecionada: selecionada === faixaHoraria }"
+        :aria-pressed="selecionada === faixaHoraria"
+        :aria-label="`${intervaloDaFaixaHoraria(faixaHoraria)}: ${estadoDe(estimativa)}`"
+        @click="selecionada = faixaHoraria"
       >
         <svg
           class="barra"

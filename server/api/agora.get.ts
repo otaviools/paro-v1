@@ -7,5 +7,5 @@ import { areaCoberta } from '../area-coberta'
  */
 export default defineEventHandler(() => {
   const agora = new Date()
-  return { noite: areaCoberta.noiteDe(agora), faixaHorária: areaCoberta.faixaHorária(agora) }
+  return { noite: areaCoberta.noiteDe(agora), faixaHoraria: areaCoberta.faixaHoraria(agora) }
 })

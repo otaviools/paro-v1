@@ -1,4 +1,4 @@
-import { FaixaHoráriaInválida, panoramaDaNoite } from '../panorama'
+import { FaixaHorariaInvalida, panoramaDaNoite } from '../panorama'
 
 /**
  * Panorama da noite numa faixa horária (`?faixaHoraria=agora`, `19:00`, `21:00`...).
@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
     return await panoramaDaNoite.panorama(typeof faixaHoraria === 'string' ? faixaHoraria : 'agora', new Date())
   }
   catch (erro) {
-    if (erro instanceof FaixaHoráriaInválida) throw createError({ statusCode: 400, message: erro.message })
+    if (erro instanceof FaixaHorariaInvalida) throw createError({ statusCode: 400, message: erro.message })
     throw erro
   }
 })

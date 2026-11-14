@@ -9,7 +9,7 @@ import { dadosDoCelularDoAparelho } from '~/dados-do-celular'
 export default defineNuxtRouteMiddleware((para) => {
   if (import.meta.server) return
   if (para.path.startsWith('/equipe/')) return
-  const concluída = dadosDoCelularDoAparelho().primeiraVisitaConcluída()
-  if (!concluída && para.path !== '/primeira-visita') return navigateTo('/primeira-visita', { replace: true })
-  if (concluída && para.path === '/primeira-visita') return navigateTo('/', { replace: true })
+  const concluida = dadosDoCelularDoAparelho().primeiraVisitaConcluida()
+  if (!concluida && para.path !== '/primeira-visita') return navigateTo('/primeira-visita', { replace: true })
+  if (concluida && para.path === '/primeira-visita') return navigateTo('/', { replace: true })
 })

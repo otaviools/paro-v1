@@ -43,9 +43,9 @@ const id = useId()
     aria-hidden="true"
   />
   <CardDeMelhorChance
-    v-else-if="panorama?.faixaHorária"
+    v-else-if="panorama?.faixaHoraria"
     class="melhor-chance"
-    :faixa-horaria="panorama.faixaHorária"
+    :faixa-horaria="panorama.faixaHoraria"
     :melhor-chance="panorama.melhorChance"
   />
 
@@ -58,8 +58,8 @@ const id = useId()
       :id="`${id}-titulo`"
       class="etiqueta"
     >
-      Ruas cobertas<template v-if="!carregando && panorama?.faixaHorária">
-        · {{ rotuloDaFaixaHoraria(panorama.faixaHorária) }}
+      Ruas cobertas<template v-if="!carregando && panorama?.faixaHoraria">
+        · {{ rotuloDaFaixaHoraria(panorama.faixaHoraria) }}
       </template>
     </h2>
 

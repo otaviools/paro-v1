@@ -10,7 +10,7 @@ import { dadosDoCelularDoAparelho } from '~/dados-do-celular'
 export default defineNuxtPlugin(() => {
   if (window.location.pathname.startsWith('/equipe/')) return
   const agora = new Date()
-  const mês = `${agora.getFullYear()}-${String(agora.getMonth() + 1).padStart(2, '0')}`
-  const idMensal = dadosDoCelularDoAparelho().idDeSessãoDoMês(mês)
+  const mes = `${agora.getFullYear()}-${String(agora.getMonth() + 1).padStart(2, '0')}`
+  const idMensal = dadosDoCelularDoAparelho().idDeSessaoDoMes(mes)
   $fetch('/api/sessoes', { method: 'POST', body: { idMensal } }).catch(() => {})
 })

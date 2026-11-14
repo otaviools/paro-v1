@@ -12,9 +12,9 @@ export interface MelhorChance {
   estimativa: {
     /** A melhor chance nunca é Sem dado. */
     faixaDeChance: Exclude<EstadoDaChance, 'Sem dado'>
-    base: { observações: number, última: string }
+    base: { observacoes: number, ultima: string }
   }
-  distânciaAoDestino: number
+  distanciaAoDestino: number
 }
 
 const props = defineProps<{
@@ -56,7 +56,7 @@ const id = useId()
           class="icone"
           aria-hidden="true"
         />
-        <span>{{ distanciaAPe(melhorChance.distânciaAoDestino) }}</span>
+        <span>{{ distanciaAPe(melhorChance.distanciaAoDestino) }}</span>
       </p>
       <p class="nota">
         Previsão, não garantia.

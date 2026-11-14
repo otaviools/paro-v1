@@ -45,20 +45,20 @@ async function conectarAoPGLite(): Promise<Banco> {
   return banco
 }
 
-let conexão: Promise<Banco> | undefined
+let conexao: Promise<Banco> | undefined
 
 /**
  * Conecta ao banco do app e aplica as migrações, uma vez só. Com
  * `DATABASE_URL`, usa o Postgres dessa URL; sem ela, o PGLite em `.data/`.
  */
 export function prepararBancoDoApp(): Promise<Banco> {
-  conexão ??= (process.env.DATABASE_URL ? conectarAoPostgres(process.env.DATABASE_URL) : conectarAoPGLite())
+  conexao ??= (process.env.DATABASE_URL ? conectarAoPostgres(process.env.DATABASE_URL) : conectarAoPGLite())
     .catch((erro) => {
       // Uma falha (banco fora do ar, por exemplo) não fica guardada: a próxima chamada tenta de novo.
-      conexão = undefined
+      conexao = undefined
       throw erro
     })
-  return conexão
+  return conexao
 }
 
 /**

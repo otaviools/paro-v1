@@ -10,14 +10,14 @@ import type { EstadoDaChance } from '~/components/AmostraDeFaixaDeChance.vue'
 interface RuaNaLista {
   rua: { id: string, nome: string }
   estimativa:
-    | { tipo: 'chance', faixaDeChance: Exclude<EstadoDaChance, 'Sem dado'>, base: { observações: number, última: string } }
+    | { tipo: 'chance', faixaDeChance: Exclude<EstadoDaChance, 'Sem dado'>, base: { observacoes: number, ultima: string } }
     | { tipo: 'sem-dado' }
-  distânciaAoDestino: number
+  distanciaAoDestino: number
 }
 
 defineProps<{
   /** Panorama da noite; null ou undefined enquanto carrega. */
-  panorama: { faixaHorária: string | null, ruas: RuaNaLista[] } | null | undefined
+  panorama: { faixaHoraria: string | null, ruas: RuaNaLista[] } | null | undefined
   carregando: boolean
   erro: boolean
 }>()
@@ -51,7 +51,7 @@ function subtitulo(estimativa: RuaNaLista['estimativa']) {
   </p>
 
   <p
-    v-else-if="panorama && panorama.faixaHorária === null"
+    v-else-if="panorama && panorama.faixaHoraria === null"
     class="mensagem"
   >
     Agora está fora da área coberta, que vai das 17h às 23h. Escolha 19h, 21h ou 22h para ver a chance.
@@ -62,12 +62,12 @@ function subtitulo(estimativa: RuaNaLista['estimativa']) {
     class="lista"
   >
     <li
-      v-for="{ rua, estimativa, distânciaAoDestino } in panorama?.ruas"
+      v-for="{ rua, estimativa, distanciaAoDestino } in panorama?.ruas"
       :key="rua.id"
     >
       <NuxtLink
         class="linha"
-        :to="{ path: `/ruas/${rua.id}`, query: { faixaHoraria: panorama?.faixaHorária } }"
+        :to="{ path: `/ruas/${rua.id}`, query: { faixaHoraria: panorama?.faixaHoraria } }"
       >
         <AmostraDeFaixaDeChance :estado="estadoDaEstimativa(estimativa)" />
         <div class="texto">
@@ -76,7 +76,7 @@ function subtitulo(estimativa: RuaNaLista['estimativa']) {
             <strong class="rotulo">{{ estadoDaEstimativa(estimativa) }}</strong> · {{ subtitulo(estimativa) }}
           </span>
         </div>
-        <span class="distancia">{{ distanciaAPe(distânciaAoDestino) }}</span>
+        <span class="distancia">{{ distanciaAPe(distanciaAoDestino) }}</span>
       </NuxtLink>
     </li>
   </ul>

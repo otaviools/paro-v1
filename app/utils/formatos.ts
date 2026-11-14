@@ -13,8 +13,8 @@ function diaEMes(data: string) {
 }
 
 /** Base de uma chance: "6 noites · última em 04/11". */
-export function textoDaBase(base: { observações: number, última: string }) {
-  return `${base.observações} noites · última em ${diaEMes(base.última)}`
+export function textoDaBase(base: { observacoes: number, ultima: string }) {
+  return `${base.observacoes} noites · última em ${diaEMes(base.ultima)}`
 }
 
 export function distanciaAPe(metros: number) {
@@ -45,8 +45,8 @@ export function intervaloDaFaixaHoraria(inicio: string) {
  * Chance em número com a base (ADR 0006): "7 de 10 noites · última em 04/11".
  * As noites não cheias voltam da chance, que é exatamente não cheias / base.
  */
-export function textoDaChanceComBase(chance: number, base: { observações: number, última: string }) {
-  const naoCheias = Math.round((chance * base.observações) / 100)
+export function textoDaChanceComBase(chance: number, base: { observacoes: number, ultima: string }) {
+  const naoCheias = Math.round((chance * base.observacoes) / 100)
   return `${naoCheias} de ${textoDaBase(base)}`
 }
 

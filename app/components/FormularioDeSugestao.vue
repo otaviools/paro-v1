@@ -6,7 +6,7 @@
   depois de ler (ADR 0021). Não muda o mapa.
 -->
 <script setup lang="ts">
-import { MÁXIMO_DA_SUGESTÃO, MÍNIMO_DA_SUGESTÃO } from '#shared/sugestao-de-rua'
+import { MAXIMO_DA_SUGESTAO, MINIMO_DA_SUGESTAO } from '#shared/sugestao-de-rua'
 
 const emit = defineEmits<{ enviada: [] }>()
 
@@ -24,7 +24,7 @@ defineExpose({ limpar })
 
 async function enviar() {
   if (enviando.value) return
-  if (texto.value.trim().length < MÍNIMO_DA_SUGESTÃO) {
+  if (texto.value.trim().length < MINIMO_DA_SUGESTAO) {
     erro.value = 'Escreva o nome da rua ou do trecho.'
     return
   }
@@ -65,7 +65,7 @@ async function enviar() {
         v-model="texto"
         type="text"
         class="entrada"
-        :maxlength="MÁXIMO_DA_SUGESTÃO"
+        :maxlength="MAXIMO_DA_SUGESTAO"
         autocomplete="off"
         enterkeyhint="send"
         :aria-invalid="erro !== null"
@@ -75,7 +75,7 @@ async function enviar() {
         :id="`${id}-contagem`"
         class="contagem"
       >
-        {{ texto.length }} de {{ MÁXIMO_DA_SUGESTÃO }} caracteres
+        {{ texto.length }} de {{ MAXIMO_DA_SUGESTAO }} caracteres
       </p>
       <p
         v-if="erro"

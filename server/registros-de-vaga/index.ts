@@ -1,28 +1,28 @@
 import { createHash, randomBytes } from 'node:crypto'
-import type { AreaCoberta, Data, FaixaHorária } from '../area-coberta'
+import type { AreaCoberta, Data, FaixaHoraria } from '../area-coberta'
 import type { Banco } from '../banco'
 
 /** Faixa horária de chegada informada: uma faixa horária ou "agora". */
-export type ChegadaInformada = FaixaHorária | 'agora'
+export type ChegadaInformada = FaixaHoraria | 'agora'
 
 export interface NovoRegistro {
   ruaCoberta: string
   chegada: ChegadaInformada
-  saídaPrevista: FaixaHorária
+  saidaPrevista: FaixaHoraria
 }
 
 /** O que o celular guarda depois de registrar (Dados do celular). */
 export interface Registrado {
   /** Código aleatório de uso único; o servidor guarda só o hash (ADR 0014). */
-  código: string
+  codigo: string
   noite: Data
-  chegada: FaixaHorária
+  chegada: FaixaHoraria
 }
 
 /** Quantos registros abertos indicam saída numa rua coberta e faixa horária. */
-export interface SaídaPrevista {
+export interface SaidaPrevista {
   ruaCoberta: string
-  faixaHorária: FaixaHorária
+  faixaHoraria: FaixaHoraria
   quantidade: number
 }
 
@@ -33,11 +33,11 @@ export interface SaídaPrevista {
 export interface TotalDeRegistros {
   ruaCoberta: string
   /** Faixa horária de chegada dos registros. */
-  faixaHorária: FaixaHorária
+  faixaHoraria: FaixaHoraria
   quantidade: number
 }
 
-export interface DependênciasDosRegistrosDeVaga {
+export interface DependenciasDosRegistrosDeVaga {
   banco: Banco
   areaCoberta: AreaCoberta
 }
@@ -46,7 +46,7 @@ export interface DependênciasDosRegistrosDeVaga {
  * O código não abre nenhum registro aberto desta noite: não existe, já foi
  * usado no "Saí" ou é de outra noite (ADR 0014).
  */
-export class CódigoRecusado extends Error {
+export class CodigoRecusado extends Error {
   constructor() {
     super('Este código não vale para nenhum registro de vaga aberto nesta noite')
   }
@@ -56,16 +56,16 @@ export class CódigoRecusado extends Error {
  * Registro fora das regras: rua não coberta, faixa horária fora da área
  * coberta, saída antes da chegada ou numa faixa horária que já passou.
  */
-export class RegistroInválido extends Error {}
+export class RegistroInvalido extends Error {}
 
-function hashDe(código: string): string {
-  return createHash('sha256').update(código).digest('hex')
+function hashDe(codigo: string): string {
+  return createHash('sha256').update(codigo).digest('hex')
 }
 
-export function criarRegistrosDeVaga({ banco, areaCoberta }: DependênciasDosRegistrosDeVaga) {
-  function exigirFaixaHorária(faixaHorária: FaixaHorária | null, nome: string): asserts faixaHorária is FaixaHorária {
-    if (faixaHorária === null || !areaCoberta.faixasHorárias().includes(faixaHorária)) {
-      throw new RegistroInválido(`A ${nome} precisa ser uma faixa horária da área coberta, das 17h às 23h`)
+export function criarRegistrosDeVaga({ banco, areaCoberta }: DependenciasDosRegistrosDeVaga) {
+  function exigirFaixaHoraria(faixaHoraria: FaixaHoraria | null, nome: string): asserts faixaHoraria is FaixaHoraria {
+    if (faixaHoraria === null || !areaCoberta.faixasHorarias().includes(faixaHoraria)) {
+      throw new RegistroInvalido(`A ${nome} precisa ser uma faixa horária da área coberta, das 17h às 23h`)
     }
   }
 
@@ -74,12 +74,12 @@ export function criarRegistrosDeVaga({ banco, areaCoberta }: DependênciasDosReg
    * chegada e não é uma faixa horária que já passou em `agora`.
    * "HH:MM" em ordem de texto é a ordem do horário.
    */
-  function exigirSaídaPrevistaVálida(chegada: FaixaHorária, saídaPrevista: FaixaHorária, agora: Date) {
-    exigirFaixaHorária(saídaPrevista, 'saída prevista')
-    if (saídaPrevista < chegada) throw new RegistroInválido('A saída prevista não pode ser antes da chegada')
-    const faixaDeAgora = areaCoberta.faixaHorária(agora)
-    if (faixaDeAgora !== null && saídaPrevista < faixaDeAgora) {
-      throw new RegistroInválido('A saída prevista não pode ser numa faixa horária que já passou')
+  function exigirSaidaPrevistaValida(chegada: FaixaHoraria, saidaPrevista: FaixaHoraria, agora: Date) {
+    exigirFaixaHoraria(saidaPrevista, 'saída prevista')
+    if (saidaPrevista < chegada) throw new RegistroInvalido('A saída prevista não pode ser antes da chegada')
+    const faixaDeAgora = areaCoberta.faixaHoraria(agora)
+    if (faixaDeAgora !== null && saidaPrevista < faixaDeAgora) {
+      throw new RegistroInvalido('A saída prevista não pode ser numa faixa horária que já passou')
     }
   }
 
@@ -114,50 +114,50 @@ export function criarRegistrosDeVaga({ banco, areaCoberta }: DependênciasDosReg
 
   return {
     /** Recebe um registro de vaga na noite de `agora` e devolve o código dele. */
-    async registrar({ ruaCoberta, chegada, saídaPrevista }: NovoRegistro, agora: Date): Promise<Registrado> {
+    async registrar({ ruaCoberta, chegada, saidaPrevista }: NovoRegistro, agora: Date): Promise<Registrado> {
       if (!areaCoberta.ruasCobertas().some(r => r.id === ruaCoberta)) {
-        throw new RegistroInválido(`"${ruaCoberta}" não é uma rua coberta`)
+        throw new RegistroInvalido(`"${ruaCoberta}" não é uma rua coberta`)
       }
-      const chegadaDoRegistro = chegada === 'agora' ? areaCoberta.faixaHorária(agora) : chegada
-      exigirFaixaHorária(chegadaDoRegistro, 'chegada')
-      exigirSaídaPrevistaVálida(chegadaDoRegistro, saídaPrevista, agora)
+      const chegadaDoRegistro = chegada === 'agora' ? areaCoberta.faixaHoraria(agora) : chegada
+      exigirFaixaHoraria(chegadaDoRegistro, 'chegada')
+      exigirSaidaPrevistaValida(chegadaDoRegistro, saidaPrevista, agora)
 
       const noite = areaCoberta.noiteDe(agora)
-      const código = randomBytes(16).toString('base64url')
+      const codigo = randomBytes(16).toString('base64url')
       await banco.query(
         `insert into registros_de_vaga (hash_do_codigo, noite, rua_coberta, chegada, saida_prevista)
          values ($1, $2, $3, $4, $5)`,
-        [hashDe(código), noite, ruaCoberta, chegadaDoRegistro, saídaPrevista],
+        [hashDe(codigo), noite, ruaCoberta, chegadaDoRegistro, saidaPrevista],
       )
-      return { código, noite, chegada: chegadaDoRegistro }
+      return { codigo, noite, chegada: chegadaDoRegistro }
     },
 
     /** Muda a faixa horária de saída prevista do registro do código. */
-    async alterarSaída(código: string, saídaPrevista: FaixaHorária, agora: Date): Promise<void> {
-      const hash = hashDe(código)
+    async alterarSaida(codigo: string, saidaPrevista: FaixaHoraria, agora: Date): Promise<void> {
+      const hash = hashDe(codigo)
       const { rows: [registro] } = await banco.query<{ chegada: string }>(
         `select chegada from registros_de_vaga
          where hash_do_codigo = $1 and noite = $2 and not encerrado`,
         [hash, areaCoberta.noiteDe(agora)],
       )
-      if (!registro) throw new CódigoRecusado()
-      exigirSaídaPrevistaVálida(registro.chegada, saídaPrevista, agora)
-      await banco.query('update registros_de_vaga set saida_prevista = $2 where hash_do_codigo = $1', [hash, saídaPrevista])
+      if (!registro) throw new CodigoRecusado()
+      exigirSaidaPrevistaValida(registro.chegada, saidaPrevista, agora)
+      await banco.query('update registros_de_vaga set saida_prevista = $2 where hash_do_codigo = $1', [hash, saidaPrevista])
     },
 
     /** "Saí": encerra o registro do código, que deixa de contar nas saídas previstas. */
-    async encerrar(código: string, agora: Date): Promise<void> {
+    async encerrar(codigo: string, agora: Date): Promise<void> {
       const { rows } = await banco.query(
         `update registros_de_vaga set encerrado = true
          where hash_do_codigo = $1 and noite = $2 and not encerrado
          returning 1`,
-        [hashDe(código), areaCoberta.noiteDe(agora)],
+        [hashDe(codigo), areaCoberta.noiteDe(agora)],
       )
-      if (rows.length === 0) throw new CódigoRecusado()
+      if (rows.length === 0) throw new CodigoRecusado()
     },
 
     /** Saídas previstas da noite, por rua coberta e faixa horária, sem os registros encerrados. */
-    async saídasPrevistas(noite: Data): Promise<SaídaPrevista[]> {
+    async saidasPrevistas(noite: Data): Promise<SaidaPrevista[]> {
       const { rows } = await banco.query<{ rua_coberta: string, saida_prevista: string, quantidade: number }>(
         `select rua_coberta, saida_prevista, count(*)::int as quantidade
          from registros_de_vaga
@@ -166,7 +166,7 @@ export function criarRegistrosDeVaga({ banco, areaCoberta }: DependênciasDosReg
          order by rua_coberta, saida_prevista`,
         [noite],
       )
-      return rows.map(r => ({ ruaCoberta: r.rua_coberta, faixaHorária: r.saida_prevista, quantidade: r.quantidade }))
+      return rows.map(r => ({ ruaCoberta: r.rua_coberta, faixaHoraria: r.saida_prevista, quantidade: r.quantidade }))
     },
 
     fecharNoite,
@@ -192,7 +192,7 @@ export function criarRegistrosDeVaga({ banco, areaCoberta }: DependênciasDosReg
          where noite = $1 order by rua_coberta, faixa_horaria`,
         [noite],
       )
-      return rows.map(r => ({ ruaCoberta: r.rua_coberta, faixaHorária: r.faixa_horaria, quantidade: r.quantidade }))
+      return rows.map(r => ({ ruaCoberta: r.rua_coberta, faixaHoraria: r.faixa_horaria, quantidade: r.quantidade }))
     },
   }
 }

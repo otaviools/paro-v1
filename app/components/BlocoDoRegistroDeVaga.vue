@@ -38,7 +38,7 @@ watch(agora, (valor) => {
       id="titulo-registro-de-vaga"
       class="saida"
     >
-      Saída prevista: {{ rotuloDaFaixaHoraria(registro.saídaPrevista) }}
+      Saída prevista: {{ rotuloDaFaixaHoraria(registro.saidaPrevista) }}
     </h2>
     <p class="rua">
       {{ registro.ruaCoberta.nome }}

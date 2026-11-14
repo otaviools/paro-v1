@@ -66,7 +66,7 @@ const mudandoSaida = ref(false)
 /** A saída prevista pode ir da faixa horária de agora (ou da chegada) até 22h30. */
 const grupos = computed(() => {
   if (!registro.value) return []
-  const agoraFaixa = agora.value?.faixaHorária ?? registro.value.chegada
+  const agoraFaixa = agora.value?.faixaHoraria ?? registro.value.chegada
   const aPartirDe = agoraFaixa > registro.value.chegada ? agoraFaixa : registro.value.chegada
   return gruposDaSaidaPrevista(faixasHorarias.value ?? [], aPartirDe)
 })
@@ -77,10 +77,10 @@ async function mudarSaida(saidaPrevista: string) {
   try {
     await $fetch('/api/registros/saida', {
       method: 'PATCH',
-      body: { código: registro.value.código, saídaPrevista: saidaPrevista },
+      body: { codigo: registro.value.codigo, saidaPrevista: saidaPrevista },
     })
-    dados?.mudarSaídaDoRegistro(saidaPrevista)
-    registro.value = { ...registro.value, saídaPrevista: saidaPrevista }
+    dados?.mudarSaidaDoRegistro(saidaPrevista)
+    registro.value = { ...registro.value, saidaPrevista: saidaPrevista }
     gaveta.value?.fechar()
     avisar(`Saída prevista mudada para ${rotuloDaFaixaHoraria(saidaPrevista)}.`)
   }
@@ -102,7 +102,7 @@ async function sair() {
   if (!registro.value || saindo.value) return
   saindo.value = true
   try {
-    await $fetch('/api/registros/encerrar', { method: 'POST', body: { código: registro.value.código } })
+    await $fetch('/api/registros/encerrar', { method: 'POST', body: { codigo: registro.value.codigo } })
   }
   catch (erro) {
     // Código recusado: o registro já não conta, então o "Saí" vale do mesmo jeito.
@@ -164,7 +164,7 @@ async function sair() {
           id="titulo-vaga"
           class="saida"
         >
-          Saída prevista: {{ rotuloDaFaixaHoraria(registro.saídaPrevista) }}
+          Saída prevista: {{ rotuloDaFaixaHoraria(registro.saidaPrevista) }}
         </h2>
         <p class="rua">
           {{ registro.ruaCoberta.nome }}
@@ -230,7 +230,7 @@ async function sair() {
         ref="gaveta"
         titulo="Mudar saída prevista"
         :grupos="grupos"
-        :escolhida="registro.saídaPrevista"
+        :escolhida="registro.saidaPrevista"
         :salvando="mudandoSaida"
         @salvar="mudarSaida"
       />
