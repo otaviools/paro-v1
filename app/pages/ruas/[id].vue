@@ -20,7 +20,9 @@ const { data: rua, error, refresh } = await useFetch(() => `/api/ruas/${route.pa
 /** As saídas previstas mudam ao longo da noite; o app consulta o servidor de novo (ADR 0018). */
 const INTERVALO_DE_ATUALIZACAO = 90_000
 let atualizacao: ReturnType<typeof setInterval> | undefined
-onMounted(() => { atualizacao = setInterval(() => refresh(), INTERVALO_DE_ATUALIZACAO) })
+onMounted(() => {
+  atualizacao = setInterval(() => refresh(), INTERVALO_DE_ATUALIZACAO)
+})
 onBeforeUnmount(() => clearInterval(atualizacao))
 
 /** "1 saída prevista", "3 saídas previstas". */

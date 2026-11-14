@@ -87,7 +87,9 @@ function carregarTiles(maplibre: typeof import('maplibre-gl')): Promise<PMTiles>
       maplibre.addProtocol('pmtiles', protocolo.tile)
       return arquivo
     })
-  tiles.catch(() => { tiles = null })
+  tiles.catch(() => {
+    tiles = null
+  })
   return tiles
 }
 </script>
@@ -544,8 +546,12 @@ onMounted(async () => {
       if (typeof id === 'string') emit('selecionar-rua', id)
     })
     for (const camada of ['trechos-toque', 'trechos-etiqueta']) {
-      m.on('mouseenter', camada, () => { m.getCanvas().style.cursor = 'pointer' })
-      m.on('mouseleave', camada, () => { m.getCanvas().style.cursor = '' })
+      m.on('mouseenter', camada, () => {
+        m.getCanvas().style.cursor = 'pointer'
+      })
+      m.on('mouseleave', camada, () => {
+        m.getCanvas().style.cursor = ''
+      })
     }
   }
   catch (erro) {
