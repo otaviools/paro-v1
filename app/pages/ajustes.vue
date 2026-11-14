@@ -1,8 +1,9 @@
 <!--
   Ajustes (referências Grok, Waymo e Pangea): rotina, forma de colaborar em
-  linhas com seletor, o aviso de privacidade e "Apagar histórico" no fim da
-  lista, sempre com confirmação. Tudo aqui fica só no celular (ADRs 0004,
-  0010 e 0015).
+  linhas com seletor, a sugestão de rua, o aviso de privacidade e "Apagar
+  histórico" no fim da lista, sempre com confirmação. Rotina e forma de
+  colaborar ficam só no celular (ADRs 0004, 0010 e 0015); a sugestão de rua
+  vai ao servidor só com o texto (ADR 0013).
 -->
 <script setup lang="ts">
 import { dadosDoCelularDoAparelho } from '~/dados-do-celular'
@@ -42,6 +43,16 @@ function mudarRegistro(ligado: boolean) {
 
 function mudarLocalizacao(ligada: boolean) {
   mudarForma(ligada ? 'localização-ligada' : 'manual')
+}
+
+// --- Sugestão de rua (ADR 0013) -----------------------------------------------
+
+const sugestao = ref<{ abrir: () => void, fechar: () => void }>()
+const formularioDeSugestao = ref<{ limpar: () => void }>()
+
+function sugestaoEnviada() {
+  sugestao.value?.fechar()
+  avisar('Sugestão enviada para a equipe.')
 }
 
 // --- Privacidade e Apagar histórico ---------------------------------------------
@@ -133,6 +144,18 @@ function apagarHistorico() {
       </div>
     </section>
 
+    <section class="secao" aria-labelledby="titulo-sugestao">
+      <h2 id="titulo-sugestao" class="etiqueta">Sugestão de rua</h2>
+
+      <div class="card">
+        <button type="button" class="linha-link" aria-haspopup="dialog" @click="sugestao?.abrir()">
+          <UIcon name="i-lucide-map-pin-plus" class="icone" aria-hidden="true" />
+          <span class="nome-linha">Sugerir rua ou trecho</span>
+          <UIcon name="i-lucide-chevron-right" class="icone" aria-hidden="true" />
+        </button>
+      </div>
+    </section>
+
     <section class="secao" aria-labelledby="titulo-privacidade">
       <h2 id="titulo-privacidade" class="etiqueta">Privacidade</h2>
 
@@ -155,6 +178,10 @@ function apagarHistorico() {
         </p>
       </div>
     </section>
+
+    <Gaveta ref="sugestao" titulo="Sugerir rua" @fechada="formularioDeSugestao?.limpar()">
+      <FormularioDeSugestao ref="formularioDeSugestao" @enviada="sugestaoEnviada" />
+    </Gaveta>
 
     <Gaveta ref="privacidade" titulo="Como o Parô trata os seus dados">
       <AvisoDePrivacidade />

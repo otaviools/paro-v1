@@ -2,7 +2,7 @@
   Aviso de privacidade em linguagem simples, aberto numa gaveta a partir de um
   link (referência Tinder). Cada bloco segue uma ADR: sem cadastro (0004), o
   que fica no celular (0003, 0004, 0010, 0015), o que vai ao servidor (0003,
-  0004, 0014) e por quanto tempo (0021). Mudou uma dessas ADRs, muda o texto.
+  0004, 0013, 0014) e por quanto tempo (0021). Mudou uma dessas ADRs, muda o texto.
 -->
 <template>
   <div class="aviso">
@@ -42,6 +42,10 @@
         A resposta a "A previsão ajudou hoje?" leva só o sim ou o não, sem esse número e sem nada que identifique
         você. Só o seu celular guarda que você já respondeu naquela noite.
       </p>
+      <p>
+        A sugestão de rua, em Ajustes, leva só o texto que você escreve, e o servidor guarda junto só a data. Não
+        escreva nome, telefone, placa ou outro dado pessoal nela.
+      </p>
     </section>
 
     <section class="bloco" aria-labelledby="privacidade-retencao">
@@ -52,6 +56,7 @@
           horária, sem código e sem nada que identifique alguém.
         </li>
         <li>Visitas com o número do mês: guardadas por até 60 dias e depois viram totais por semana, sem o número.</li>
+        <li>Sugestões de rua: apagadas pela equipe depois de lidas.</li>
       </ul>
       <p>
         "Apagar histórico" limpa só o celular. Um registro de vaga já enviado fica no servidor até o fim da noite,
