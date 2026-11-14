@@ -76,13 +76,11 @@ const lugarDosAvisos: ToasterProps = {
       o painel da direita (360 px), o centro (Voltar até o carro) ou some
       (painel fechado). O [contain:layout] faz dos elementos fixos da página
       (a ação principal no rodapé) filhos do painel, e não da janela.
-      TEMPORÁRIO: o painel da direita põe --paro-margem em 24 px, para as
-      telas que ainda usam o token (#37, #38 e #39).
     -->
     <div
       class="pb-[calc(--spacing(19)+env(safe-area-inset-bottom))]"
       :class="noPainelDesktop && {
-        'lg:fixed lg:inset-y-0 lg:right-0 lg:z-3 lg:grid lg:w-90 lg:grid-rows-[auto_minmax(0,1fr)] lg:border-l lg:border-default lg:bg-default lg:pb-0 lg:[contain:layout] lg:[--paro-margem:1.5rem]': painel === 'direita',
+        'lg:fixed lg:inset-y-0 lg:right-0 lg:z-3 lg:grid lg:w-90 lg:grid-rows-[auto_minmax(0,1fr)] lg:border-l lg:border-default lg:bg-default lg:pb-0 lg:[contain:layout]': painel === 'direita',
         'lg:fixed lg:inset-y-0 lg:right-0 lg:pb-0 lg:[contain:layout]': painel === 'centro',
         'lg:left-100': painel === 'centro' && lateralAberta,
         'lg:left-0': painel === 'centro' && !lateralAberta,
