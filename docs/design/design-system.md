@@ -16,7 +16,9 @@ As referências do Mobbin entram só como padrão de layout, navegação e compo
 
 O design system define só **cores e raios** (ADR 0027). As cores ficam nas variáveis do Nuxt UI (`--ui-*`), declaradas em `app/assets/css/main.css`. Os componentes usam as classes semânticas do Tailwind e do Nuxt UI (`bg-default`, `bg-elevated`, `text-muted`, `border-default`, `text-primary`, `bg-inverted`...), nunca o valor hexadecimal direto. Os únicos tokens próprios são os três raios. Tamanhos de texto, espaçamentos, alturas e larguras vêm da escala do Tailwind, escritos como classes nos componentes.
 
-Os tokens `--paro-*` que ainda aparecem no `main.css` são apelidos temporários. Saem nos tickets de cada tela (#36 a #39).
+Os tokens `--paro-*` marcados TEMPORÁRIO no `main.css` são apelidos que as telas ainda não migradas usam. Saem nos tickets de cada tela (#37 a #39). As cores do mapa (`--paro-mapa-*`) ficam, porque o Nuxt UI não tem variável de mapa.
+
+Os ajustes que valem para todo componente do Nuxt UI (raio dos botões, cards, avisos e gavetas; cores do aviso suave; seletor sem sombra) ficam em `app/app.config.ts`, com a lista de qual componente do Nuxt UI faz cada peça do design system.
 
 ## Princípios
 
@@ -62,7 +64,7 @@ Usados só em mensagens, ícones e etiquetas. Nunca nas faixas de chance. A cor 
 
 ### Mapa
 
-O Nuxt UI não tem variável para o mapa. As cores do mapa continuam em `--paro-mapa-*` (temporário), lidas pelo Mapa da área para o estilo do MapLibre, até o ticket do mapa.
+O Nuxt UI não tem variável para o mapa. As cores do mapa ficam em `--paro-mapa-*` no `main.css`, lidas pelo Mapa da área para o estilo do MapLibre. O rótulo usa `--ui-text-muted`.
 
 | Cor | Claro | Escuro | Uso |
 |---|---|---|---|
@@ -227,7 +229,7 @@ No detalhe da rua (referência Swarm):
 |---|---|---|
 | Gaveta sobre o mapa | Raio `rounded-paro-lg` no topo, alça de 32 × 4 px, botão de fechar; dois pontos de parada (resumo e expandida) | Lime: gaveta da rua |
 | Gaveta de escolha | Título à esquerda, "Salvar" como link à direita, grupos de chips | Pangea: ajustes do mapa |
-| Aviso flutuante | Fundo na cor `--ui-text`, texto na cor `--ui-bg`, raio `rounded-paro-md`, some em 3 s | Waymo: confirmação |
+| Aviso flutuante | `UToast` com fundo `bg-inverted`, texto `text-inverted`, raio `rounded-paro-md`, some em 3 s | Waymo: confirmação |
 | Esqueleto | Blocos em `bg-muted` no formato do conteúdo, sem brilho animado | Waymo e Lime: carregamento |
 | Etiqueta sobre o mapa | Fundo `bg-elevated`, borda, ícone de pegadas e a distância em metros em linha reta ("140 m em linha reta"). Sem minutos, porque o Parô não calcula rota (ADR 0020) | Lime: tempo a pé |
 
@@ -272,7 +274,7 @@ O Lucide não tem uma pessoa andando; `footprints` (pegadas) é o ícone mais pr
 
 A partir de 1024 px, o Parô é um painel único de três colunas (referência Turo). Início e Mapa viram uma tela só: a aba Mapa não aparece e não há barra de abas flutuante.
 
-- **Barra lateral de 280 px**, fundo `bg-default` e borda à direita, com rolagem própria e margem lateral de 24 px. No topo, o nome "Parô" em texto, Figtree `text-xl`, negrito, provisório até os arquivos do logotipo entrarem no repositório. Depois, a navegação (Início, Minha vaga e Ajustes, com ícone e rótulo; o item ativo segue a aba ativa da barra de abas), o aviso "Dados de demonstração", as abas de faixa horária, o card de melhor chance, a lista de ruas cobertas e a pergunta "A previsão ajudou hoje?".
+- **Barra lateral de 400 px** (`w-100`), fundo `bg-default` e borda à direita, com rolagem própria e margem lateral de 24 px. No topo, o nome "Parô" em texto, Figtree `text-xl`, negrito, provisório até os arquivos do logotipo entrarem no repositório. Depois, a navegação (Início, Minha vaga e Ajustes, com ícone e rótulo; o item ativo segue a aba ativa da barra de abas), o aviso "Dados de demonstração", as abas de faixa horária, o card de melhor chance, a lista de ruas cobertas e a pergunta "A previsão ajudou hoje?".
 - **Centro:** o mapa da área, com o botão de centralizar no canto superior direito e a legenda no canto inferior direito.
 - **Painel à direita de 360 px**, fundo `bg-default`, borda à esquerda e margem lateral de 24 px. Começa fechado e tem botão de fechar (botão de ícone, no topo direito); Esc também fecha. Abre com o Detalhe da rua completo (ao escolher uma rua no mapa ou na lista), com Minha vaga (incluindo Registrar vaga e Seu registro de vaga) ou com Ajustes. O mapa continua visível, entre a barra lateral e o painel. A ação principal fica fixa no rodapé do painel.
 - **Voltar até o carro** abre no centro, no lugar do mapa da área, com a barra lateral ao lado.
