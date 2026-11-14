@@ -20,4 +20,18 @@ export default withNuxt({
       }],
     }],
   },
+}, {
+  // ADR 0030: toda chamada à API fica num composable de `app/composables/`,
+  // um por recurso. Páginas, componentes e plugins usam o composable.
+  files: ['app/**'],
+  ignores: ['app/composables/**'],
+  rules: {
+    'no-restricted-syntax': ['error', {
+      selector: 'CallExpression[callee.name=/^(useFetch|useLazyFetch|useAsyncData|useLazyAsyncData|\\$fetch)$/]',
+      message: 'Chamada à API só dentro de app/composables/, num composable do recurso (ADR 0030).',
+    }, {
+      selector: 'CallExpression[callee.object.name="$fetch"]',
+      message: 'Chamada à API só dentro de app/composables/, num composable do recurso (ADR 0030).',
+    }],
+  },
 })
