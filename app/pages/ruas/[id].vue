@@ -52,61 +52,57 @@ function voltar() {
 }
 
 // "Como chegar" avisa antes de abrir outro app (ADR 0020).
-const aviso = ref<HTMLDialogElement>()
+const avisoAberto = ref(false)
 const link = ref<string>()
 
 function comoChegar() {
   if (!rua.value) return
   link.value = linkDoComoChegar(rua.value.meioDoTrecho, navigator.userAgent)
-  aviso.value?.showModal()
+  avisoAberto.value = true
 }
 
 function fecharAviso() {
-  aviso.value?.close()
+  avisoAberto.value = false
 }
 </script>
 
 <template>
-  <main class="detalhe">
-    <button
-      type="button"
-      class="voltar"
+  <main class="mx-auto max-w-160 px-5 pt-4 pb-8 lg:px-6">
+    <!-- No desktop, o painel da direita tem o próprio botão de fechar. -->
+    <UButton
+      color="neutral"
+      variant="outline"
+      icon="i-lucide-arrow-left"
       aria-label="Voltar"
+      class="mb-4 size-10 justify-center lg:hidden"
       @click="voltar"
-    >
-      <UIcon
-        name="i-lucide-arrow-left"
-        class="icone-voltar"
-        aria-hidden="true"
-      />
-    </button>
+    />
 
-    <p
-      v-if="error?.statusCode === 404"
-      class="mensagem"
-    >
-      Esta rua não é uma das ruas cobertas.
-    </p>
-    <p
-      v-else-if="error"
-      class="mensagem"
-    >
-      Não foi possível carregar a chance agora. Tente de novo em instantes.
-    </p>
+    <UAlert
+      v-if="error"
+      color="error"
+      variant="soft"
+      icon="i-lucide-circle-alert"
+      :title="error.statusCode === 404 ? 'Rua não encontrada' : 'Erro ao carregar'"
+      :description="error.statusCode === 404
+        ? 'Esta rua não é uma das ruas cobertas.'
+        : 'Não foi possível carregar a chance agora. Tente de novo em instantes.'"
+      :ui="{ title: 'text-sm', description: 'text-sm' }"
+    />
 
     <template v-else-if="rua">
       <AvisoDeDemonstracao
         v-if="rua.demonstracao"
-        class="aviso"
+        class="mb-6"
       />
 
-      <h1 class="nome">
+      <h1 class="text-xl font-bold leading-tight">
         {{ rua.rua.nome }}
       </h1>
-      <p class="distancia">
+      <p class="mt-1 flex items-center gap-2 text-xs font-medium tabular-nums text-muted">
         <UIcon
           name="i-lucide-footprints"
-          class="icone"
+          class="size-4 shrink-0"
           aria-hidden="true"
         />
         {{ distanciaAPe(rua.distanciaAoDestino) }} até o destino
@@ -114,66 +110,77 @@ function fecharAviso() {
 
       <GraficoDeChance
         v-model="faixaHorariaSelecionada"
-        class="grafico"
+        class="mt-6"
         :faixas-horarias="rua.faixasHorarias"
         :melhor-faixa-horaria="rua.melhorFaixaHoraria"
       />
 
-      <section
+      <!-- Bloco de dado (design system, "Cards"): título com ícone e linhas separadas por border-default. -->
+      <UCard
         v-if="selecionada"
-        class="bloco"
+        as="section"
+        class="mt-3"
         aria-labelledby="titulo-bloco"
         aria-live="polite"
+        :ui="{ body: 'p-4 sm:p-4 lg:p-6' }"
       >
         <h2
           id="titulo-bloco"
-          class="titulo-bloco"
+          class="flex items-center gap-2 text-base font-semibold tabular-nums"
         >
           <UIcon
             name="i-lucide-clock"
-            class="icone"
+            class="size-4 shrink-0"
             aria-hidden="true"
           />
           {{ intervaloDaFaixaHoraria(selecionada.faixaHoraria) }}
         </h2>
 
-        <dl class="dados">
-          <div class="dado">
-            <dt>Faixa de chance</dt>
-            <dd class="faixa-de-chance">
+        <dl class="mt-2 divide-y divide-default">
+          <div class="flex items-center justify-between gap-3 py-3 text-sm tabular-nums">
+            <dt class="text-xs text-muted">
+              Faixa de chance
+            </dt>
+            <dd class="flex items-center gap-2 text-right font-semibold">
               <AmostraDeFaixaDeChance :estado="estadoDe(selecionada.estimativa)" />
               {{ estadoDe(selecionada.estimativa) }}
             </dd>
           </div>
           <div
             v-if="selecionada.estimativa.tipo === 'chance'"
-            class="dado"
+            class="flex items-center justify-between gap-3 py-3 text-sm tabular-nums"
           >
-            <dt>Chance</dt>
-            <dd>{{ textoDaChanceComBase(selecionada.estimativa.chance, selecionada.estimativa.base) }}</dd>
+            <dt class="text-xs text-muted">
+              Chance
+            </dt>
+            <dd class="text-right font-semibold">
+              {{ textoDaChanceComBase(selecionada.estimativa.chance, selecionada.estimativa.base) }}
+            </dd>
           </div>
         </dl>
 
         <p
           v-if="selecionada.estimativa.tipo === 'sem-dado'"
-          class="sem-dado"
+          class="border-t border-default pt-3 text-sm"
         >
           Ainda não temos observações suficientes nesta faixa horária
         </p>
-      </section>
+      </UCard>
 
       <!-- Bloco de dado à parte da chance: dado declarado, não observado (ADR 0009). -->
-      <section
-        class="bloco saidas"
+      <UCard
+        as="section"
+        class="mt-3"
         aria-labelledby="titulo-saidas"
+        :ui="{ body: 'p-4 sm:p-4 lg:p-6' }"
       >
         <h2
           id="titulo-saidas"
-          class="titulo-bloco"
+          class="flex items-center gap-2 text-base font-semibold tabular-nums"
         >
           <UIcon
             name="i-lucide-log-out"
-            class="icone"
+            class="size-4 shrink-0"
             aria-hidden="true"
           />
           Saídas previstas nesta noite
@@ -181,329 +188,80 @@ function fecharAviso() {
 
         <dl
           v-if="rua.saidasPrevistas.length"
-          class="dados"
+          class="mt-2 divide-y divide-default"
         >
           <div
             v-for="saida in rua.saidasPrevistas"
             :key="saida.faixaHoraria"
-            class="dado"
+            class="flex items-center justify-between gap-3 py-3 text-sm tabular-nums"
           >
-            <dt>{{ intervaloDaFaixaHoraria(saida.faixaHoraria) }}</dt>
-            <dd>{{ textoDasSaidas(saida.quantidade) }}</dd>
+            <dt class="text-xs text-muted">
+              {{ intervaloDaFaixaHoraria(saida.faixaHoraria) }}
+            </dt>
+            <dd class="text-right font-semibold">
+              {{ textoDasSaidas(saida.quantidade) }}
+            </dd>
           </div>
         </dl>
         <p
           v-else
-          class="sem-saidas"
+          class="py-3 text-sm"
         >
           Ninguém registrou saída prevista nesta rua hoje.
         </p>
 
-        <p class="nota">
+        <p class="border-t border-default pt-3 text-xs text-muted">
           Informadas por quem estacionou aqui. Não entram na chance.
         </p>
-      </section>
+      </UCard>
     </template>
 
+    <!-- Ação principal fixa no rodapé (design system, "Padrões de navegação"). -->
     <footer
       v-if="rua"
-      class="rodape"
+      class="fixed inset-x-0 bottom-0 z-10 mx-auto max-w-160 bg-default px-5 pt-3 pb-[calc(--spacing(3)+env(safe-area-inset-bottom))] lg:px-6"
     >
-      <button
-        type="button"
-        class="principal"
+      <UButton
+        color="neutral"
+        size="xl"
+        block
+        icon="i-lucide-navigation"
+        label="Como chegar"
+        class="h-13 text-lg lg:h-11"
         @click="comoChegar"
-      >
-        <UIcon
-          name="i-lucide-navigation"
-          class="icone-botao"
-          aria-hidden="true"
-        />
-        Como chegar
-      </button>
+      />
     </footer>
 
-    <dialog
-      ref="aviso"
-      class="gaveta"
-      aria-labelledby="titulo-aviso"
-      @click.self="fecharAviso"
+    <!-- Aviso de que "Como chegar" abre outro app (ADR 0020). -->
+    <UDrawer
+      v-model:open="avisoAberto"
+      title="Abrir outro app?"
     >
-      <div
-        class="alca"
-        aria-hidden="true"
-      />
-      <h2
-        id="titulo-aviso"
-        class="titulo-aviso"
-      >
-        Abrir outro app?
-      </h2>
-      <p class="texto-aviso">
-        "Como chegar" abre o app de navegação do celular com a {{ rua?.rua.nome }} como destino.
-        Esse app recebe a rua de destino e a sua posição.
-      </p>
-      <a
-        :href="link"
-        class="principal"
-        @click="fecharAviso"
-      >Abrir app de navegação</a>
-      <button
-        type="button"
-        class="link"
-        @click="fecharAviso"
-      >
-        Cancelar
-      </button>
-    </dialog>
+      <template #body>
+        <p class="text-sm">
+          "Como chegar" abre o app de navegação do celular com a {{ rua?.rua.nome }} como destino.
+          Esse app recebe a rua de destino e a sua posição.
+        </p>
+      </template>
+      <template #footer>
+        <UButton
+          color="neutral"
+          size="xl"
+          block
+          :to="link"
+          external
+          label="Abrir app de navegação"
+          class="h-13 text-lg"
+          @click="fecharAviso"
+        />
+        <UButton
+          color="primary"
+          variant="link"
+          label="Cancelar"
+          class="min-h-11 self-center px-4 text-sm font-medium"
+          @click="fecharAviso"
+        />
+      </template>
+    </UDrawer>
   </main>
 </template>
-
-<style scoped>
-.detalhe {
-  max-width: var(--paro-largura-conteudo);
-  margin: 0 auto;
-  padding: var(--paro-esp-4) var(--paro-margem) var(--paro-esp-8);
-}
-
-/* Botão de ícone (design system, "Botões"). */
-.voltar {
-  display: grid;
-  place-items: center;
-  width: calc(var(--paro-esp-8) + var(--paro-esp-2));
-  height: calc(var(--paro-esp-8) + var(--paro-esp-2));
-  margin-bottom: var(--paro-esp-4);
-  color: var(--paro-texto);
-  background: var(--paro-superficie);
-  border: 1px solid var(--paro-borda);
-  border-radius: var(--paro-raio-botao);
-  cursor: pointer;
-}
-
-/* No desktop, o painel da direita tem o próprio botão de fechar. */
-@media (min-width: 1024px) {
-  .voltar { display: none; }
-}
-
-.icone-voltar {
-  width: var(--paro-esp-5);
-  height: var(--paro-esp-5);
-}
-
-.aviso {
-  margin-bottom: var(--paro-esp-6);
-}
-
-.nome {
-  font-size: var(--paro-texto-stat);
-  font-weight: 700;
-  line-height: 1.2;
-}
-
-.distancia {
-  display: flex;
-  align-items: center;
-  gap: var(--paro-esp-2);
-  margin-top: var(--paro-esp-1);
-  font-size: var(--paro-texto-legenda);
-  font-weight: 500;
-  font-variant-numeric: tabular-nums;
-  color: var(--paro-texto-fraco);
-}
-
-.icone {
-  flex: none;
-  width: var(--paro-esp-4);
-  height: var(--paro-esp-4);
-}
-
-.grafico {
-  margin-top: var(--paro-esp-6);
-}
-
-/* Card Bloco de dado: título com ícone e linhas separadas por --paro-borda. */
-.bloco {
-  margin-top: var(--paro-esp-3);
-  padding: var(--paro-esp-4);
-  background: var(--paro-superficie);
-  border: 1px solid var(--paro-borda);
-  border-radius: var(--paro-raio-card);
-}
-
-@media (min-width: 1024px) {
-  .bloco { padding: var(--paro-esp-6); }
-}
-
-.titulo-bloco {
-  display: flex;
-  align-items: center;
-  gap: var(--paro-esp-2);
-  font-size: var(--paro-texto-card);
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-}
-
-.dados {
-  margin-top: var(--paro-esp-2);
-}
-
-.dado {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--paro-esp-3);
-  padding: var(--paro-esp-3) 0;
-  font-size: var(--paro-texto-corpo);
-  font-variant-numeric: tabular-nums;
-}
-
-.dado + .dado {
-  border-top: 1px solid var(--paro-borda);
-}
-
-.dado dt {
-  font-size: var(--paro-texto-legenda);
-  color: var(--paro-texto-fraco);
-}
-
-.dado dd {
-  font-weight: 600;
-  text-align: right;
-}
-
-.faixa-de-chance {
-  display: flex;
-  align-items: center;
-  gap: var(--paro-esp-2);
-}
-
-.sem-dado {
-  padding-top: var(--paro-esp-3);
-  font-size: var(--paro-texto-corpo);
-  border-top: 1px solid var(--paro-borda);
-}
-
-.sem-saidas {
-  padding: var(--paro-esp-3) 0;
-  font-size: var(--paro-texto-corpo);
-}
-
-.nota {
-  padding-top: var(--paro-esp-3);
-  font-size: var(--paro-texto-nota);
-  color: var(--paro-texto-fraco);
-  border-top: 1px solid var(--paro-borda);
-}
-
-.mensagem {
-  padding: var(--paro-esp-4);
-  font-size: var(--paro-texto-corpo);
-  background: var(--paro-superficie);
-  border: 1px solid var(--paro-borda);
-  border-radius: var(--paro-raio-linha);
-}
-
-/* Ação principal fixa no rodapé (design system, "Padrões de navegação"). */
-.rodape {
-  position: fixed;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  z-index: 10;
-  max-width: var(--paro-largura-conteudo);
-  margin: 0 auto;
-  padding: var(--paro-esp-3) var(--paro-margem) calc(var(--paro-esp-3) + env(safe-area-inset-bottom));
-  background: var(--paro-fundo);
-}
-
-/* Botão principal (design system, "Botões"). */
-.principal {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--paro-esp-2);
-  width: 100%;
-  height: calc(var(--paro-esp-12) + var(--paro-esp-1));
-  font-size: var(--paro-texto-botao);
-  font-weight: 600;
-  color: var(--paro-acao-texto);
-  background: var(--paro-acao);
-  border-radius: var(--paro-raio-botao);
-  cursor: pointer;
-}
-
-.principal:hover,
-.principal:active {
-  background: var(--paro-acao-hover);
-}
-
-.principal:active {
-  transform: scale(0.98);
-}
-
-@media (min-width: 1024px) {
-  .principal { height: calc(var(--paro-esp-8) + var(--paro-esp-3)); }
-}
-
-.icone-botao {
-  width: var(--paro-esp-5);
-  height: var(--paro-esp-5);
-}
-
-/* Gaveta com o aviso de que "Como chegar" abre outro app (ADR 0020). */
-.gaveta {
-  width: 100%;
-  max-width: var(--paro-largura-conteudo);
-  margin: auto auto 0;
-  padding: var(--paro-esp-3) var(--paro-margem) calc(var(--paro-esp-6) + env(safe-area-inset-bottom));
-  color: var(--paro-texto);
-  background: var(--paro-superficie);
-  border: 1px solid var(--paro-borda);
-  border-bottom: 0;
-  border-radius: var(--paro-raio-card) var(--paro-raio-card) 0 0;
-}
-
-.gaveta[open] {
-  display: grid;
-  gap: var(--paro-esp-4);
-}
-
-.alca {
-  justify-self: center;
-  width: var(--paro-esp-8);
-  height: var(--paro-esp-1);
-  background: var(--paro-borda);
-  border-radius: var(--paro-raio-pilula);
-}
-
-.titulo-aviso {
-  font-size: var(--paro-texto-card);
-  font-weight: 600;
-}
-
-.texto-aviso {
-  font-size: var(--paro-texto-corpo);
-}
-
-/* Botão link (design system, "Botões"). */
-.link {
-  justify-self: center;
-  min-height: calc(var(--paro-esp-8) + var(--paro-esp-3));
-  padding: 0 var(--paro-esp-4);
-  font-size: var(--paro-texto-interface);
-  font-weight: 500;
-  color: var(--paro-destaque-texto);
-  cursor: pointer;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .gaveta[open] {
-    animation: entrar 250ms cubic-bezier(0.16, 1, 0.3, 1);
-  }
-}
-
-@keyframes entrar {
-  from { opacity: 0; transform: translateY(var(--paro-esp-2)); }
-  to { opacity: 1; transform: translateY(0); }
-}
-</style>
