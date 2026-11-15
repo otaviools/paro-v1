@@ -109,13 +109,14 @@ function apagarHistorico() {
 </script>
 
 <template>
-  <main class="mx-auto max-w-160 px-5 py-8 lg:px-6">
-    <h1 class="text-2xl font-bold leading-tight tracking-tight">
+  <main class="mx-auto max-w-160 px-5 py-8 lg:px-6 lg:pt-0">
+    <!-- No desktop, o título sobe para o topo do painel, ao lado do fechar. -->
+    <TituloDoPainel>
       Ajustes
-    </h1>
+    </TituloDoPainel>
 
     <section
-      class="mt-8"
+      class="mt-8 lg:mt-6"
       aria-labelledby="titulo-aparencia"
     >
       <h2

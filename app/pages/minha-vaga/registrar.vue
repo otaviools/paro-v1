@@ -155,21 +155,40 @@ function voltar() {
 </script>
 
 <template>
-  <main class="mx-auto max-w-160 px-5 pt-4 pb-8 lg:px-6">
-    <!-- Botão de ícone (design system, "Botões"). -->
+  <main class="mx-auto max-w-160 px-5 pt-4 pb-8 lg:px-6 lg:pt-0">
+    <!--
+      Botão de ícone (design system, "Botões"). No celular, acima do título; no
+      desktop, sobe com o título para o topo do painel, à esquerda dele, com o
+      fechar do outro lado (#topo-do-painel no app.vue).
+    -->
     <UButton
       color="neutral"
       variant="outline"
       icon="i-lucide-arrow-left"
-      class="mb-4 size-10 justify-center lg:size-9"
+      class="mb-4 size-10 justify-center lg:hidden"
       aria-label="Voltar"
       @click="voltar"
     />
+    <ClientOnly>
+      <Teleport
+        to="#topo-do-painel"
+        defer
+      >
+        <UButton
+          color="neutral"
+          variant="outline"
+          icon="i-lucide-arrow-left"
+          class="hidden size-9 justify-center lg:inline-flex"
+          aria-label="Voltar"
+          @click="voltar"
+        />
+      </Teleport>
+    </ClientOnly>
 
-    <h1 class="text-2xl font-bold leading-tight tracking-tight">
+    <TituloDoPainel>
       Registrar vaga
-    </h1>
-    <p class="mt-2 max-w-[70ch] text-xs text-muted">
+    </TituloDoPainel>
+    <p class="mt-2 max-w-[70ch] text-xs text-muted lg:mt-4">
       Avise quem está chegando quando a sua vaga deve ficar livre. O registro leva só a rua coberta e as
       faixas horárias de chegada e de saída, sem a sua posição e sem nada que identifique você.
     </p>

@@ -74,10 +74,14 @@ function abrirRua(id: string) {
     }"
   >
     <template #header>
-      <!-- Logotipo do Parô (design system, "Logotipo"), 36 px de altura. -->
-      <p class="flex-1">
+      <!--
+        Logotipo do Parô (design system, "Logotipo"), 36 px de altura, com o
+        aviso de demonstração (ícone de laboratório) ao lado.
+      -->
+      <div class="flex flex-1 items-center gap-3">
         <LogoDoParo class="h-9" />
-      </p>
+        <AvisoDeDemonstracao v-if="panorama?.demonstracao" />
+      </div>
       <BotaoDeTema />
     </template>
 
@@ -98,11 +102,6 @@ function abrirRua(id: string) {
       class="mt-8 border-t border-default pt-2"
       aria-label="Faixa horária e ruas cobertas"
     >
-      <AvisoDeDemonstracao
-        v-if="panorama?.demonstracao"
-        class="mt-6"
-      />
-
       <PanoramaDaFaixaHoraria
         v-model:faixa-horaria="faixaHoraria"
         :abas="abas"
