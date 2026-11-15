@@ -265,6 +265,19 @@ body {
   }
 }
 
+/* Tela de abertura: o ô azul do logotipo cresce 12% e volta, clareando no meio do caminho. */
+@keyframes pulsar-o {
+  0%, 100% {
+    opacity: 0.75;
+    scale: 1;
+  }
+
+  50% {
+    opacity: 1;
+    scale: 1.12;
+  }
+}
+
 /* Grafismo da Primeira visita no desktop: sobe 48 px e aparece, a partir da metade escondida. */
 @keyframes surgir-de-baixo {
   from {

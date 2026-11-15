@@ -163,5 +163,7 @@ const lugarDosAvisos: ToasterProps = {
     <!-- Telas que abrem por cima (Detalhe da rua) escondem a barra de abas; no desktop ela não existe. -->
     <BarraDeAbas v-if="!route.meta.semBarraDeAbas" />
     <AvisoFlutuante />
+    <!-- Por cima de tudo até o app terminar de montar na primeira abertura. -->
+    <TelaDeAbertura />
   </UApp>
 </template>
