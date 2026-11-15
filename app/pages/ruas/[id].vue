@@ -34,6 +34,10 @@ const selecionada = computed(() => {
     ?? null
 })
 
+/** Faixa horária de maior chance da noite; null quando a rua está Sem dado a noite toda. */
+const melhorFaixa = computed(() =>
+  rua.value?.faixasHorarias.find(f => f.faixaHoraria === rua.value?.melhorFaixaHoraria) ?? null)
+
 const faixaHorariaSelecionada = computed({
   get: () => selecionada.value?.faixaHoraria ?? null,
   set: (faixaHoraria) => { escolhida.value = faixaHoraria },
@@ -142,8 +146,43 @@ function fecharAviso() {
         v-model="faixaHorariaSelecionada"
         class="mt-6"
         :faixas-horarias="rua.faixasHorarias"
-        :melhor-faixa-horaria="rua.melhorFaixaHoraria"
       />
+
+      <!--
+        Melhor faixa: card só para a faixa horária de maior chance da noite,
+        com a amostra da faixa de chance dela; sem nenhuma, Sem dado a noite toda.
+      -->
+      <UCard
+        as="section"
+        class="mt-3"
+        aria-labelledby="titulo-melhor-faixa"
+        :ui="{ body: 'flex items-center justify-between gap-3 p-4 sm:p-4 lg:px-6' }"
+      >
+        <h2
+          id="titulo-melhor-faixa"
+          class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted"
+        >
+          <UIcon
+            name="i-lucide-star"
+            class="size-4 shrink-0"
+            aria-hidden="true"
+          />
+          Melhor faixa
+        </h2>
+        <p
+          v-if="melhorFaixa"
+          class="flex items-center gap-2 text-base font-bold tabular-nums"
+        >
+          <AmostraDeFaixaDeChance :estado="estadoDe(melhorFaixa.estimativa)" />
+          {{ intervaloDaFaixaHoraria(melhorFaixa.faixaHoraria) }}
+        </p>
+        <p
+          v-else
+          class="text-sm font-semibold"
+        >
+          Sem dado a noite toda
+        </p>
+      </UCard>
 
       <!-- Bloco de dado (design system, "Cards"): título com ícone e linhas separadas por border-default. -->
       <UCard
