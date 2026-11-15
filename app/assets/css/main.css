@@ -11,6 +11,47 @@
 }
 
 /*
+ * Cursor de clique (mãozinha) em tudo que é clicável. O Tailwind v4 deixa
+ * botões com o cursor padrão; aqui volta o pointer em botões, controles com
+ * papel de botão, abas, opções de menu e seleção, interruptores, caixas de
+ * marcar e rótulos ligados a eles. Desativados ficam com "não permitido".
+ * Em @layer base, para que uma classe cursor-* no componente ainda vença.
+ */
+@layer base {
+  button,
+  summary,
+  select,
+  label[for],
+  label:has(input, button[role]),
+  input[type="checkbox"],
+  input[type="radio"],
+  input[type="color"],
+  input[type="file"],
+  input[type="range"],
+  input[type="submit"],
+  input[type="button"],
+  input[type="reset"],
+  [role="button"],
+  [role="tab"],
+  [role="switch"],
+  [role="checkbox"],
+  [role="radio"],
+  [role="option"],
+  [role="menuitem"],
+  [role="menuitemcheckbox"],
+  [role="menuitemradio"],
+  [role="combobox"]:not(input) {
+    cursor: pointer;
+  }
+
+  :is(button, select, input, [role]):disabled,
+  [aria-disabled="true"],
+  [data-disabled] {
+    cursor: not-allowed;
+  }
+}
+
+/*
  * Paleta Papel nas variáveis de cor do Nuxt UI (docs/design/design-system.md).
  * Fora de camada, estas regras vencem os valores padrão que o Nuxt UI declara
  * em @layer theme, inclusive --ui-primary e as cores de sinal.
