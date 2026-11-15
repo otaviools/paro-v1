@@ -75,7 +75,7 @@ O Nuxt UI não tem variável para o mapa. As cores do mapa ficam em `--paro-mapa
 | Meio-fio | `#E0DED8` | `#363636` | Contorno das vias |
 | Rótulo (`--ui-text-muted`) | `#6F6E6A` | `#9B9A97` | Nome de rua, com halo na cor da via |
 
-As ruas cobertas são desenhadas por cima na cor da sua faixa de chance; Sem dado em contorno tracejado na cor `--ui-text`.
+As ruas cobertas são desenhadas por cima na cor da sua faixa de chance, em linha cheia com pontas e junções redondas e um contorno na cor da via; a largura acompanha o zoom (4 px no zoom 14, 10 px no 18). Sem dado é um tracejado fino na cor `--ui-text`. A cor vai direto na linha, sem imagem repetida, para não aparecerem emendas ao aproximar e afastar.
 
 ### Contraste (WCAG 2.1, nível AA)
 
@@ -150,7 +150,7 @@ Regra de produto das ADRs 0006 e 0033. Sempre rótulo **e** cor. As cores são a
 | Sem dado | — | contorno tracejado de 1,5 px (4 px de traço, 3 px de intervalo) em `text-default` |
 
 - Amostra de 12 px nas listas e no card; 32 px na legenda do mapa.
-- No mapa, o trecho da rua coberta recebe a cor e uma etiqueta com o rótulo.
+- No mapa, o trecho da rua coberta recebe a cor e uma etiqueta com o rótulo; Sem dado, um tracejado fino na cor do texto.
 - "Sem dado" sempre com o texto "Ainda não temos observações suficientes nesta faixa horária". Nunca em branco, nunca como livre.
 
 ## Componentes base
@@ -178,8 +178,8 @@ Alvo de toque mínimo de 44 × 44 px.
 
 | Componente | Visual | Onde |
 |---|---|---|
-| Chips de faixa horária | Pílula de 44 px (alvo de toque mínimo), texto em etiqueta (`text-xs`, caixa alta); inativo com fundo `bg-elevated` e borda; ativo com fundo `bg-primary-100` e texto `text-primary` | Saída prevista no registro (referência Waymo) |
-| Abas de faixa horária | `UButton` colados num `UFieldGroup` (controle segmentado), largura total, 44 px de altura; ativa sólida `primary`, as outras outline neutras | Abas Agora, 18h, 19h e 20h no Início, na barra lateral e no Mapa |
+| Chips de faixa horária | Pílula de 56 px de altura numa grade de 4 colunas (todas do mesmo tamanho), com o início da faixa em destaque ("21h") e o fim embaixo, menor ("até 21h30"); inativo em `vidro`; ativo na pílula de vidro azul das abas de faixa horária (`#A9D3F2` translúcido) | Saída prevista no registro (referência Waymo) |
+| Abas de faixa horária | `UButton` fantasmas num controle segmentado em pílula de `vidro`, largura total, 48 px de altura; a ativa ganha uma pílula de vidro azul que desliza até ela (`#A9D3F2` translúcido, 60% no claro com texto escuro e 40% no escuro com texto branco, borda fina e brilho de 1 px no topo) | Abas Agora, 18h, 19h e 20h no Início, na barra lateral e no Mapa |
 | Seletor de opção com ícone | Botões lado a lado, raio `rounded-paro-md`; o selecionado com fundo `bg-primary-100` e borda de 1,5 px na cor `--ui-primary` | Escolha da rua coberta no registro manual (referência Pangea) |
 | Linha com seletor liga/desliga | Título, parágrafo explicativo em `text-muted` e seletor à direita; ligado em `bg-inverted` | Ajustes: usar localização, forma de colaborar (referência Grok) |
 | Card de escolha única | Card com título e descrição; o escolhido com borda de 1,5 px na cor `--ui-text` | Primeira visita: forma de colaborar |
@@ -198,7 +198,7 @@ Todos em vidro (classe `vidro`, ADR 0034), com raio `rounded-paro-lg`; as linhas
 
 | Card | Conteúdo | Referência de layout |
 |---|---|---|
-| Melhor chance | Etiqueta "MELHOR CHANCE · 19H" em `text-muted`, nome da rua, amostra de cor com rótulo, base, distância a pé e "Previsão, não garantia." | Pangea: card de destaque no topo |
+| Melhor chance | Etiqueta "MELHOR CHANCE · 19H" em `text-muted`, nome da rua, amostra de cor com rótulo, base, distância a pé e "Previsão, não garantia."; o card inteiro abre o Detalhe da rua na mesma faixa horária, com seta à direita do nome | Pangea: card de destaque no topo |
 | Linha de rua coberta | Amostra de cor, nome da rua, rótulo e base no subtítulo, distância numa etiqueta à direita; raio `rounded-paro-md` | Pangea: linha com distância; Waymo: valor à direita |
 | Seu registro de vaga | Saída prevista em `text-xl` como título, rua coberta abaixo, linha de ações com ícone e rótulo (Mudar saída, Voltar até o carro) | Waymo: viagem em andamento |
 | Bloco de dado | Título com ícone e linhas de dado separadas por `border-default` | Pangea: blocos agrupados no detalhe |
@@ -221,7 +221,7 @@ No detalhe da rua (referência Swarm):
 - Uma barra por faixa horária, das 17h às 23h, preenchida com a cor da sua faixa de chance. A altura é a chance; Sem dado aparece como barra baixa com contorno tracejado.
 - A faixa horária selecionada ganha fundo `bg-primary-100` atrás da barra.
 - Exceção ao alvo de toque de 44 px: as 12 barras têm cerca de 25 px de largura no celular, porque não cabem com 44 px em 375 px. O Bloco de dado abaixo do gráfico mostra a faixa horária selecionada por texto.
-- Resumo no canto: "Melhor faixa: 18h–18h30".
+- Sem resumo no gráfico: a melhor faixa fica num card próprio logo abaixo ("Melhor faixa", com estrela, a amostra da faixa de chance e o intervalo, como "18h–18h30"; sem nenhuma, "Sem dado a noite toda").
 - Eixo X em `text-xs`, `text-muted`.
 
 ### Gavetas, avisos flutuantes e carregamento
@@ -229,13 +229,13 @@ No detalhe da rua (referência Swarm):
 | Componente | Regra | Referência |
 |---|---|---|
 | Gaveta sobre o mapa | Raio `rounded-paro-lg` no topo, alça de 32 × 4 px, botão de fechar; dois pontos de parada (resumo e expandida) | Lime: gaveta da rua |
-| Gaveta de escolha | Título à esquerda, "Salvar" como link à direita, grupos de chips | Pangea: ajustes do mapa |
-| Registro sobre o mapa (desktop) | Com um registro de vaga aberto e fora da aba Vaga, card de vidro à esquerda da legenda, com a largura e a altura dela: ponto verde piscando com "Seu registro de vaga", saída prevista, rua, chegada e "Mudar saída" (abre a aba Vaga). Com o painel da direita aberto, fica em cima da legenda. Entra subindo 12 px e aparecendo; sai descendo | Turo: card sobre o mapa |
+| Gaveta de escolha | Título à esquerda e botão de fechar à direita, grupos de chips em grade e "Salvar" como ação principal cheia no rodapé, com o horário marcado ("Salvar · saída 21h30"); no desktop, abre embaixo do painel da direita, com a largura dele | Careem e Airbnb: escolha de horário |
+| Registro sobre o mapa (desktop) | Com um registro de vaga aberto e fora da aba Vaga, card de vidro à esquerda da legenda, com a largura e a altura dela: ponto verde piscando com "Seu registro de vaga", saída prevista, rua, chegada, "Saí" (botão cheio: avisa a saída e encerra o registro, como na aba Vaga) e "Mudar saída" (abre a aba Vaga). Com o painel da direita aberto, fica em cima da legenda. Entra subindo 12 px e aparecendo; sai descendo | Turo: card sobre o mapa |
 | Aviso flutuante | `UToast` em vidro tingido pelo sinal: sucesso com fundo `bg-success-100` translúcido, texto `text-success` e ícone de check; erro com `bg-error-100`, `text-error` e ícone de alerta. Desfoque, borda e sombra suaves, raio `rounded-paro-md`, some em 3 s | Waymo: confirmação |
 | Esqueleto | `USkeleton` em `bg-muted` no formato do conteúdo, com brilho que passa a cada 1,4 s (classe `brilho`) | Google e Finimize: carregamento |
 | Etiqueta sobre o mapa | Fundo `bg-elevated`, borda, ícone de pegadas e a distância em metros em linha reta ("140 m em linha reta"). Sem minutos, porque o Parô não calcula rota (ADR 0020) | Lime: tempo a pé |
 
-O aviso "Dados de demonstração" (ADR 0012) usa o card Aviso com o sinal `warning`, fixo no topo do Início, do Mapa e do Detalhe da rua, sem botão de fechar.
+O aviso "Dados de demonstração" (ADR 0012) é um botão redondo de 36 px com o ícone de laboratório no sinal `warning` (fundo pastel e ícone na cor do sinal). Fica ao lado do logotipo no Início (barra lateral do desktop e topo do celular) e no topo do Detalhe da rua: no celular, à direita do voltar; no desktop, à esquerda do fechar do painel da direita. O nome acessível diz "Dados de demonstração", e tocar abre um balão com o título e a explicação. No Mapa do celular continua o card Aviso no topo.
 
 ### Fundo tingido
 
@@ -245,6 +245,7 @@ O Detalhe da rua tem um fundo tingido pela cor da faixa de chance da faixa horá
 
 - Entrada de conteúdo: opacidade de 0 a 1 com deslocamento de 8 px, 300 ms, `cubic-bezier(0.16, 1, 0.3, 1)`.
 - Gavetas: 250 ms com a mesma curva.
+- Troca de tela: a tela antiga sai na hora e a nova aparece com esmaecer de 200 ms. No celular, os blocos da tela nova (título, cards, seções) entram em cascata (referências Luma e Airbnb): cada um sobe 12 px e aparece em 360 ms, 40 ms depois do anterior, até o oitavo. O que é fixo (barra de abas, ação principal no rodapé, fundo tingido, mapa) fica parado. A tela nova abre no topo; voltar devolve a rolagem de antes.
 - Só `transform` e `opacity`. Com `prefers-reduced-motion`, sem animação.
 
 ## Ícones
@@ -280,7 +281,7 @@ O Lucide não tem uma pessoa andando; `footprints` (pegadas) é o ícone mais pr
 
 A partir de 1024 px, o Parô é um painel único de três colunas (referência Turo). Início e Mapa viram uma tela só: a aba Mapa não aparece e não há barra de abas flutuante.
 
-- **Barra lateral de 340 px** (`w-85`), fundo `bg-default` e borda à direita, com rolagem própria e margem lateral de 24 px. No topo, o logotipo do Parô com 36 px de altura. Depois, a navegação (Início, Minha vaga e Ajustes, com ícone e rótulo; o item ativo segue a aba ativa da barra de abas), o aviso "Dados de demonstração", as abas de faixa horária, o card de melhor chance, a lista de ruas cobertas e a pergunta "A previsão ajudou hoje?".
+- **Barra lateral de 340 px** (`w-85`), fundo `fundo-azul` e borda à direita, com rolagem própria e margem lateral de 24 px. No topo, o logotipo do Parô com 36 px de altura e o aviso de demonstração ao lado. Depois, a navegação (Início, Minha vaga e Ajustes, com ícone e rótulo; o item ativo segue a aba ativa da barra de abas), as abas de faixa horária, o card de melhor chance, a lista de ruas cobertas e a pergunta "A previsão ajudou hoje?".
 - **Centro:** o mapa da área, com o botão de centralizar no canto superior direito e a legenda no canto inferior direito.
 - **Painel à direita de 432 px** (`w-108`; cabe a legenda do gráfico numa linha), fundo `bg-default`, borda à esquerda e margem lateral de 24 px. Começa fechado e tem botão de fechar (botão de ícone, no topo direito); Esc também fecha. Abre com o Detalhe da rua completo (ao escolher uma rua no mapa ou na lista), com Minha vaga (incluindo Registrar vaga e Seu registro de vaga) ou com Ajustes. O painel abre por cima do mapa, sem mudar a largura dele, e entra e sai deslizando pela direita em 300 ms; os controles do canto direito do mapa (centralizar e legenda) se afastam do painel no mesmo ritmo. A troca de tela dentro do painel (e no celular) faz a tela nova aparecer em 200 ms, só com opacidade: um deslocamento faria os elementos fixos da página (ação principal no rodapé, fundo tingido) pularem de lugar. A ação principal fica fixa no rodapé do painel.
 - **Voltar até o carro** abre no centro, no lugar do mapa da área, com a barra lateral ao lado.
@@ -303,11 +304,11 @@ O tema segue o sistema por padrão e pode ser forçado nos Ajustes. Todas as cor
 
 ## Logotipo
 
-O logotipo e o símbolo continuam os mesmos, usados a partir dos arquivos originais, sem recriar em código e sem recolorir. Sobre `bg-default` claro usa a versão para fundo claro; no tema escuro, a versão para fundo escuro. Os arquivos ficam em `public/logo/` (`logo-paro-fundo-claro.svg` e `logo-paro-fundo-escuro.svg`). O componente `LogoDoParo` troca as duas versões pelo tema. Tem 36 px de altura na barra lateral do desktop e no topo do Início do celular, acima do aviso de demonstração, com o botão de tema à direita. Também abre a primeira tela da Primeira visita, acima do título, com o botão de tema à direita. No desktop, a Primeira visita tem duas colunas na altura exata da tela, sem rolagem (referência Cosmos, cadastro na web): à esquerda, um painel recortado (16 px de margem, raio `rounded-paro-lg`, `bg-muted`; referências Lindy, Base44 e Buffer) com uma grade de pontos de fundo (1 px a cada 20 px, sumindo nas bordas) e um brilho difuso no azul do logotipo saindo de baixo, o logotipo, a frase "Chance, não garantia" e as isolinhas da marca (`public/grafismos/`, versão de cada tema) grandes, com o centro na borda de baixo, surgindo e sumindo em direção ao topo; o espaço entre o painel e o conteúdo divide as colunas; à direita, uma coluna de 448 px centralizada, com título e texto centralizados, cards compactos (ícone ao lado do texto), a ação principal e o link do aviso de privacidade logo abaixo. O botão de tema e o de voltar ficam nos cantos de cima. Em telas baixas, só a coluna da direita rola.
+O logotipo, o símbolo e o favicon continuam os mesmos, usados a partir dos arquivos originais, sem recriar em código e sem recolorir. A tela de abertura cobre o app na primeira carga (vem no HTML do servidor e some com esmaecer de 300 ms quando a primeira tela e os dados dela ficam prontos) com só o símbolo do Parô (`public/simbolo.svg`, 96 px) no centro, sobre o `fundo-azul`, pulsando: cresce 12% e volta a cada 1,4 s, com folga em volta para não ser cortado. Com movimento reduzido, o ô fica parado. Sobre `bg-default` claro usa a versão para fundo claro; no tema escuro, a versão para fundo escuro. Os arquivos ficam em `public/logo/` (`logo-paro-fundo-claro.svg` e `logo-paro-fundo-escuro.svg`). O componente `LogoDoParo` troca as duas versões pelo tema. Tem 36 px de altura na barra lateral do desktop e no topo do Início do celular, com o aviso de demonstração ao lado e o botão de tema à direita. Também abre a primeira tela da Primeira visita, acima do título, com o botão de tema à direita. No desktop, a Primeira visita tem duas colunas na altura exata da tela, sem rolagem (referência Cosmos, cadastro na web): à esquerda, um painel recortado (16 px de margem, raio `rounded-paro-lg`, `bg-muted`; referências Lindy, Base44 e Buffer) com uma grade de pontos de fundo (1 px a cada 20 px, sumindo nas bordas) e um brilho difuso no azul do logotipo saindo de baixo, o logotipo, a frase "Chance, não garantia" e as isolinhas da marca (`public/grafismos/`, versão de cada tema) grandes, com o centro na borda de baixo, surgindo e sumindo em direção ao topo; o espaço entre o painel e o conteúdo divide as colunas; à direita, uma coluna de 448 px centralizada, com título e texto centralizados, cards compactos (ícone ao lado do texto), a ação principal e o link do aviso de privacidade logo abaixo. O botão de tema e o de voltar ficam nos cantos de cima. Em telas baixas, só a coluna da direita rola.
 
 ## Pendências
 
 | # | Assunto | Situação |
 |---|---|---|
-| 1 | Arquivos do logotipo e do ícone do app | Precisam ser copiados para este repositório, porque o repositório de marca deixou de ser referência. Até lá, o PWA usa um ícone provisório (`public/icone.svg`) |
+| 1 | Arquivos do logotipo e do ícone do app | Resolvido: logotipo em `public/logo/`, favicon e ícone do PWA em `public/favicon-producao.svg`, símbolo em `public/simbolo.svg` |
 | 2 | Protótipo no Figma | Precisa ser atualizado para a paleta Papel e a fonte Figtree |
