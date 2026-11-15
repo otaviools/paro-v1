@@ -11,8 +11,6 @@ import type { EstadoDaChance } from '~/components/AmostraDeFaixaDeChance.vue'
 
 const props = defineProps<{
   faixasHorarias: FaixaHorariaDaRua[]
-  /** Faixa horária de maior chance; null quando a rua está Sem dado a noite toda. */
-  melhorFaixaHoraria: string | null
 }>()
 
 const selecionada = defineModel<string | null>({ required: true })
@@ -43,22 +41,12 @@ const horasDoEixo = computed(() =>
     :aria-labelledby="`${id}-titulo`"
     :ui="{ body: 'grid gap-3 p-4 sm:p-4 lg:p-6' }"
   >
-    <header class="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-      <h2
-        :id="`${id}-titulo`"
-        class="text-xs font-semibold uppercase tracking-wider text-muted"
-      >
-        Chance ao longo da noite
-      </h2>
-      <p class="text-xs font-semibold tabular-nums">
-        <template v-if="melhorFaixaHoraria">
-          Melhor faixa: {{ intervaloDaFaixaHoraria(melhorFaixaHoraria) }}
-        </template>
-        <template v-else>
-          Sem dado a noite toda
-        </template>
-      </p>
-    </header>
+    <h2
+      :id="`${id}-titulo`"
+      class="text-xs font-semibold uppercase tracking-wider text-muted"
+    >
+      Chance ao longo da noite
+    </h2>
 
     <div class="grid h-32 auto-cols-fr grid-flow-col">
       <button
@@ -66,7 +54,7 @@ const horasDoEixo = computed(() =>
         :key="faixaHoraria"
         type="button"
         class="relative cursor-pointer rounded-paro-sm text-default"
-        :class="{ 'bg-primary-100': selecionada === faixaHoraria }"
+        :class="{ 'bg-secondary/30': selecionada === faixaHoraria }"
         :aria-pressed="selecionada === faixaHoraria"
         :aria-label="`${intervaloDaFaixaHoraria(faixaHoraria)}: ${estadoDe(estimativa)}`"
         @click="selecionada = faixaHoraria"
