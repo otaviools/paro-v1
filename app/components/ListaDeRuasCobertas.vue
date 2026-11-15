@@ -55,7 +55,6 @@ defineProps<{
     variant="soft"
     icon="i-lucide-clock"
     title="Fora do horário de cobertura"
-    description="Agora está fora da área coberta, que vai das 17h às 23h."
     :ui="{ title: 'text-sm', description: 'text-sm' }"
   />
 

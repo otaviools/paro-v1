@@ -21,7 +21,7 @@ const mensagem = computed(() => {
   if (carregando.value) return null
   if (error.value) return 'Não foi possível carregar a chance agora. Tente de novo em instantes.'
   if (panorama.value?.faixaHoraria === null) {
-    return 'Agora está fora da área coberta, que vai das 17h às 23h. Escolha 18h, 19h ou 20h para ver a chance.'
+    return 'Fora do horário de cobertura. Escolha uma faixa horária para ver a chance.'
   }
   return null
 })
