@@ -5,6 +5,24 @@ import { DURACAO_DO_AVISO } from '~/stores/aviso-flutuante'
 
 const route = useRoute()
 
+/*
+ * Cor da barra do navegador (theme-color): segue o tema escolhido no app, e
+ * não só o do sistema. Assim, com o tema escuro ligado num celular em tema
+ * claro, a barra do Safari também fica escura e não recorta o topo da página.
+ */
+const colorMode = useColorMode()
+/** No servidor o tema escolhido não é conhecido: cada meta leva a cor do tema do sistema. */
+function corDaBarra(temaDoSistema: 'light' | 'dark') {
+  const tema = import.meta.server ? temaDoSistema : colorMode.value
+  return tema === 'dark' ? '#191919' : '#F7F6F3'
+}
+useHead({
+  meta: [
+    { name: 'theme-color', media: '(prefers-color-scheme: light)', content: computed(() => corDaBarra('light')) },
+    { name: 'theme-color', media: '(prefers-color-scheme: dark)', content: computed(() => corDaBarra('dark')) },
+  ],
+})
+
 // --- Painel desktop (design system, "Padrões de navegação › Desktop") ---------
 //
 // A partir de 1024 px, o app vira o painel de três colunas. O PainelDesktop
@@ -46,7 +64,7 @@ const painel = computed(() =>
  * abertura e o fechamento animam em 300 ms com desaceleração (referências
  * Whop e Contra), e não só a abertura. Com movimento reduzido, troca na hora.
  */
-const CLASSE_DO_PAINEL_DA_DIREITA = 'lg:fixed lg:inset-y-0 lg:right-0 lg:z-3 lg:grid lg:w-108 lg:grid-rows-[auto_minmax(0,1fr)] lg:border-l lg:border-default lg:bg-default lg:pb-0 lg:[contain:layout] lg:transition-[translate,visibility] lg:duration-300 lg:ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none'
+const CLASSE_DO_PAINEL_DA_DIREITA = 'lg:fixed lg:inset-y-0 lg:right-0 lg:z-3 lg:grid lg:w-108 lg:grid-rows-[auto_minmax(0,1fr)] lg:border-l lg:border-default lg:fundo-azul lg:pb-0 lg:[contain:layout] lg:transition-[translate,visibility] lg:duration-300 lg:ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none'
 const CLASSE_DO_PAINEL_FECHADO = 'lg:pointer-events-none lg:invisible lg:translate-x-full'
 
 /** Fechar o painel da direita volta ao Início, onde ele começa fechado. */
@@ -99,7 +117,9 @@ const lugarDosAvisos: ToasterProps = {
       (painel fechado). O [contain:layout] faz dos elementos fixos da página
       (a ação principal no rodapé) filhos do painel, e não da janela. O
       painel da direita entra e sai deslizando pela direita, sem escurecer o
-      mapa (CLASSE_DO_PAINEL_DA_DIREITA).
+      mapa (CLASSE_DO_PAINEL_DA_DIREITA). Em cima, no celular, a área segura
+      do iPhone (barra de status do app instalado na tela de início); no
+      navegador ela é 0.
     -->
     <div
       :class="[

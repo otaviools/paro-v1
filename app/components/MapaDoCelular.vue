@@ -106,7 +106,15 @@ const botaoDeFechar = { color: 'neutral', variant: 'outline', class: 'size-10 ju
 
 <template>
   <!-- Mapa em tela cheia; a barra de abas flutua por cima. No desktop, o CSS já o esconde antes de o app montar. -->
-  <main class="fixed inset-0 lg:hidden">
+  <!--
+    Tela cheia como parte da página (absolute), e não fixed: no app instalado
+    no iPhone, o que é fixed para na altura da janela, que fica mais curta que
+    a tela pela barra de status. Com a altura da tela (100dvh + a barra de
+    status), o mapa chega ao fim dela. Os controles de baixo somam a mesma
+    medida, para ficarem no lugar, acima da barra de abas. No navegador a
+    medida é 0.
+  -->
+  <main class="absolute inset-x-0 top-0 h-[calc(100dvh+env(safe-area-inset-top))] overflow-hidden lg:hidden">
     <!-- Abas e avisos sobre o mapa, no topo; só os próprios elementos recebem toque. -->
     <section
       class="pointer-events-none absolute inset-x-0 top-0 z-2 grid gap-3 px-5 pt-[calc(--spacing(3)+env(safe-area-inset-top))] *:pointer-events-auto"
@@ -139,13 +147,13 @@ const botaoDeFechar = { color: 'neutral', variant: 'outline', class: 'size-10 ju
       <!-- O que fica por cima do mapa: aviso e abas no topo (140 px), barra de abas embaixo. -->
       <MapaDaArea
         ref="mapa"
-        class="absolute inset-0 [--mapa-margem-inferior:calc(--spacing(19)+env(safe-area-inset-bottom))] [--mapa-margem-superior:--spacing(35)]"
+        class="absolute inset-0 [--mapa-margem-inferior:calc(--spacing(19)+env(safe-area-inset-bottom)+env(safe-area-inset-top))] [--mapa-margem-superior:--spacing(35)]"
         :ruas="ruasNoMapa"
         @selecionar-rua="selecionar"
       />
 
       <!-- Botões de ícone flutuando no canto direito, acima da barra de abas (referência Lime). -->
-      <div class="absolute right-5 bottom-[calc(--spacing(22)+env(safe-area-inset-bottom))] z-2 grid gap-2">
+      <div class="absolute right-5 bottom-[calc(--spacing(22)+env(safe-area-inset-bottom)+env(safe-area-inset-top))] z-2 grid gap-2">
         <UButton
           color="neutral"
           variant="outline"

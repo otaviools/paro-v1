@@ -196,7 +196,7 @@ async function sair() {
       </UCard>
 
       <!-- Ação principal fixa, logo acima da barra de abas flutuante; no desktop, no rodapé do painel. -->
-      <footer class="fixed inset-x-0 bottom-[calc(--spacing(19)+env(safe-area-inset-bottom))] z-10 mx-auto max-w-160 px-5 py-3 lg:bottom-0 lg:bg-default lg:px-6">
+      <footer class="fixed inset-x-0 bottom-[calc(--spacing(19)+env(safe-area-inset-bottom))] z-10 mx-auto max-w-160 px-5 py-3 lg:bottom-0 lg:fundo-azul lg:px-6">
         <UButton
           color="neutral"
           size="xl"
@@ -241,7 +241,7 @@ async function sair() {
         </p>
       </UCard>
 
-      <footer class="fixed inset-x-0 bottom-[calc(--spacing(19)+env(safe-area-inset-bottom))] z-10 mx-auto max-w-160 px-5 py-3 lg:bottom-0 lg:bg-default lg:px-6">
+      <footer class="fixed inset-x-0 bottom-[calc(--spacing(19)+env(safe-area-inset-bottom))] z-10 mx-auto max-w-160 px-5 py-3 lg:bottom-0 lg:fundo-azul lg:px-6">
         <UButton
           to="/ajustes"
           color="neutral"
@@ -271,7 +271,7 @@ async function sair() {
         </p>
       </UCard>
 
-      <footer class="fixed inset-x-0 bottom-[calc(--spacing(19)+env(safe-area-inset-bottom))] z-10 mx-auto max-w-160 px-5 py-3 lg:bottom-0 lg:bg-default lg:px-6">
+      <footer class="fixed inset-x-0 bottom-[calc(--spacing(19)+env(safe-area-inset-bottom))] z-10 mx-auto max-w-160 px-5 py-3 lg:bottom-0 lg:fundo-azul lg:px-6">
         <UButton
           to="/minha-vaga/registrar"
           color="neutral"
