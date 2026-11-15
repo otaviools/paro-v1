@@ -108,11 +108,12 @@ async function sair() {
 </script>
 
 <template>
-  <main class="mx-auto max-w-160 px-5 pt-8 pb-24 lg:px-6 lg:pb-8">
+  <main class="mx-auto max-w-160 px-5 pt-8 pb-24 lg:px-6 lg:pt-0 lg:pb-8">
     <!-- Espaço extra no fim para a ação principal, que fica acima da barra de abas; no desktop, não há barra. -->
-    <h1 class="text-2xl font-bold leading-tight tracking-tight">
+    <!-- No desktop, o título sobe para o topo do painel, ao lado do fechar. -->
+    <TituloDoPainel>
       Minha vaga
-    </h1>
+    </TituloDoPainel>
 
     <div
       v-if="!lido && !erroDoAgora"

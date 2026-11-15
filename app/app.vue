@@ -131,13 +131,22 @@ const lugarDosAvisos: ToasterProps = {
           'lg:left-85': painel === 'centro' && lateralAberta,
           'lg:left-0': painel === 'centro' && !lateralAberta,
         },
+        'pt-[env(safe-area-inset-top)] lg:pt-0',
       ]"
     >
-      <!-- Só no desktop: fechar o painel da direita (continua no lugar enquanto ele desliza para fora). -->
+      <!--
+        Só no desktop: fechar o painel da direita (continua no lugar enquanto ele
+        desliza para fora). À esquerda, #topo-do-painel recebe o que a página
+        manda para o topo (o aviso de demonstração do Detalhe da rua).
+      -->
       <header
         v-if="noPainelDesktop && painel !== 'centro'"
-        class="hidden justify-end px-6 pt-4 lg:flex"
+        class="hidden items-center justify-between gap-3 px-6 pt-4 lg:flex"
       >
+        <div
+          id="topo-do-painel"
+          class="flex items-center gap-3"
+        />
         <UButton
           color="neutral"
           variant="outline"

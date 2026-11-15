@@ -88,15 +88,30 @@ function fecharAviso() {
       aria-hidden="true"
     />
 
-    <!-- No desktop, o painel da direita tem o próprio botão de fechar. -->
-    <UButton
-      color="neutral"
-      variant="outline"
-      icon="i-lucide-arrow-left"
-      aria-label="Voltar"
-      class="mb-4 size-10 justify-center lg:hidden"
-      @click="voltar"
-    />
+    <!--
+      Topo no celular: voltar à esquerda e o aviso de demonstração à direita.
+      No desktop, o painel da direita tem o próprio botão de fechar e o aviso
+      vai para o topo dele, à esquerda do fechar (#topo-do-painel no app.vue).
+    -->
+    <div class="mb-4 flex items-center justify-between gap-3 lg:hidden">
+      <UButton
+        color="neutral"
+        variant="outline"
+        icon="i-lucide-arrow-left"
+        aria-label="Voltar"
+        class="size-10 justify-center"
+        @click="voltar"
+      />
+      <AvisoDeDemonstracao v-if="rua?.demonstracao" />
+    </div>
+    <ClientOnly>
+      <Teleport
+        to="#topo-do-painel"
+        defer
+      >
+        <AvisoDeDemonstracao v-if="rua?.demonstracao" />
+      </Teleport>
+    </ClientOnly>
 
     <UAlert
       v-if="error"
@@ -111,11 +126,6 @@ function fecharAviso() {
     />
 
     <template v-else-if="rua">
-      <AvisoDeDemonstracao
-        v-if="rua.demonstracao"
-        class="mb-6"
-      />
-
       <h1 class="text-xl font-bold leading-tight">
         {{ rua.rua.nome }}
       </h1>
