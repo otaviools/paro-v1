@@ -194,6 +194,53 @@
 }
 
 /*
+ * Fundo azul: o fundo da página com dois brilhos azuis bem suaves, um no
+ * canto de cima à esquerda e outro no canto de baixo à direita, nos dois
+ * temas. Dá cor por trás do vidro, para o desfoque aparecer também no claro.
+ * Preso à tela (fixed): a barra lateral, o painel da direita e os rodapés
+ * fixos usam o mesmo fundo e emendam sem costura com o corpo da página.
+ */
+@utility fundo-azul {
+  background-color: var(--ui-bg);
+  background-image:
+    radial-gradient(90% 55% at 10% 0%, color-mix(in oklab, #6EA8FF 16%, transparent), transparent 70%),
+    radial-gradient(80% 50% at 95% 100%, color-mix(in oklab, #6EA8FF 12%, transparent), transparent 70%);
+  background-attachment: fixed;
+
+  @variant dark {
+    background-image:
+      radial-gradient(90% 55% at 10% 0%, color-mix(in oklab, #6EA8FF 12%, transparent), transparent 70%),
+      radial-gradient(80% 50% at 95% 100%, color-mix(in oklab, #6EA8FF 9%, transparent), transparent 70%);
+  }
+}
+
+/*
+ * Corpo da página: o fundo azul fica no html, que pinta a tela inteira (com
+ * viewport-fit=cover, também atrás das barras do app instalado). Sem
+ * background-attachment: fixed, que o Safari do iPhone ignora: os brilhos
+ * ficam no topo e no fim da página e rolam com ela. O body fica transparente,
+ * para não cobrir o fundo do html.
+ */
+html {
+  @apply fundo-azul;
+
+  /*
+   * Altura mínima: a janela + a barra de status. No app instalado no iPhone
+   * (barra de status transparente), a janela fica mais curta que a tela por
+   * essa medida, e só o que está na página (não o que é fixed) pinta a faixa
+   * que sobra embaixo; páginas longas, como o Início e Ajustes, já passam
+   * dela. Assim as curtas também chegam ao fim da tela. No navegador a
+   * medida é 0.
+   */
+  min-height: calc(100% + env(safe-area-inset-top));
+  background-attachment: scroll;
+}
+
+body {
+  background: transparent;
+}
+
+/*
  * Vidro (ADR 0034): superfície translúcida do que flutua (barra de abas, abas
  * de faixa horária, botões de ícone e secundários). Fundo claro com 55% de
  * opacidade, desfoque de 20 px com saturação, borda fina e um brilho de 1 px

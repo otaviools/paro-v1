@@ -57,7 +57,7 @@ const cards: { icone: string, titulo: string, texto: string }[] = [
  * Ação principal (design system, "Padrões de navegação"): fixa no rodapé no
  * celular; no desktop, logo abaixo do conteúdo, na mesma largura da coluna.
  */
-const rodape = 'fixed inset-x-0 bottom-0 z-10 mx-auto grid max-w-160 gap-1 bg-default px-5 pt-3 pb-[calc(--spacing(3)+env(safe-area-inset-bottom))] lg:static lg:w-full lg:max-w-md lg:bg-transparent lg:px-0 lg:pt-6 lg:pb-0'
+const rodape = 'fixed inset-x-0 bottom-0 z-10 mx-auto grid max-w-160 gap-1 bg-default/70 backdrop-blur-xl lg:backdrop-blur-none px-5 pt-3 pb-[calc(--spacing(3)+env(safe-area-inset-bottom))] lg:static lg:w-full lg:max-w-md lg:bg-transparent lg:px-0 lg:pt-6 lg:pb-0'
 
 const privacidade = ref<{ abrir: () => void }>()
 

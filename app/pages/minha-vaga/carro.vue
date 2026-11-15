@@ -75,7 +75,12 @@ function voltar() {
 </script>
 
 <template>
-  <main class="fixed inset-0 bg-(--paro-mapa-fundo)">
+  <main class="absolute inset-x-0 top-0 h-[calc(100dvh+env(safe-area-inset-top))] overflow-hidden bg-(--paro-mapa-fundo) lg:inset-0 lg:h-auto">
+    <!--
+      Tela cheia como parte da página (absolute, com a altura da tela), e não
+      fixed: no app instalado no iPhone, o que é fixed para antes do fim da tela
+      (MapaDoCelular). No desktop, ocupa o centro do painel.
+    -->
     <!-- Mapa em tela cheia; o painel fica por cima, no rodapé (referência Rivian). -->
     <!-- O painel cobre o rodapé do mapa. -->
     <MapaDaArea

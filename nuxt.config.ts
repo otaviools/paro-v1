@@ -13,10 +13,17 @@ export default defineNuxtConfig({
       title: 'Parô',
       meta: [
         { name: 'description', content: 'Chance de encontrar vaga nas ruas cobertas do entorno da ESAMC Uberlândia.' },
-        { name: 'theme-color', content: '#F7F6F3', media: '(prefers-color-scheme: light)' },
-        { name: 'theme-color', content: '#191919', media: '(prefers-color-scheme: dark)' },
+        // theme-color: no app.vue, seguindo o tema escolhido no app.
+        // Adicionado à tela de início, abre como app (sem a interface do Safari),
+        // mesmo sem o manifesto do PWA, que fica desligado no servidor de
+        // desenvolvimento. A barra de status fica transparente, com a página
+        // por baixo (o app.vue reserva a área segura em cima).
+        { name: 'apple-mobile-web-app-capable', content: 'yes' },
+        { name: 'mobile-web-app-capable', content: 'yes' },
+        { name: 'apple-mobile-web-app-title', content: 'Parô' },
+        { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' },
       ],
-      link: [{ rel: 'icon', type: 'image/svg+xml', href: '/icone.svg' }],
+      link: [{ rel: 'icon', type: 'image/svg+xml', href: '/favicon-producao.svg' }],
     },
   },
   css: ['~/assets/css/main.css'],

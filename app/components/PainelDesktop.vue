@@ -67,7 +67,7 @@ function abrirRua(id: string) {
     aria-label="Parô"
     :ui="{
       root: '[--sidebar-width:--spacing(85)]',
-      container: 'bg-default border-default',
+      container: 'fundo-azul border-default',
       inner: 'divide-transparent',
       header: 'min-h-0 px-6 pt-8',
       body: 'gap-0 p-6 [scrollbar-width:thin] [scrollbar-color:color-mix(in_oklab,var(--ui-text)_20%,transparent)_transparent] hover:[scrollbar-color:color-mix(in_oklab,var(--ui-text)_35%,transparent)_transparent]',

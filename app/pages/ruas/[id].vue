@@ -239,7 +239,7 @@ function fecharAviso() {
     <!-- Ação principal fixa no rodapé (design system, "Padrões de navegação"). -->
     <footer
       v-if="rua"
-      class="fixed inset-x-0 bottom-0 z-10 mx-auto max-w-160 bg-default px-5 pt-3 pb-[calc(--spacing(3)+env(safe-area-inset-bottom))] lg:px-6"
+      class="fixed inset-x-0 bottom-0 z-10 mx-auto max-w-160 bg-default/70 backdrop-blur-xl lg:fundo-azul lg:backdrop-blur-none px-5 pt-3 pb-[calc(--spacing(3)+env(safe-area-inset-bottom))] lg:px-6"
     >
       <UButton
         color="neutral"
