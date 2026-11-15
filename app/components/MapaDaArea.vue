@@ -6,7 +6,7 @@
   o mapa, sem rota (ADR 0020).
 
   Esconde o MapLibre GL (ADR 0017), os tiles próprios em PMTiles (ADR 0019),
-  as imagens dos padrões e o tema escuro. Nenhuma outra parte do app importa
+  o desenho dos trechos e o tema escuro. Nenhuma outra parte do app importa
   o MapLibre. Os tiles, as fontes dos rótulos e o estilo são todos locais:
   nenhum pedido sai para um provedor de tiles.
 -->
@@ -53,17 +53,25 @@ const ARQUIVO_DE_TILES = '/mapa/uberlandia-centro.pmtiles'
 /** Limites do arquivo de tiles (oeste, sul, leste, norte): o mapa não sai deles. */
 const LIMITES_DOS_TILES: [number, number, number, number] = [-48.292, -18.930, -48.258, -18.898]
 
-/** Largura do trecho no mapa, em px: as imagens dos padrões têm esta altura. */
-const LARGURA_DO_TRECHO = 12
+/**
+ * Largura do trecho no mapa, em px, pelo zoom: fina de longe (4 px no zoom
+ * 14) e mais grossa de perto (10 px no zoom 18), para não pesar sobre as vias.
+ */
+const LARGURA_DO_TRECHO: ExpressionSpecification = ['interpolate', ['linear'], ['zoom'], 14, 4, 16, 7, 18, 10]
+/** Contorno na cor da via em volta do trecho: a largura do trecho + 4 px. */
+const LARGURA_DO_CONTORNO: ExpressionSpecification = ['interpolate', ['linear'], ['zoom'], 14, 8, 16, 11, 18, 14]
+/** Sem dado: tracejado fino na cor do texto. */
+const LARGURA_DO_SEM_DADO: ExpressionSpecification = ['interpolate', ['linear'], ['zoom'], 14, 1.5, 18, 3]
 
-/** Nome da imagem do padrão de cada faixa de chance no MapLibre. */
-const IMAGEM_DO_PADRAO: Record<EstadoDaChance, string> = {
-  'Tranquilo': 'padrao-verde',
-  'Apertado': 'padrao-amarelo',
-  'Difícil': 'padrao-vermelho',
-  'Sem dado': 'padrao-tracejado',
-}
-const ESTADOS = Object.keys(IMAGEM_DO_PADRAO) as EstadoDaChance[]
+/** Cor cheia de cada faixa de chance (ADR 0033), a mesma nos dois temas. */
+const COR_DO_TRECHO: ExpressionSpecification = [
+  'match', ['get', 'estado'],
+  'Tranquilo', corDaFaixaDeChance('Tranquilo'),
+  'Apertado', corDaFaixaDeChance('Apertado'),
+  corDaFaixaDeChance('Difícil'),
+]
+const COM_CHANCE: FilterSpecification = ['all', ['==', ['geometry-type'], 'LineString'], ['!=', ['get', 'estado'], 'Sem dado']]
+const SEM_DADO: FilterSpecification = ['all', ['==', ['geometry-type'], 'LineString'], ['==', ['get', 'estado'], 'Sem dado']]
 
 // --- Tiles em PMTiles ---------------------------------------------------
 
@@ -137,7 +145,7 @@ function coresDoTema() {
 
 type Cores = ReturnType<typeof coresDoTema>
 
-// --- Imagens dos padrões (design system, "Faixas de chance") -------------
+// --- Imagem do fundo da etiqueta ------------------------------------------
 
 /** Desenha num canvas, na densidade da tela, e devolve a imagem para o MapLibre. */
 function desenhar(largura: number, altura: number, pintar: (ctx: CanvasRenderingContext2D) => void) {
@@ -149,33 +157,6 @@ function desenhar(largura: number, altura: number, pintar: (ctx: CanvasRendering
   ctx.scale(densidade, densidade)
   pintar(ctx)
   return { imagem: ctx.getImageData(0, 0, canvas.width, canvas.height), densidade }
-}
-
-/**
- * Imagem de linha de cada faixa de chance (ADR 0033): cor cheia verde, amarela
- * ou vermelha; Sem dado em contorno tracejado na cor do texto. O MapLibre
- * repete a imagem ao longo do trecho; a altura dela é a largura do trecho.
- */
-function padrao(estado: EstadoDaChance, corDoTexto: string) {
-  const altura = LARGURA_DO_TRECHO
-  switch (estado) {
-    // Cor cheia. A imagem tem 8 px de comprimento: com 1 px, o MapLibre mistura
-    // a borda do atlas e o trecho fica listrado.
-    case 'Tranquilo':
-    case 'Apertado':
-    case 'Difícil':
-      return desenhar(8, altura, (ctx) => {
-        ctx.fillStyle = corDaFaixaDeChance(estado)
-        ctx.fillRect(0, 0, 8, altura)
-      })
-    // Contorno tracejado de 1,5 px: 4 px de traço e 3 px de intervalo nas duas bordas.
-    case 'Sem dado':
-      return desenhar(7, altura, (ctx) => {
-        ctx.fillStyle = corDoTexto
-        ctx.fillRect(0, 0, 4, 1.5)
-        ctx.fillRect(0, altura - 1.5, 4, 1.5)
-      })
-  }
 }
 
 /**
@@ -201,13 +182,12 @@ function etiqueta(cores: Cores) {
   return { ...desenho, esticar }
 }
 
-/** Cria ou troca as imagens dos padrões e da etiqueta com as cores do tema. */
+/** Cria ou troca a imagem do fundo da etiqueta com as cores do tema. */
 function aplicarImagens(m: MapaMapLibre, cores: Cores) {
   const colocar = (nome: string, { imagem, densidade }: ReturnType<typeof desenhar>, extra = {}) => {
     if (m.hasImage(nome)) m.updateImage(nome, imagem)
     else m.addImage(nome, imagem, { pixelRatio: densidade, ...extra })
   }
-  for (const estado of ESTADOS) colocar(IMAGEM_DO_PADRAO[estado], padrao(estado, cores.texto))
   const fundoDaEtiqueta = etiqueta(cores)
   colocar('etiqueta', fundoDaEtiqueta, fundoDaEtiqueta.esticar)
 }
@@ -220,7 +200,7 @@ function dadosDosTrechos(ruas: RuaNoMapa[]): FeatureCollection {
     type: 'FeatureCollection',
     features: ruas.flatMap((rua) => {
       const coordenadas = rua.linha.map(p => [p.lon, p.lat])
-      const propriedades = { id: rua.id, nome: rua.nome, estado: rua.estado, padrao: IMAGEM_DO_PADRAO[rua.estado] }
+      const propriedades = { id: rua.id, nome: rua.nome, estado: rua.estado }
       return [
         { type: 'Feature', properties: propriedades, geometry: { type: 'LineString', coordinates: coordenadas } },
         { type: 'Feature', properties: propriedades, geometry: { type: 'Point', coordinates: meioDaLinha(coordenadas) } },
@@ -278,6 +258,7 @@ const CORES_DAS_CAMADAS: [string, Parameters<MapaMapLibre['setPaintProperty']>[1
   ['nomes-de-rua', 'text-color', 'rotulo'],
   ['nomes-de-rua', 'text-halo-color', 'via'],
   ['trechos-fundo', 'line-color', 'via'],
+  ['trechos-sem-dado', 'line-color', 'texto'],
   ['trechos-etiqueta', 'text-color', 'texto'],
 ]
 
@@ -341,16 +322,25 @@ function estilo(urlDosTiles: string, cores: Cores): StyleSpecification {
         },
         'paint': { 'text-halo-width': 1.5 },
       },
-      // Ruas cobertas por cima, na cor da faixa de chance (Sem dado: tracejado na cor do texto).
+      // Ruas cobertas por cima, em cor cheia da faixa de chance, com pontas e
+      // junções redondas e um contorno na cor da via. Cor direta da linha, e não
+      // uma imagem repetida (line-pattern): as emendas da imagem apareciam como
+      // picos e listras ao aproximar e afastar. Sem dado: tracejado fino na cor
+      // do texto, sobre o contorno.
       {
         id: 'trechos-fundo', type: 'line', source: 'trechos', filter: daGeometria('LineString'),
-        layout: { 'line-cap': 'butt', 'line-join': 'round' },
-        paint: { 'line-width': LARGURA_DO_TRECHO + 4 },
+        layout: { 'line-cap': 'round', 'line-join': 'round' },
+        paint: { 'line-width': LARGURA_DO_CONTORNO },
       },
       {
-        id: 'trechos', type: 'line', source: 'trechos', filter: daGeometria('LineString'),
+        id: 'trechos', type: 'line', source: 'trechos', filter: COM_CHANCE,
+        layout: { 'line-cap': 'round', 'line-join': 'round' },
+        paint: { 'line-color': COR_DO_TRECHO, 'line-width': LARGURA_DO_TRECHO },
+      },
+      {
+        id: 'trechos-sem-dado', type: 'line', source: 'trechos', filter: SEM_DADO,
         layout: { 'line-cap': 'butt', 'line-join': 'round' },
-        paint: { 'line-pattern': ['get', 'padrao'], 'line-width': LARGURA_DO_TRECHO },
+        paint: { 'line-width': LARGURA_DO_SEM_DADO, 'line-dasharray': [2, 2] },
       },
       // Área de toque mais larga que o desenho (alvo de 44 px), invisível.
       {
@@ -509,7 +499,7 @@ onMounted(async () => {
     mapa = m
     enquadrado = props.ruas.length > 0
 
-    // As imagens dos padrões e da etiqueta entram antes de o estilo pedi-las.
+    // A imagem da etiqueta entra antes de o estilo pedi-la.
     aplicarImagens(m, coresDoTema())
     m.on('styleimagemissing', (evento) => {
       if (!m.hasImage(evento.id)) aplicarImagens(m, coresDoTema())
