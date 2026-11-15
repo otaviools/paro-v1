@@ -2,12 +2,13 @@
   Seu registro de vaga sobre o mapa do desktop, ao lado da legenda: com um
   registro de vaga aberto nesta noite e fora da aba Vaga, mostra a saída
   prevista, a rua coberta e a chegada, com um ponto verde piscando que avisa
-  que o registro está ativo. "Mudar saída" abre a aba Vaga. Tem a largura da
+  que o registro está ativo. Embaixo, "Saí" (avisa a saída e encerra o
+  registro, como na aba Vaga) e "Mudar saída" (abre a aba Vaga). Tem a largura da
   legenda (248 px) e, lado a lado com ela, a mesma altura. Entra subindo
   12 px e aparecendo, e sai descendo; com movimento reduzido, troca na hora e
   o ponto fica parado.
 
-  Lê só os Dados do celular (ADR 0003); nada sai do aparelho. Como eles não
+  Lê os Dados do celular (ADR 0003); o "Saí" só manda o código do registro. Como eles não
   avisam quando mudam, o registro é lido de novo a cada troca de tela: assim o
   card aparece ao sair da aba Vaga depois de registrar e some depois do "Saí".
 -->
@@ -20,10 +21,29 @@ const route = useRoute()
 const { agora } = useAgora()
 
 const registro = ref<RegistroNoCelular | null>(null)
+const { encerrar } = useRegistroDeVaga()
+const { avisar } = useAvisoFlutuanteStore()
 
 watch([agora, () => route.fullPath], ([valor]) => {
   registro.value = valor ? dadosDoCelularDoAparelho().registroAtual(valor.noite) : null
 }, { immediate: true })
+
+/** "Saí": o mesmo da aba Vaga. Depois de avisar, o card some. */
+const saindo = ref(false)
+async function sair() {
+  if (!registro.value || saindo.value) return
+  saindo.value = true
+  // Código recusado conta como encerrado: o registro já não conta, então o "Saí" vale do mesmo jeito.
+  const resultado = await encerrar(registro.value.codigo)
+  saindo.value = false
+  if (resultado === 'falha') {
+    avisar('Não foi possível avisar a saída agora. Tente de novo em instantes.', 'erro')
+    return
+  }
+  dadosDoCelularDoAparelho().apagarRegistro()
+  registro.value = null
+  avisar('Saída registrada. Obrigado por avisar quem está chegando.')
+}
 
 /** Na aba Vaga o mesmo card já está no painel da direita. */
 const visivel = computed(() => registro.value !== null && !route.path.startsWith('/minha-vaga'))
@@ -67,15 +87,29 @@ const visivel = computed(() => registro.value !== null && !route.path.startsWith
       <p class="text-xs font-medium tabular-nums text-muted">
         Chegada: {{ rotuloDaFaixaHoraria(registro.chegada) }}
       </p>
-      <UButton
-        to="/minha-vaga"
-        color="neutral"
-        variant="outline"
-        icon="i-lucide-clock"
-        label="Mudar saída"
-        class="mt-auto min-h-11 self-start px-4 text-sm font-medium"
-        :ui="{ leadingIcon: 'size-4' }"
-      />
+      <!-- "Saí" é a ação principal (cheia); "Mudar saída", a secundária. -->
+      <div class="mt-auto flex gap-2 pt-2">
+        <UButton
+          color="neutral"
+          icon="i-lucide-log-out"
+          class="min-h-11 flex-1 justify-center px-3 text-sm font-semibold"
+          :loading="saindo"
+          :label="saindo ? undefined : 'Saí'"
+          :aria-label="saindo ? 'Avisando a saída' : undefined"
+          :aria-busy="saindo"
+          :ui="{ leadingIcon: 'size-4' }"
+          @click="sair"
+        />
+        <UButton
+          to="/minha-vaga"
+          color="neutral"
+          variant="outline"
+          icon="i-lucide-clock"
+          label="Mudar saída"
+          class="min-h-11 justify-center px-3 text-sm font-medium"
+          :ui="{ leadingIcon: 'size-4' }"
+        />
+      </div>
     </UCard>
   </Transition>
 </template>
