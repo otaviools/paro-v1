@@ -165,15 +165,14 @@ function apagarHistorico() {
           Fica guardada só neste celular.
         </p>
 
-        <UInputMenu
+        <!-- Só seleção, sem digitar: USelect, e não um campo com busca. -->
+        <USelect
           v-model="rotinaEscolhida"
-          class="mt-2 w-full"
+          class="mt-2 h-12 w-full rounded-paro-md lg:h-10"
           :items="opcoesDeRotina"
           value-key="value"
-          open-on-click
           aria-labelledby="nome-rotina"
           placeholder="Escolha um horário"
-          :ui="{ base: 'h-12 rounded-paro-md lg:h-10' }"
         />
       </UCard>
     </section>
