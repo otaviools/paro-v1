@@ -1,8 +1,11 @@
 <!--
   Abas de faixa horária (Agora, 18h, 19h, 20h e a rotina, quando é outra):
   UButtons lado a lado num controle segmentado em pílula de vidro (ADR 0034;
-  referência Bump, "trocar estilo do mapa"). Um fundo azul claro (#A9D3F2, o
-  primary do tema escuro, com texto escuro nos dois temas) desliza até a aba escolhida em 200 ms; com
+  referência Bump, "trocar estilo do mapa"). Uma pílula de vidro azul desliza
+  até a aba escolhida em 200 ms: o azul claro #A9D3F2 (o primary do tema
+  escuro) translúcido, com borda fina e brilho de 1 px no topo, como o vidro.
+  No claro, 60% de opacidade e texto escuro; no escuro, 40% e texto branco,
+  para manter o contraste sobre o fundo escuro. Com
   movimento reduzido, troca na hora. Altura de 48 px (botões de 40 px mais a
   folga de 4 px), acima do alvo de toque mínimo de 44 px.
   Usado no Início, na barra lateral do desktop e no Mapa.
@@ -38,7 +41,7 @@ const fundo = computed(() => {
     <div class="relative grid auto-cols-fr grid-flow-col">
       <span
         v-if="fundo"
-        class="absolute inset-y-0 rounded-full bg-[#A9D3F2] transition-[left] duration-200 ease-out motion-reduce:transition-none"
+        class="absolute inset-y-0 rounded-full bg-[#A9D3F2]/60 shadow-[inset_0_0_0_1px_rgb(255_255_255/0.55),inset_0_1px_0_rgb(255_255_255/0.85),0_4px_12px_rgb(31_108_159/0.18)] backdrop-blur-xl backdrop-saturate-180 transition-[left] duration-200 ease-out motion-reduce:transition-none dark:bg-[#A9D3F2]/40 dark:shadow-[inset_0_0_0_1px_rgb(169_211_242/0.4),inset_0_1px_0_rgb(255_255_255/0.3),0_4px_12px_rgb(0_0_0/0.3)]"
         :style="fundo"
         aria-hidden="true"
       />
@@ -51,7 +54,7 @@ const fundo = computed(() => {
         color="neutral"
         variant="ghost"
         class="relative h-10 justify-center tabular-nums transition-colors duration-200 hover:bg-transparent active:bg-transparent"
-        :class="escolhida === aba.valor ? 'text-[#191919] hover:text-[#191919]' : 'text-default hover:text-highlighted'"
+        :class="escolhida === aba.valor ? 'text-[#191919] hover:text-[#191919] dark:text-white dark:hover:text-white' : 'text-default hover:text-highlighted'"
         @click="escolhida = aba.valor"
       >
         {{ aba.rotulo }}
