@@ -193,7 +193,7 @@ function apagarHistorico() {
       <UCard class="mt-3">
         <LinhaComSeletor
           titulo="Registrar vagas"
-          explicacao="Ao estacionar, registre a vaga com a saída prevista para avisar quem está chegando."
+          explicacao=""
           icone="i-lucide-car"
           :ligado="forma !== 'nenhuma'"
           @mudar="mudarRegistro"
