@@ -45,11 +45,17 @@ const subtitulo = computed(() =>
           <strong class="font-semibold text-default">{{ estado }}</strong> · {{ subtitulo }}
         </span>
       </span>
+      <!--
+        Distância a pé: pílula à direita; quando a linha quebra (até 320 px), sem
+        fundo, com o ícone de passos na coluna do quadrado e o texto na do nome.
+      -->
       <UBadge
         color="neutral"
         variant="soft"
         :label="distanciaAPe(distanciaAoDestino)"
-        class="shrink-0 rounded-full bg-muted px-3 py-1 text-xs font-medium tabular-nums text-muted @max-[20rem]:ml-6"
+        icon="i-lucide-footprints"
+        class="shrink-0 gap-1.5 rounded-full bg-muted px-3 py-1 text-xs font-medium tabular-nums text-muted @max-[20rem]:gap-3 @max-[20rem]:bg-transparent @max-[20rem]:px-0"
+        :ui="{ leadingIcon: 'size-3' }"
       />
     </NuxtLink>
   </div>
