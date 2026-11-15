@@ -66,9 +66,9 @@ export default defineNuxtConfig({
       start_url: '/',
       background_color: '#F7F6F3',
       theme_color: '#F7F6F3',
-      // PROVISÓRIO: ícone temporário até os arquivos do logotipo entrarem no repositório.
+      // Ícone do app: o mesmo do favicon (símbolo ô sobre quadrado escuro arredondado).
       icons: [
-        { src: '/icone.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' },
+        { src: '/favicon-producao.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' },
       ],
     },
     workbox: {
