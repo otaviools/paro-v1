@@ -7,9 +7,14 @@ export default defineNuxtConfig({
     // 200 ms, só com opacidade (classes .pagina-* no main.css). Sem fase de
     // saída, não sobra tela vazia enquanto a nova carrega. Com movimento
     // reduzido, troca na hora.
-    pageTransition: { name: 'pagina' },
+    // A entrada dura 700 ms: no celular, a cascata dos blocos (main.css) vai
+    // até 640 ms e precisa das classes de entrada até o fim.
+    pageTransition: { name: 'pagina', duration: { enter: 700, leave: 0 } },
     head: {
       htmlAttrs: { lang: 'pt-BR' },
+      // viewport-fit=cover: a página desenha também atrás das barras do Safari
+      // no iPhone; o fundo azul (body::before no main.css) preenche essa área.
+      viewport: 'width=device-width, initial-scale=1, viewport-fit=cover',
       title: 'Parô',
       meta: [
         { name: 'description', content: 'Chance de encontrar vaga nas ruas cobertas do entorno da ESAMC Uberlândia.' },
