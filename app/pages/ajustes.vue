@@ -45,6 +45,19 @@ const rotinaEscolhida = computed({
   set: (valor: string | undefined) => escolher(!valor || valor === SEM_ROTINA ? null : valor),
 })
 
+/*
+ * No celular, a rotina é escolhida numa gaveta com a grade de horários (a
+ * mesma da saída prevista), em vez da lista suspensa: alvos de toque maiores
+ * e o padrão dos outros componentes. No desktop continua a lista suspensa.
+ */
+const gavetaDaRotina = ref<{ abrir: () => void, fechar: () => void }>()
+const gruposDaRotina = computed(() => [{ rotulo: 'Horários', faixasHorarias: faixasHorarias.value ?? [] }])
+
+function salvarRotina(faixaHoraria: string | null) {
+  escolher(faixaHoraria)
+  gavetaDaRotina.value?.fechar()
+}
+
 // --- Forma de colaborar (ADR 0010) ---------------------------------------------
 
 function mudarForma(nova: FormaDeColaborar) {
@@ -167,13 +180,37 @@ function apagarHistorico() {
         </p>
 
         <!-- Só seleção, sem digitar: USelect, e não um campo com busca. -->
+        <!-- Celular: campo que abre a gaveta de horários. -->
+        <UButton
+          color="neutral"
+          variant="outline"
+          trailing-icon="i-lucide-chevron-down"
+          aria-haspopup="dialog"
+          aria-labelledby="nome-rotina"
+          class="mt-2 h-12 w-full justify-between rounded-paro-md bg-elevated px-3 text-base font-normal lg:hidden"
+          :ui="{ trailingIcon: 'size-5 text-dimmed' }"
+          @click="gavetaDaRotina?.abrir()"
+        >
+          {{ rotina ? rotuloDaFaixaHoraria(rotina) : 'Sem rotina' }}
+        </UButton>
+        <!-- Desktop: lista suspensa, só seleção. -->
         <USelect
           v-model="rotinaEscolhida"
-          class="mt-2 h-12 w-full rounded-paro-md lg:h-10"
+          class="mt-2 hidden h-10 w-full rounded-paro-md lg:flex"
           :items="opcoesDeRotina"
           value-key="value"
           aria-labelledby="nome-rotina"
           placeholder="Escolha um horário"
+        />
+        <GavetaDeEscolha
+          ref="gavetaDaRotina"
+          titulo="Horário de chegada habitual"
+          acao="chegada"
+          opcao-vazia="Sem rotina"
+          :grupos="gruposDaRotina"
+          :escolhida="rotina"
+          @salvar="salvarRotina"
+          @limpar="salvarRotina(null)"
         />
       </UCard>
     </section>
