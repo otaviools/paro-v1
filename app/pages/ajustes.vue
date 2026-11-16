@@ -287,6 +287,43 @@ function apagarHistorico() {
       </div>
     </section>
 
+    <!--
+      Área da equipe: entrada para a tela de observações (ADR 0011), que pede a
+      chave da equipe. Fica no fim de Ajustes, para a equipe registrar as
+      contagens de campo pelo celular sem decorar o endereço.
+    -->
+    <section
+      class="mt-8"
+      aria-labelledby="titulo-equipe"
+    >
+      <h2
+        id="titulo-equipe"
+        class="text-xs font-semibold uppercase tracking-wider text-muted"
+      >
+        Equipe
+      </h2>
+
+      <UCard
+        class="mt-3"
+        :ui="{ body: 'py-1 sm:py-2' }"
+      >
+        <UButton
+          to="/equipe/observacoes"
+          color="neutral"
+          variant="link"
+          block
+          icon="i-lucide-clipboard-list"
+          trailing-icon="i-lucide-chevron-right"
+          label="Área da equipe"
+          class="min-h-11 gap-3 px-0 text-sm text-default hover:text-default active:text-default"
+          :ui="{ leadingIcon: 'size-5', trailingIcon: 'ms-auto size-5' }"
+        />
+      </UCard>
+      <p class="mt-2 max-w-[70ch] text-xs text-muted">
+        Só para a equipe do Parô: registrar as contagens feitas nas ruas, com a chave da equipe.
+      </p>
+    </section>
+
     <Gaveta
       ref="sugestao"
       titulo="Sugerir rua ou trecho"
