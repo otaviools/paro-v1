@@ -52,6 +52,21 @@
 }
 
 /*
+ * Campos de texto com 16 px no celular: o Safari do iPhone aproxima a tela
+ * quando um campo com letra menor que 16 px recebe o foco, e a página fica
+ * ampliada. O !important vence o text-sm dos componentes; no desktop, o
+ * tamanho de cada campo continua o do componente. Sem maximum-scale no
+ * viewport, para não impedir o zoom de quem precisa ampliar.
+ */
+@media (width < 64rem) {
+  input:not([type="checkbox"], [type="radio"], [type="range"], [type="color"], [type="file"]),
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}
+
+/*
  * Paleta Papel nas variáveis de cor do Nuxt UI (docs/design/design-system.md).
  * Fora de camada, estas regras vencem os valores padrão que o Nuxt UI declara
  * em @layer theme, inclusive --ui-primary e as cores de sinal.
