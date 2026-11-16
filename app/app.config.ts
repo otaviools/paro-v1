@@ -82,6 +82,25 @@ export default defineAppConfig({
       ],
     },
 
+    // Lista do USelect acima de gavetas, modais e painéis laterais (z-50): sem
+    // isso, a lista de um campo dentro deles abre por trás e não dá para escolher.
+    select: {
+      slots: {
+        content: 'z-60',
+      },
+    },
+    // Campo de data: segmentos retos, sem borda; o em foco ganha fundo accented.
+    inputDate: {
+      slots: {
+        segment: 'rounded-none focus:bg-accented',
+      },
+    },
+    // O mesmo para o popover (calendário do campo de data, balões).
+    popover: {
+      slots: {
+        content: 'z-60',
+      },
+    },
     // Gavetas (design system, "Gavetas"): bg-elevated, raio de 24 px no topo, alça de 32 × 4 px.
     // Ficam acima da barra de abas (z-10), como o <dialog> de antes.
     drawer: {

@@ -151,8 +151,16 @@
   --ui-radius: 8px;
 }
 
-/* Anel de foco (design system, "Botões"): 2 px em --ui-primary, afastado 2 px. */
-:focus-visible {
+/*
+ * Anel de foco (design system, "Botões"): 2 px em --ui-primary, afastado 2 px.
+ * Não vale para campos (texto, número, área de texto, lista de seleção e
+ * segmentos da data): eles já têm o foco do Nuxt UI, com halo e borda na cor
+ * primária, e os dois juntos viravam uma borda dobrada ao clicar. Nos
+ * segmentos da data (dia, mês e ano), o anel virava uma borda arredondada em
+ * volta de cada número; o segmento em foco ganha fundo (app.config.ts,
+ * inputDate).
+ */
+:focus-visible:not(input, textarea, select, [role="combobox"], [data-reka-date-field-segment]) {
   outline: 2px solid var(--ui-primary);
   outline-offset: 2px;
 }
