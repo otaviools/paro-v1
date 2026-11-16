@@ -8,16 +8,23 @@
   Sugestões de rua. A chance só usa estas observações quando a fonte do app
   é "reais" (NUXT_FONTE_DE_OBSERVACOES, ADR 0012); a tela mostra qual está
   ativa.
+
+  No celular, o formulário fica na página, acima da lista. No desktop
+  (referências Deel e Mercury), a tela fica larga: três números de resumo no
+  topo, filtros por rua e data, a tabela e o botão "Nova observação", que
+  abre o formulário num painel lateral à direita, sem sair da lista.
 -->
 <script setup lang="ts">
 import type { TableColumn } from '@nuxt/ui'
+import { parseDate } from '@internationalized/date'
+import type { CalendarDate } from '@internationalized/date'
 import { areaCoberta } from '#shared/utils/area-coberta'
 
 definePageMeta({ semBarraDeAbas: true, foraDoPainelDesktop: true })
-useHead({ title: 'Observações · Parô', meta: [{ name: 'robots', content: 'noindex' }] })
+useHead({ title: 'Observações | Parô', meta: [{ name: 'robots', content: 'noindex' }] })
 
-/** Ocupação a partir da qual a rua conta como cheia (ADR 0005). */
-const OCUPACAO_DE_RUA_CHEIA = 85
+/** Mínimo de noites para uma rua ter chance numa faixa horária (ADR 0007). */
+const MINIMO_DE_OBSERVACOES = 4
 
 /** Onde a chave fica enquanto a aba estiver aberta (a mesma de Sugestões de rua). */
 const CHAVE_NA_SESSAO = 'paro:chave-da-equipe'
@@ -50,7 +57,14 @@ const carregando = ref(false)
 const erroDaChave = ref<string | null>(null)
 const erroDaLista = ref<string | null>(null)
 
-const { lerObservacoes, registrarObservacao, apagarObservacao } = useObservacoes()
+const { lerObservacoes, apagarObservacao } = useObservacoes()
+
+/** Volta para a tela anterior; aberta direto pelo link, vai para Ajustes. */
+const router = useRouter()
+function voltar() {
+  if (window.history.state?.back) router.back()
+  else navigateTo('/ajustes')
+}
 const { avisar } = useAvisoFlutuanteStore()
 
 function sair(motivo: string | null = null) {
@@ -96,60 +110,66 @@ onMounted(() => {
 
 const ruas = areaCoberta.ruasCobertas()
 const nomeDaRua = (id: string) => ruas.find(r => r.id === id)?.nome ?? id
-const opcoesDeRua = ruas.map(r => ({ label: r.nome, value: r.id }))
-const opcoesDeFaixa = areaCoberta.faixasHorarias().map(f => ({ label: intervaloDaFaixaHoraria(f), value: f }))
 
-const hoje = () => areaCoberta.noiteDe(new Date())
+/** Painel lateral do formulário no desktop. */
+const painelAberto = ref(false)
 
-const data = ref(hoje())
-const ruaCoberta = ref<string | undefined>(undefined)
-const faixaHoraria = ref<string | undefined>(undefined)
-const totalDeVagas = ref<number | null>(null)
-const vagasOcupadas = ref<number | null>(null)
-const registrando = ref(false)
-const erroDoFormulario = ref<string | null>(null)
+/** Põe a observação nova (ou corrigida) na lista, da mais nova para a mais antiga. */
+function registrada(nova: ObservacaoRegistrada) {
+  observacoes.value = [nova, ...observacoes.value.filter(o => o.id !== nova.id)]
+    .sort((a, b) => b.data.localeCompare(a.data) || a.faixaHoraria.localeCompare(b.faixaHoraria) || a.ruaCoberta.localeCompare(b.ruaCoberta))
+  avisar(`Observação registrada: ${nomeDaRua(nova.ruaCoberta)}, ${rotuloDaFaixaHoraria(nova.faixaHoraria)}.`)
+}
 
-/** Ocupação da contagem digitada, para a equipe conferir antes de registrar. */
-const ocupacao = computed(() => {
-  const total = totalDeVagas.value
-  const ocupadas = vagasOcupadas.value
-  if (!total || total < 1 || ocupadas === null || ocupadas < 0 || ocupadas > total) return null
-  return Math.round((ocupadas * 100) / total)
+// --- Resumo (desktop) --------------------------------------------------------------
+
+const semestreAtual = computed(() => areaCoberta.semestreDe(areaCoberta.noiteDe(new Date())))
+
+/** Observações que contam para a chance: do semestre atual, em dias letivos normais. */
+const queContam = computed(() => observacoes.value.filter(o =>
+  areaCoberta.semestreDe(o.data) === semestreAtual.value && areaCoberta.eDiaLetivoNormal(o.data)))
+
+/** Combinações de rua e faixa horária com noites suficientes para ter chance. */
+const combinacoesComChance = computed(() => {
+  const noites = new Map<string, Set<string>>()
+  for (const o of queContam.value) {
+    const k = `${o.ruaCoberta}|${o.faixaHoraria}`
+    noites.set(k, (noites.get(k) ?? new Set()).add(o.data))
+  }
+  return [...noites.values()].filter(d => d.size >= MINIMO_DE_OBSERVACOES).length
+})
+const totalDeCombinacoes = ruas.length * areaCoberta.faixasHorarias().length
+
+const ultimaContagem = computed(() => observacoes.value[0]?.data ?? null)
+
+// --- Filtros (desktop) ---------------------------------------------------------------
+
+const TODAS = 'todas'
+const filtroDeRua = ref(TODAS)
+const filtroDeData = ref('')
+const opcoesDoFiltroDeRua = [{ label: 'Todas as ruas', value: TODAS }, ...ruas.map(r => ({ label: r.nome, value: r.id }))]
+
+const filtradas = computed(() => observacoes.value.filter(o =>
+  (filtroDeRua.value === TODAS || o.ruaCoberta === filtroDeRua.value)
+  && (!filtroDeData.value || o.data === filtroDeData.value)))
+
+/** Filtro de data no UInputDate; vazio mostra todas as datas. */
+const filtroDeDataNoCampo = computed({
+  get: () => (filtroDeData.value ? parseDate(filtroDeData.value) : undefined),
+  set: (valor: CalendarDate | undefined) => { filtroDeData.value = valor ? valor.toString() : '' },
 })
 
-/** Já existe uma observação desta rua, faixa horária e data: registrar corrige. */
-const substitui = computed(() => observacoes.value.some(o =>
-  o.data === data.value && o.ruaCoberta === ruaCoberta.value && o.faixaHoraria === faixaHoraria.value))
+const filtrando = computed(() => filtroDeRua.value !== TODAS || Boolean(filtroDeData.value))
 
-async function registrar() {
-  if (!chave.value || registrando.value) return
-  erroDoFormulario.value = null
-  if (!ruaCoberta.value || !faixaHoraria.value || totalDeVagas.value === null || vagasOcupadas.value === null) {
-    erroDoFormulario.value = 'Preencha todos os campos.'
-    return
-  }
-  registrando.value = true
-  const resultado = await registrarObservacao(chave.value, {
-    data: data.value,
-    ruaCoberta: ruaCoberta.value,
-    faixaHoraria: faixaHoraria.value,
-    totalDeVagas: totalDeVagas.value,
-    vagasOcupadas: vagasOcupadas.value,
-  })
-  registrando.value = false
-  if (resultado.tipo === 'registrada') {
-    const nova = resultado.observacao
-    observacoes.value = [nova, ...observacoes.value.filter(o => o.id !== nova.id)]
-      .sort((a, b) => b.data.localeCompare(a.data) || a.faixaHoraria.localeCompare(b.faixaHoraria) || a.ruaCoberta.localeCompare(b.ruaCoberta))
-    avisar(`Observação registrada: ${nomeDaRua(nova.ruaCoberta)}, ${rotuloDaFaixaHoraria(nova.faixaHoraria)}.`)
-    // Data e faixa horária ficam, para lançar a próxima rua da mesma ronda.
-    ruaCoberta.value = undefined
-    totalDeVagas.value = null
-    vagasOcupadas.value = null
-  }
-  else if (resultado.tipo === 'invalida') erroDoFormulario.value = `${resultado.mensagem}.`
-  else if (resultado.tipo === 'chave-incorreta') sair('Chave da equipe incorreta.')
-  else erroDoFormulario.value = 'Não foi possível registrar. Tente de novo.'
+/** O servidor recusou a chave dentro do painel: fecha o painel e pede a chave de novo. */
+function chaveRecusadaNoPainel() {
+  painelAberto.value = false
+  sair('Chave da equipe incorreta.')
+}
+
+function limparFiltros() {
+  filtroDeRua.value = TODAS
+  filtroDeData.value = ''
 }
 
 // --- Apagar uma observação lançada por engano -------------------------------------
@@ -208,19 +228,44 @@ const colunas: TableColumn<ObservacaoRegistrada>[] = [
 </script>
 
 <template>
-  <main class="mx-auto max-w-160 px-5 py-8 lg:px-8">
-    <h1 class="text-2xl font-bold leading-tight tracking-tight">
-      Observações
-    </h1>
-    <p class="mt-2 max-w-[70ch] text-xs text-muted">
-      Contagens feitas em campo pela equipe: em cada rua coberta e faixa horária, o total de vagas e quantas
-      estavam ocupadas. A chance usa as observações do semestre em dias letivos normais.
-    </p>
+  <main class="mx-auto max-w-160 px-5 pt-4 pb-8 lg:max-w-6xl lg:px-8 lg:pt-8">
+    <!-- Voltar: a tela não tem barra de abas; volta para Ajustes, de onde a equipe entra. -->
+    <UButton
+      color="neutral"
+      variant="outline"
+      icon="i-lucide-arrow-left"
+      aria-label="Voltar"
+      class="mb-4 size-10 justify-center lg:size-9"
+      @click="voltar"
+    />
+
+    <!-- Cabeçalho; no desktop, "Nova observação" à direita (referência Deel). -->
+    <div class="flex flex-wrap items-end justify-between gap-4">
+      <div>
+        <h1 class="text-2xl font-bold leading-tight tracking-tight">
+          Observações
+        </h1>
+        <p class="mt-2 max-w-[70ch] text-xs text-muted">
+          Contagens feitas em campo pela equipe: em cada rua coberta e faixa horária, o total de vagas e quantas
+          estavam ocupadas. A chance usa as observações do semestre em dias letivos normais.
+        </p>
+      </div>
+      <UButton
+        v-if="chave"
+        color="neutral"
+        size="lg"
+        icon="i-lucide-plus"
+        label="Nova observação"
+        aria-haspopup="dialog"
+        class="hidden lg:inline-flex"
+        @click="painelAberto = true"
+      />
+    </div>
 
     <UCard
       v-if="!chave"
       as="form"
-      class="mt-8"
+      class="mt-8 lg:max-w-md"
       novalidate
       :ui="{ body: 'grid gap-4' }"
       @submit.prevent="entrar"
@@ -281,14 +326,51 @@ const colunas: TableColumn<ObservacaoRegistrada>[] = [
         :ui="{ title: 'text-sm', description: 'text-xs font-medium' }"
       />
 
-      <!-- Nova observação (design system, "Formulários"). -->
+      <!-- Resumo no desktop (referência Deel): três números do semestre. -->
+      <section
+        class="mt-6 hidden grid-cols-3 gap-4 lg:grid"
+        aria-label="Resumo do semestre"
+      >
+        <UCard :ui="{ body: 'grid gap-1 p-5 sm:p-5' }">
+          <p class="text-xs font-semibold uppercase tracking-wider text-muted">
+            Observações no semestre
+          </p>
+          <p class="text-3xl font-bold tabular-nums">
+            {{ queContam.length }}
+          </p>
+          <p class="text-xs text-muted">
+            Em dias letivos normais; {{ observacoes.length }} no total.
+          </p>
+        </UCard>
+        <UCard :ui="{ body: 'grid gap-1 p-5 sm:p-5' }">
+          <p class="text-xs font-semibold uppercase tracking-wider text-muted">
+            Ruas e faixas com chance
+          </p>
+          <p class="text-3xl font-bold tabular-nums">
+            {{ combinacoesComChance }}<span class="text-base font-semibold text-muted"> de {{ totalDeCombinacoes }}</span>
+          </p>
+          <p class="text-xs text-muted">
+            Com {{ MINIMO_DE_OBSERVACOES }} noites ou mais; as outras ficam Sem dado.
+          </p>
+        </UCard>
+        <UCard :ui="{ body: 'grid gap-1 p-5 sm:p-5' }">
+          <p class="text-xs font-semibold uppercase tracking-wider text-muted">
+            Última contagem
+          </p>
+          <p class="text-3xl font-bold tabular-nums">
+            {{ ultimaContagem ? dataCompleta(ultimaContagem) : '—' }}
+          </p>
+          <p class="text-xs text-muted">
+            A equipe observa 1 noite por semana.
+          </p>
+        </UCard>
+      </section>
+
+      <!-- Celular: o formulário fica na página, acima da lista. -->
       <UCard
-        as="form"
-        class="mt-6"
-        novalidate
+        class="mt-6 lg:hidden"
         aria-labelledby="titulo-nova"
         :ui="{ body: 'grid gap-4' }"
-        @submit.prevent="registrar"
       >
         <h2
           id="titulo-nova"
@@ -296,113 +378,11 @@ const colunas: TableColumn<ObservacaoRegistrada>[] = [
         >
           Nova observação
         </h2>
-
-        <div class="grid gap-4 sm:grid-cols-2">
-          <UFormField
-            label="Data"
-            :ui="{ label: 'font-semibold', container: 'mt-2' }"
-          >
-            <UInput
-              v-model="data"
-              type="date"
-              :max="hoje()"
-              class="w-full"
-              :ui="{ base: 'h-12 rounded-paro-md bg-elevated text-sm tabular-nums lg:h-10' }"
-            />
-          </UFormField>
-          <UFormField
-            label="Faixa horária"
-            :ui="{ label: 'font-semibold', container: 'mt-2' }"
-          >
-            <USelect
-              v-model="faixaHoraria"
-              :items="opcoesDeFaixa"
-              value-key="value"
-              placeholder="Escolha"
-              class="h-12 w-full rounded-paro-md tabular-nums lg:h-10"
-            />
-          </UFormField>
-        </div>
-
-        <UFormField
-          label="Rua coberta"
-          :ui="{ label: 'font-semibold', container: 'mt-2' }"
-        >
-          <USelect
-            v-model="ruaCoberta"
-            :items="opcoesDeRua"
-            value-key="value"
-            placeholder="Escolha"
-            class="h-12 w-full rounded-paro-md lg:h-10"
-          />
-        </UFormField>
-
-        <div class="grid grid-cols-2 gap-4">
-          <UFormField
-            label="Total de vagas"
-            :ui="{ label: 'font-semibold', container: 'mt-2' }"
-          >
-            <UInput
-              v-model.number="totalDeVagas"
-              type="number"
-              inputmode="numeric"
-              min="1"
-              class="w-full"
-              :ui="{ base: 'h-12 rounded-paro-md bg-elevated font-mono text-sm tabular-nums lg:h-10' }"
-            />
-          </UFormField>
-          <UFormField
-            label="Vagas ocupadas"
-            :ui="{ label: 'font-semibold', container: 'mt-2' }"
-          >
-            <UInput
-              v-model.number="vagasOcupadas"
-              type="number"
-              inputmode="numeric"
-              min="0"
-              class="w-full"
-              :ui="{ base: 'h-12 rounded-paro-md bg-elevated font-mono text-sm tabular-nums lg:h-10' }"
-            />
-          </UFormField>
-        </div>
-
-        <!-- Conferência antes de registrar: ocupação e se a rua conta como cheia. -->
-        <p
-          v-if="ocupacao !== null"
-          class="text-xs font-medium tabular-nums text-muted"
-          aria-live="polite"
-        >
-          Ocupação de {{ ocupacao }}%:
-          <strong class="font-semibold text-default">{{ ocupacao >= OCUPACAO_DE_RUA_CHEIA ? 'rua cheia' : 'rua não cheia' }}</strong>
-          (cheia a partir de {{ OCUPACAO_DE_RUA_CHEIA }}%).
-          <template v-if="substitui">
-            Já existe uma observação desta rua nesta faixa e data; registrar corrige a anterior.
-          </template>
-        </p>
-
-        <p
-          v-if="erroDoFormulario"
-          class="flex items-center gap-2 text-xs font-medium text-error"
-          role="alert"
-        >
-          <UIcon
-            name="i-lucide-circle-alert"
-            class="size-4 shrink-0"
-            aria-hidden="true"
-          />
-          {{ erroDoFormulario }}
-        </p>
-
-        <UButton
-          type="submit"
-          color="neutral"
-          size="xl"
-          block
-          class="h-13 text-lg lg:h-11"
-          :loading="registrando"
-          :label="registrando ? undefined : (substitui ? 'Corrigir observação' : 'Registrar observação')"
-          :aria-label="registrando ? 'Registrando' : undefined"
-          :aria-busy="registrando"
+        <FormularioDeObservacao
+          :chave="chave"
+          :observacoes="observacoes"
+          @registrada="registrada"
+          @chave-incorreta="sair('Chave da equipe incorreta.')"
         />
       </UCard>
 
@@ -415,7 +395,12 @@ const colunas: TableColumn<ObservacaoRegistrada>[] = [
             id="titulo-lista"
             class="text-xs font-semibold uppercase tracking-wider text-muted"
           >
-            {{ observacoes.length === 1 ? '1 observação' : `${observacoes.length} observações` }}
+            <template v-if="filtrando">
+              {{ filtradas.length }} de {{ observacoes.length }} observações
+            </template>
+            <template v-else>
+              {{ observacoes.length === 1 ? '1 observação' : `${observacoes.length} observações` }}
+            </template>
           </h2>
           <div class="flex gap-4">
             <UButton
@@ -438,6 +423,35 @@ const colunas: TableColumn<ObservacaoRegistrada>[] = [
           </div>
         </div>
 
+        <!-- Filtros no desktop: rua e data. -->
+        <div
+          v-if="observacoes.length > 0"
+          class="hidden items-center gap-3 lg:flex"
+        >
+          <USelect
+            v-model="filtroDeRua"
+            :items="opcoesDoFiltroDeRua"
+            value-key="value"
+            aria-label="Filtrar por rua"
+            class="h-10 w-56 rounded-paro-md"
+          />
+          <UInputDate
+            v-model="filtroDeDataNoCampo"
+            aria-label="Filtrar por data"
+            class="w-44"
+            :ui="{ base: 'h-10 rounded-paro-md bg-elevated text-sm tabular-nums' }"
+          />
+          <UButton
+            v-if="filtrando"
+            color="primary"
+            variant="link"
+            icon="i-lucide-x"
+            label="Limpar filtros"
+            class="min-h-11 px-0 text-sm"
+            @click="limparFiltros"
+          />
+        </div>
+
         <p
           v-if="erroDaLista"
           class="flex items-center gap-2 text-xs font-medium text-error"
@@ -457,10 +471,16 @@ const colunas: TableColumn<ObservacaoRegistrada>[] = [
         >
           Nenhuma observação registrada.
         </p>
+        <p
+          v-else-if="filtradas.length === 0"
+          class="py-4 text-sm text-muted"
+        >
+          Nenhuma observação com esses filtros.
+        </p>
 
         <UTable
           v-else
-          :data="observacoes"
+          :data="filtradas"
           :columns="colunas"
           :ui="{
             root: 'overflow-visible',
@@ -500,6 +520,30 @@ const colunas: TableColumn<ObservacaoRegistrada>[] = [
           </template>
         </UTable>
       </section>
+
+      <!-- Desktop: formulário num painel lateral à direita (referências Mercury e Base44). -->
+      <USlideover
+        v-model:open="painelAberto"
+        title="Nova observação"
+        description="Lance a contagem de uma rua coberta numa faixa horária."
+        side="right"
+        :close="{ color: 'neutral', variant: 'outline', square: true, class: 'size-9 justify-center' }"
+        :ui="{
+          overlay: 'z-40',
+          content: 'z-50 max-w-md bg-elevated ring-default',
+          title: 'text-base font-semibold text-default',
+          description: 'text-xs text-muted',
+        }"
+      >
+        <template #body>
+          <FormularioDeObservacao
+            :chave="chave"
+            :observacoes="observacoes"
+            @registrada="registrada"
+            @chave-incorreta="chaveRecusadaNoPainel"
+          />
+        </template>
+      </USlideover>
     </template>
 
     <!-- Confirmação (UModal), como em Sugestões de rua. -->
