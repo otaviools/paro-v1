@@ -30,6 +30,7 @@ Toda chamada à API fica num composable de `app/composables/`, um por recurso (A
 | `useFaixasHorarias` | `GET /api/faixas-horarias` | faixas horárias da área coberta |
 | `useRegistroDeVaga` | `POST /api/registros`, `PATCH /api/registros/saida`, `POST /api/registros/encerrar` | `registrar`, `alterarSaida`, `encerrar` |
 | `useSugestoesDeRua` | `POST /api/sugestoes`, `GET` e `DELETE /api/equipe/sugestoes` | `enviarSugestao`, `lerSugestoes`, `apagarSugestao` |
+| `useObservacoes` | `GET`, `POST` e `DELETE /api/equipe/observacoes` | `lerObservacoes`, `registrarObservacao`, `apagarObservacao`, na tela da equipe `/equipe/observacoes` |
 | `useAjudou` | `POST /api/ajudou` | `responderAjudou` |
 | `useSessao` | `POST /api/sessoes` | `contarVisita`, usado pelo plugin da sessão do mês |
 
@@ -72,6 +73,7 @@ O estado compartilhado entre telas fica em stores do Pinia em `app/stores/`, uma
 
 - **Responsabilidade:** guardar e entregar as observações, e dizer se são reais ou fictícias.
 - **Interface:** `doSemestre(semestre) → Observacao[]`, `registrar(observacao)` (usado pela equipe em campo) e `eDemonstracao() → boolean`
+- **Fonte ativa:** a variável de ambiente `NUXT_FONTE_DE_OBSERVACOES`; com `reais`, a chance usa as observações da equipe e o aviso de demonstração some; sem ela, usa as fictícias. Nunca as duas juntas. A equipe registra, corrige e apaga as reais em `/equipe/observacoes`, com a chave da equipe; a mesma rua, faixa horária e data substitui a anterior.
 - **Seam:** é real, com dois adapters:
   - Postgres, para as observações reais;
   - gerador de observações fictícias (ADR 0012).

@@ -78,4 +78,22 @@ export const migracoes: Migracao[] = [
       );
     `,
   },
+  {
+    // Observações reais (ADRs 0005, 0008 e 0011): contagem feita em campo
+    // pela equipe, numa noite, das vagas existentes e ocupadas de uma rua
+    // coberta numa faixa horária. Sem nenhum dado de pessoa. Uma observação
+    // por rua, faixa horária e data: lançar de novo corrige a anterior.
+    nome: '0005_observacoes',
+    sql: `
+      create table observacoes (
+        id integer generated always as identity primary key,
+        data date not null,
+        rua_coberta text not null,
+        faixa_horaria text not null,
+        total_de_vagas integer not null check (total_de_vagas > 0),
+        vagas_ocupadas integer not null check (vagas_ocupadas >= 0 and vagas_ocupadas <= total_de_vagas),
+        unique (data, rua_coberta, faixa_horaria)
+      );
+    `,
+  },
 ]

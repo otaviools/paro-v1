@@ -45,6 +45,19 @@ const rotinaEscolhida = computed({
   set: (valor: string | undefined) => escolher(!valor || valor === SEM_ROTINA ? null : valor),
 })
 
+/*
+ * No celular, a rotina é escolhida numa gaveta com a grade de horários (a
+ * mesma da saída prevista), em vez da lista suspensa: alvos de toque maiores
+ * e o padrão dos outros componentes. No desktop continua a lista suspensa.
+ */
+const gavetaDaRotina = ref<{ abrir: () => void, fechar: () => void }>()
+const gruposDaRotina = computed(() => [{ rotulo: 'Horários', faixasHorarias: faixasHorarias.value ?? [] }])
+
+function salvarRotina(faixaHoraria: string | null) {
+  escolher(faixaHoraria)
+  gavetaDaRotina.value?.fechar()
+}
+
 // --- Forma de colaborar (ADR 0010) ---------------------------------------------
 
 function mudarForma(nova: FormaDeColaborar) {
@@ -167,13 +180,37 @@ function apagarHistorico() {
         </p>
 
         <!-- Só seleção, sem digitar: USelect, e não um campo com busca. -->
+        <!-- Celular: campo que abre a gaveta de horários. -->
+        <UButton
+          color="neutral"
+          variant="outline"
+          trailing-icon="i-lucide-chevron-down"
+          aria-haspopup="dialog"
+          aria-labelledby="nome-rotina"
+          class="mt-2 h-12 w-full justify-between rounded-paro-md bg-elevated px-3 text-base font-normal lg:hidden"
+          :ui="{ trailingIcon: 'size-5 text-dimmed' }"
+          @click="gavetaDaRotina?.abrir()"
+        >
+          {{ rotina ? rotuloDaFaixaHoraria(rotina) : 'Sem rotina' }}
+        </UButton>
+        <!-- Desktop: lista suspensa, só seleção. -->
         <USelect
           v-model="rotinaEscolhida"
-          class="mt-2 h-12 w-full rounded-paro-md lg:h-10"
+          class="mt-2 hidden h-10 w-full rounded-paro-md lg:flex"
           :items="opcoesDeRotina"
           value-key="value"
           aria-labelledby="nome-rotina"
           placeholder="Escolha um horário"
+        />
+        <GavetaDeEscolha
+          ref="gavetaDaRotina"
+          titulo="Horário de chegada habitual"
+          acao="chegada"
+          opcao-vazia="Sem rotina"
+          :grupos="gruposDaRotina"
+          :escolhida="rotina"
+          @salvar="salvarRotina"
+          @limpar="salvarRotina(null)"
         />
       </UCard>
     </section>
@@ -285,6 +322,43 @@ function apagarHistorico() {
           Limpa deste celular a rotina, o registro de vaga com o código e o ponto do carro.
         </p>
       </div>
+    </section>
+
+    <!--
+      Área da equipe: entrada para a tela de observações (ADR 0011), que pede a
+      chave da equipe. Fica no fim de Ajustes, para a equipe registrar as
+      contagens de campo pelo celular sem decorar o endereço.
+    -->
+    <section
+      class="mt-8"
+      aria-labelledby="titulo-equipe"
+    >
+      <h2
+        id="titulo-equipe"
+        class="text-xs font-semibold uppercase tracking-wider text-muted"
+      >
+        Equipe
+      </h2>
+
+      <UCard
+        class="mt-3"
+        :ui="{ body: 'py-1 sm:py-2' }"
+      >
+        <UButton
+          to="/equipe/observacoes"
+          color="neutral"
+          variant="link"
+          block
+          icon="i-lucide-clipboard-list"
+          trailing-icon="i-lucide-chevron-right"
+          label="Área da equipe"
+          class="min-h-11 gap-3 px-0 text-sm text-default hover:text-default active:text-default"
+          :ui="{ leadingIcon: 'size-5', trailingIcon: 'ms-auto size-5' }"
+        />
+      </UCard>
+      <p class="mt-2 max-w-[70ch] text-xs text-muted">
+        Só para a equipe do Parô: registrar as contagens feitas nas ruas, com a chave da equipe.
+      </p>
     </section>
 
     <Gaveta

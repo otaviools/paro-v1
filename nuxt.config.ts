@@ -28,7 +28,12 @@ export default defineNuxtConfig({
         { name: 'apple-mobile-web-app-title', content: 'Parô' },
         { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' },
       ],
-      link: [{ rel: 'icon', type: 'image/svg+xml', href: '/favicon-producao.svg' }],
+      link: [
+        { rel: 'icon', type: 'image/svg+xml', href: '/favicon-producao.svg' },
+        // Ícone da tela de início do iPhone: o iOS não usa SVG. PNG de 180 px,
+        // feito do favicon-producao.svg com o quadrado cheio (o iOS arredonda).
+        { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' },
+      ],
     },
   },
   css: ['~/assets/css/main.css'],
@@ -74,6 +79,7 @@ export default defineNuxtConfig({
       // Ícone do app: o mesmo do favicon (símbolo ô sobre quadrado escuro arredondado).
       icons: [
         { src: '/favicon-producao.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' },
+        { src: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png', purpose: 'any' },
       ],
     },
     workbox: {
