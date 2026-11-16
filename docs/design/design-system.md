@@ -183,7 +183,7 @@ Alvo de toque mínimo de 44 × 44 px.
 | Seletor de opção com ícone | Botões lado a lado, raio `rounded-paro-md`; o selecionado com fundo `bg-primary-100` e borda de 1,5 px na cor `--ui-primary` | Escolha da rua coberta no registro manual (referência Pangea) |
 | Linha com seletor liga/desliga | Título, parágrafo explicativo em `text-muted` e seletor à direita; ligado em `bg-inverted` | Ajustes: usar localização, forma de colaborar (referência Grok) |
 | Card de escolha única | Card com título e descrição; o escolhido com borda de 1,5 px na cor `--ui-text` | Primeira visita: forma de colaborar |
-| Campo de texto | 48 px, fundo `bg-elevated`, borda `border-default`, raio `rounded-paro-md`, rótulo sempre visível acima | Sugestão de rua; telas da equipe |
+| Campo de texto | 48 px, fundo `bg-elevated`, borda `border-default`, raio `rounded-paro-md`, rótulo sempre visível acima; no celular, texto de 16 px em todo campo, para o iPhone não ampliar a tela ao tocar | Sugestão de rua; telas da equipe |
 
 Regras:
 
@@ -229,7 +229,7 @@ No detalhe da rua (referência Swarm):
 | Componente | Regra | Referência |
 |---|---|---|
 | Gaveta sobre o mapa | Raio `rounded-paro-lg` no topo, alça de 32 × 4 px, botão de fechar; dois pontos de parada (resumo e expandida) | Lime: gaveta da rua |
-| Gaveta de escolha | Título à esquerda e botão de fechar à direita, grupos de chips em grade e "Salvar" como ação principal cheia no rodapé, com o horário marcado ("Salvar · saída 21h30"); no desktop, abre embaixo do painel da direita, com a largura dele | Careem e Airbnb: escolha de horário |
+| Gaveta de escolha | Título à esquerda e botão de fechar à direita, grupos de chips em grade e "Salvar" como ação principal cheia no rodapé, com o horário marcado ("Salvar · saída 21h30"); no desktop, abre embaixo do painel da direita, com a largura dele; pode ter uma escolha vazia em largura total acima dos grupos ("Sem rotina"). Usada na saída prevista e, no celular, na rotina de Ajustes (no desktop, a rotina continua na lista suspensa) | Careem e Airbnb: escolha de horário |
 | Registro sobre o mapa (desktop) | Com um registro de vaga aberto e fora da aba Vaga, card de vidro à esquerda da legenda, com a largura e a altura dela: ponto verde piscando com "Seu registro de vaga", saída prevista, rua, chegada, "Saí" (botão cheio: avisa a saída e encerra o registro, como na aba Vaga) e "Mudar saída" (abre a aba Vaga). Com o painel da direita aberto, fica em cima da legenda. Entra subindo 12 px e aparecendo; sai descendo | Turo: card sobre o mapa |
 | Aviso flutuante | `UToast` em vidro tingido pelo sinal: sucesso com fundo `bg-success-100` translúcido, texto `text-success` e ícone de check; erro com `bg-error-100`, `text-error` e ícone de alerta. Desfoque, borda e sombra suaves, raio `rounded-paro-md`, some em 3 s | Waymo: confirmação |
 | Esqueleto | `USkeleton` em `bg-muted` no formato do conteúdo, com brilho que passa a cada 1,4 s (classe `brilho`) | Google e Finimize: carregamento |
