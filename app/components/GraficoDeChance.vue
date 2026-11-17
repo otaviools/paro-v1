@@ -1,13 +1,27 @@
 <!--
-  Gráfico de chance por faixa horária (design system; referência Swarm):
-  uma barra por faixa horária das 17h às 23h, na cor da faixa de chance
-  (verde, amarelo ou vermelho, ADR 0033). A altura é a chance; Sem dado é uma barra baixa com
-  contorno tracejado. A faixa horária selecionada ganha fundo bg-primary-100.
-  Feito à mão (ADR 0028), com classes do Tailwind e cores do Nuxt UI.
-  Tocar numa barra seleciona a faixa horária (v-model).
+  Chance ao longo da noite (Detalhe da rua), em mapa de calor no estilo do
+  GitHub, desenhado pelo ECharts como o das Métricas: colunas são as horas
+  (17h a 22h) e as duas linhas são a primeira e a segunda meia hora (":00" e
+  ":30"). Cada quadrado é uma faixa horária, na cor da faixa de chance
+  (verde, amarelo ou vermelho, ADR 0033); Sem dado é um quadrado vazio com
+  contorno tracejado na cor do texto.
+
+  O ECharts só desenha. Por cima de cada quadrado fica um botão transparente
+  do mesmo tamanho: tocar ou usar o teclado seleciona a faixa horária
+  (v-model), com o anel de foco, o rótulo para leitores de tela e o balão
+  nativo (title). A faixa selecionada ganha um contorno na cor do texto. Os
+  rótulos das horas e das meias horas ficam em HTML, alinhados à grade.
 -->
 <script setup lang="ts">
+import VChart from 'vue-echarts'
+import { use } from 'echarts/core'
+import { CustomChart } from 'echarts/charts'
+import { GridComponent } from 'echarts/components'
+import { SVGRenderer } from 'echarts/renderers'
+import type { EChartsOption } from 'echarts'
 import type { EstadoDaChance } from '~/components/AmostraDeFaixaDeChance.vue'
+
+use([CustomChart, GridComponent, SVGRenderer])
 
 const props = defineProps<{
   faixasHorarias: FaixaHorariaDaRua[]
@@ -18,21 +32,64 @@ const selecionada = defineModel<string | null>({ required: true })
 const id = useId()
 
 const LEGENDA: EstadoDaChance[] = ['Tranquilo', 'Apertado', 'Difícil', 'Sem dado']
+const MEIAS_HORAS = [':00', ':30']
+
+/** Folga entre os quadrados (a mesma do gap da grade de botões) e altura de cada linha, em px. */
+const FOLGA = 4
+const ALTURA_DA_LINHA = 40
 
 function estadoDe(estimativa: Estimativa): EstadoDaChance {
   return estimativa.tipo === 'chance' ? estimativa.faixaDeChance : 'Sem dado'
 }
 
-/** Altura da barra: a chance; um mínimo para a cor aparecer em 0%. */
-function alturaDe(estimativa: Estimativa) {
-  return estimativa.tipo === 'chance'
-    ? `max(var(--spacing), ${estimativa.chance}%)`
-    : 'calc(var(--spacing) * 2)'
+function descricaoDe({ faixaHoraria, estimativa }: FaixaHorariaDaRua) {
+  const chance = estimativa.tipo === 'chance' ? `, ${Math.round(estimativa.chance)}%` : ''
+  return `${intervaloDaFaixaHoraria(faixaHoraria)}: ${estadoDe(estimativa)}${chance}`
 }
 
-/** Só as horas cheias ganham rótulo no eixo, para caber no celular. */
-const horasDoEixo = computed(() =>
-  props.faixasHorarias.filter(f => f.faixaHoraria.endsWith(':00')).map(f => rotuloDaFaixaHoraria(f.faixaHoraria)))
+/** As horas da noite, "HH", na ordem das faixas horárias. */
+const horas = computed(() => [...new Set(props.faixasHorarias.map(f => f.faixaHoraria.slice(0, 2)))])
+
+/** Coluna (hora) e linha (meia hora) de cada faixa horária na grade. */
+function posicaoDe(faixaHoraria: string) {
+  return { coluna: horas.value.indexOf(faixaHoraria.slice(0, 2)), linha: faixaHoraria.endsWith(':30') ? 1 : 0 }
+}
+
+const cores = useCoresDoTema({ texto: 'var(--ui-text)' })
+
+const opcao = computed<EChartsOption>(() => ({
+  animationDuration: 300,
+  grid: { left: 0, right: 0, top: 0, bottom: 0 },
+  xAxis: { type: 'category', data: horas.value, show: false },
+  yAxis: { type: 'category', data: MEIAS_HORAS, inverse: true, show: false },
+  series: [
+    {
+      type: 'custom',
+      silent: true,
+      data: props.faixasHorarias.map(({ faixaHoraria, estimativa }) => {
+        const { coluna, linha } = posicaoDe(faixaHoraria)
+        return [coluna, linha, estimativa.tipo === 'chance' ? estimativa.faixaDeChance : '']
+      }),
+      renderItem: (params, api) => {
+        const centro = api.coord([api.value(0), api.value(1)])
+        const [largura = 0, altura = 0] = api.size!([1, 1]) as number[]
+        const w = Math.max(2, largura - FOLGA)
+        const h = Math.max(2, altura - FOLGA)
+        const faixa = props.faixasHorarias[params.dataIndex]
+        const forma = { x: centro[0]! - w / 2, y: centro[1]! - h / 2, width: w, height: h, r: 6 }
+        if (!faixa || faixa.estimativa.tipo !== 'chance') {
+          // Sem dado: contorno tracejado, 1,5 px para dentro, para o traço não sair do quadrado.
+          return {
+            type: 'rect',
+            shape: { ...forma, x: forma.x + 0.75, y: forma.y + 0.75, width: w - 1.5, height: h - 1.5 },
+            style: { fill: 'transparent', stroke: cores.value.texto, lineWidth: 1.5, lineDash: [4, 3] },
+          }
+        }
+        return { type: 'rect', shape: forma, style: { fill: corDaFaixaDeChance(faixa.estimativa.faixaDeChance) } }
+      },
+    },
+  ],
+}))
 </script>
 
 <template>
@@ -48,55 +105,73 @@ const horasDoEixo = computed(() =>
       Chance ao longo da noite
     </h2>
 
-    <div class="grid h-32 auto-cols-fr grid-flow-col">
-      <button
-        v-for="{ faixaHoraria, estimativa } in faixasHorarias"
-        :key="faixaHoraria"
-        type="button"
-        class="relative cursor-pointer rounded-paro-sm text-default"
-        :class="{ 'bg-secondary/30': selecionada === faixaHoraria }"
-        :aria-pressed="selecionada === faixaHoraria"
-        :aria-label="`${intervaloDaFaixaHoraria(faixaHoraria)}: ${estadoDe(estimativa)}`"
-        @click="selecionada = faixaHoraria"
+    <div class="grid grid-cols-[auto_minmax(0,1fr)] gap-x-2 gap-y-1.5">
+      <!-- Rótulos das meias horas, à esquerda de cada linha. -->
+      <div
+        class="grid text-xs tabular-nums text-muted"
+        :style="{ gridTemplateRows: `repeat(2, ${ALTURA_DA_LINHA}px)` }"
+        aria-hidden="true"
       >
-        <!-- Presa ao pé da coluna: a altura em % é da coluna, que tem altura fixa. -->
-        <svg
-          class="absolute inset-x-1 bottom-0 w-[calc(100%---spacing(2))]"
-          :style="{ height: alturaDe(estimativa) }"
-          aria-hidden="true"
-          focusable="false"
-        >
-          <!-- Traço de 3 px centrado na borda: o SVG corta a metade de fora e sobra 1,5 px. -->
-          <rect
-            v-if="estimativa.tipo === 'sem-dado'"
-            width="100%"
-            height="100%"
-            rx="3"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="3"
-            stroke-dasharray="4 3"
-          />
-          <rect
-            v-else
-            width="100%"
-            height="100%"
-            rx="3"
-            :fill="corDaFaixaDeChance(estimativa.faixaDeChance)"
-          />
-        </svg>
-      </button>
-    </div>
+        <span
+          v-for="meia in MEIAS_HORAS"
+          :key="meia"
+          class="self-center"
+        >{{ meia }}</span>
+      </div>
 
-    <!-- Cada hora cheia ocupa as duas colunas da hora. -->
-    <div
-      class="-mt-2 grid auto-cols-fr grid-flow-col text-xs tabular-nums text-muted *:pl-1"
-      aria-hidden="true"
-    >
-      <span
-        v-for="hora in horasDoEixo"
-        :key="hora"
-      >{{ hora }}</span>
+      <div
+        class="relative"
+        :style="{ height: `${ALTURA_DA_LINHA * 2}px` }"
+      >
+        <ClientOnly>
+          <VChart
+            :option="opcao"
+            class="absolute inset-0"
+            autoresize
+            aria-hidden="true"
+          />
+        </ClientOnly>
+
+        <!-- Um botão transparente por quadrado, por cima do gráfico; a folga é a mesma do desenho. -->
+        <div
+          class="absolute grid"
+          :style="{
+            inset: `${FOLGA / 2}px`,
+            gap: `${FOLGA}px`,
+            gridTemplateColumns: `repeat(${horas.length}, minmax(0, 1fr))`,
+            gridTemplateRows: 'repeat(2, minmax(0, 1fr))',
+          }"
+        >
+          <button
+            v-for="faixa in faixasHorarias"
+            :key="faixa.faixaHoraria"
+            type="button"
+            class="cursor-pointer rounded-[6px] transition-shadow duration-150 focus-visible:outline-offset-2"
+            :class="{ 'shadow-[0_0_0_2px_var(--ui-text)]': selecionada === faixa.faixaHoraria }"
+            :style="{
+              gridColumn: posicaoDe(faixa.faixaHoraria).coluna + 1,
+              gridRow: posicaoDe(faixa.faixaHoraria).linha + 1,
+            }"
+            :aria-pressed="selecionada === faixa.faixaHoraria"
+            :aria-label="descricaoDe(faixa)"
+            :title="descricaoDe(faixa)"
+            @click="selecionada = faixa.faixaHoraria"
+          />
+        </div>
+      </div>
+
+      <!-- Rótulos das horas, embaixo de cada coluna. -->
+      <span aria-hidden="true" />
+      <div
+        class="grid text-center text-xs tabular-nums text-muted"
+        :style="{ gridTemplateColumns: `repeat(${horas.length}, minmax(0, 1fr))` }"
+        aria-hidden="true"
+      >
+        <span
+          v-for="hora in horas"
+          :key="hora"
+        >{{ rotuloDaFaixaHoraria(`${hora}:00`) }}</span>
+      </div>
     </div>
 
     <ul
