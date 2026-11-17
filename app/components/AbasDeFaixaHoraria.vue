@@ -13,12 +13,15 @@
   Interface:
   - prop `abas`: as abas, vindas do usePanoramaDaNoite.
   - prop `controla`: id do painel que as abas mudam (aria-controls), opcional.
+  - prop `rotulo`: nome do grupo de abas para leitores de tela; padrão
+    "Faixa horária". Também usado na Área da equipe e no período das Métricas.
   - v-model: o valor da aba escolhida ('agora' ou a faixa horária).
 -->
 <script setup lang="ts">
 const props = defineProps<{
   abas: { valor: string, rotulo: string }[]
   controla?: string
+  rotulo?: string
 }>()
 
 const escolhida = defineModel<string | null>({ required: true })
@@ -35,7 +38,7 @@ const fundo = computed(() => {
   <div
     class="vidro w-full rounded-full p-1"
     role="tablist"
-    aria-label="Faixa horária"
+    :aria-label="rotulo ?? 'Faixa horária'"
   >
     <!-- Grade interna: a porcentagem do fundo conta só a área das abas, sem a folga. -->
     <div class="relative grid auto-cols-fr grid-flow-col">

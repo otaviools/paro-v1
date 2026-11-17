@@ -9,6 +9,8 @@
   é "reais" (NUXT_FONTE_DE_OBSERVACOES, ADR 0012); a tela mostra qual está
   ativa.
 
+  Pedindo a chave, a tela vira uma coluna estreita no centro.
+
   No celular, o formulário fica na página, acima da lista. No desktop
   (referências Deel e Mercury), a tela fica larga: três números de resumo no
   topo, filtros por rua e data, a tabela e o botão "Nova observação", que
@@ -26,29 +28,8 @@ useHead({ title: 'Observações | Parô', meta: [{ name: 'robots', content: 'noi
 /** Mínimo de noites para uma rua ter chance numa faixa horária (ADR 0007). */
 const MINIMO_DE_OBSERVACOES = 4
 
-/** Onde a chave fica enquanto a aba estiver aberta (a mesma de Sugestões de rua). */
-const CHAVE_NA_SESSAO = 'paro:chave-da-equipe'
+const { lerChaveDaSessao, guardarChaveNaSessao } = useChaveDaEquipe()
 
-function lerChaveDaSessao(): string | null {
-  try {
-    return sessionStorage.getItem(CHAVE_NA_SESSAO)
-  }
-  catch {
-    return null
-  }
-}
-
-function guardarChaveNaSessao(valor: string | null) {
-  try {
-    if (valor === null) sessionStorage.removeItem(CHAVE_NA_SESSAO)
-    else sessionStorage.setItem(CHAVE_NA_SESSAO, valor)
-  }
-  catch {
-    // Sem sessionStorage (navegação privada restrita): a chave fica só na memória desta tela.
-  }
-}
-
-const digitada = ref('')
 /** Chave aceita pelo servidor; enquanto for null, a tela pede a chave. */
 const chave = ref<string | null>(null)
 const observacoes = ref<ObservacaoRegistrada[]>([])
@@ -59,12 +40,6 @@ const erroDaLista = ref<string | null>(null)
 
 const { lerObservacoes, apagarObservacao } = useObservacoes()
 
-/** Volta para a tela anterior; aberta direto pelo link, vai para Ajustes. */
-const router = useRouter()
-function voltar() {
-  if (window.history.state?.back) router.back()
-  else navigateTo('/ajustes')
-}
 const { avisar } = useAvisoFlutuanteStore()
 
 function sair(motivo: string | null = null) {
@@ -85,25 +60,23 @@ async function carregar(valor: string) {
     fonte.value = resultado.resposta.fonte
     chave.value = valor
     guardarChaveNaSessao(valor)
-    digitada.value = ''
   }
   else if (resultado.tipo === 'chave-incorreta') sair('Chave da equipe incorreta.')
   else if (chave.value) erroDaLista.value = 'Não foi possível carregar. Tente de novo.'
   else erroDaChave.value = 'Não foi possível carregar. Tente de novo.'
 }
 
-function entrar() {
-  const valor = digitada.value.trim()
-  if (!valor) {
-    erroDaChave.value = 'Digite a chave da equipe.'
-    return
-  }
-  carregar(valor)
-}
+/**
+ * Até ler a chave guardada na aba (só no navegador) e, se houver, carregar
+ * com ela, a tela mostra só o carregamento, sem o formulário da chave: assim
+ * trocar de aba na Área da equipe não pisca o formulário.
+ */
+const retomando = ref(true)
 
-onMounted(() => {
+onMounted(async () => {
   const guardada = lerChaveDaSessao()
-  if (guardada) carregar(guardada)
+  if (guardada) await carregar(guardada)
+  retomando.value = false
 })
 
 // --- Nova observação -----------------------------------------------------------
@@ -228,16 +201,12 @@ const colunas: TableColumn<ObservacaoRegistrada>[] = [
 </script>
 
 <template>
-  <main class="mx-auto max-w-160 px-5 pt-4 pb-8 lg:max-w-6xl lg:px-8 lg:pt-8">
-    <!-- Voltar: a tela não tem barra de abas; volta para Ajustes, de onde a equipe entra. -->
-    <UButton
-      color="neutral"
-      variant="outline"
-      icon="i-lucide-arrow-left"
-      aria-label="Voltar"
-      class="mb-4 size-10 justify-center lg:size-9"
-      @click="voltar"
-    />
+  <main
+    class="mx-auto max-w-160 px-5 pt-4 pb-8 lg:px-8 lg:pt-8"
+    :class="chave ? 'lg:max-w-6xl' : 'lg:max-w-md'"
+  >
+    <!-- Voltar e abas da Área da equipe (Observações e Métricas). -->
+    <TopoDaEquipe />
 
     <!-- Cabeçalho; no desktop, "Nova observação" à direita (referência Deel). -->
     <div class="flex flex-wrap items-end justify-between gap-4">
@@ -262,31 +231,178 @@ const colunas: TableColumn<ObservacaoRegistrada>[] = [
       />
     </div>
 
-    <UCard
-      v-if="!chave"
-      as="form"
-      class="mt-8 lg:max-w-md"
-      novalidate
-      :ui="{ body: 'grid gap-4' }"
-      @submit.prevent="entrar"
+    <!--
+      Carregamento, chave ou conteúdo: cada um entra com a transição das telas
+      (classes "pagina" do main.css), já que o conteúdo só chega depois de
+      conferir a chave, quando a transição da troca de tela já acabou.
+    -->
+    <Transition
+      name="pagina"
+      :duration="{ enter: 700, leave: 0 }"
     >
-      <UFormField
-        label="Chave da equipe"
-        description="Fica só nesta aba do navegador e some ao fechá-la."
-        :error="erroDaChave ?? false"
-        size="lg"
-        :ui="{ label: 'font-semibold', description: 'text-xs', container: 'mt-2', error: 'text-xs font-medium' }"
+      <CarregandoDaEquipe
+        v-if="retomando"
+        key="carregando"
+        class="mt-16"
+      />
+
+      <ChaveDaEquipe
+        v-else-if="!chave"
+        key="chave"
+        class="mt-8"
+        acao="Ver observações"
+        :carregando="carregando"
+        :erro="erroDaChave"
+        @entrar="carregar"
+      />
+
+      <div
+        v-else
+        key="conteudo"
+        class="cascata"
       >
-        <UInput
-          v-model="digitada"
-          type="password"
-          autocomplete="off"
-          class="w-full"
-          :ui="{ base: 'h-12 rounded-paro-md bg-elevated text-sm lg:h-10' }"
+        <!-- Qual fonte a chance está usando agora (ADR 0012). -->
+        <UAlert
+          class="mt-6"
+          :color="fonte === 'reais' ? 'success' : 'warning'"
+          variant="soft"
+          :icon="fonte === 'reais' ? 'i-lucide-circle-check' : 'i-lucide-flask-conical'"
+          :title="fonte === 'reais' ? 'A chance usa estas observações' : 'A chance ainda usa dados de demonstração'"
+          :description="fonte === 'reais'
+            ? 'O aviso de dados de demonstração não aparece mais no app.'
+            : 'As observações daqui ficam guardadas, mas só entram na chance quando NUXT_FONTE_DE_OBSERVACOES for &quot;reais&quot; no servidor.'"
+          :ui="{ title: 'text-sm', description: 'text-xs font-medium' }"
         />
-        <template #error="{ error: mensagem }">
-          <span
-            class="flex items-center gap-2"
+
+        <!-- Resumo no desktop (referência Deel): três números do semestre. -->
+        <section
+          class="mt-6 hidden grid-cols-3 gap-4 lg:grid"
+          aria-label="Resumo do semestre"
+        >
+          <UCard :ui="{ body: 'grid gap-1 p-5 sm:p-5' }">
+            <p class="text-xs font-semibold uppercase tracking-wider text-muted">
+              Observações no semestre
+            </p>
+            <p class="text-3xl font-bold tabular-nums">
+              {{ queContam.length }}
+            </p>
+            <p class="text-xs text-muted">
+              Em dias letivos normais; {{ observacoes.length }} no total.
+            </p>
+          </UCard>
+          <UCard :ui="{ body: 'grid gap-1 p-5 sm:p-5' }">
+            <p class="text-xs font-semibold uppercase tracking-wider text-muted">
+              Ruas e faixas com chance
+            </p>
+            <p class="text-3xl font-bold tabular-nums">
+              {{ combinacoesComChance }}<span class="text-base font-semibold text-muted"> de {{ totalDeCombinacoes }}</span>
+            </p>
+            <p class="text-xs text-muted">
+              Com {{ MINIMO_DE_OBSERVACOES }} noites ou mais; as outras ficam Sem dado.
+            </p>
+          </UCard>
+          <UCard :ui="{ body: 'grid gap-1 p-5 sm:p-5' }">
+            <p class="text-xs font-semibold uppercase tracking-wider text-muted">
+              Última contagem
+            </p>
+            <p class="text-3xl font-bold tabular-nums">
+              {{ ultimaContagem ? dataCompleta(ultimaContagem) : '—' }}
+            </p>
+            <p class="text-xs text-muted">
+              A equipe observa 1 noite por semana.
+            </p>
+          </UCard>
+        </section>
+
+        <!-- Celular: o formulário fica na página, acima da lista. -->
+        <UCard
+          class="mt-6 lg:hidden"
+          aria-labelledby="titulo-nova"
+          :ui="{ body: 'grid gap-4' }"
+        >
+          <h2
+            id="titulo-nova"
+            class="text-base font-semibold"
+          >
+            Nova observação
+          </h2>
+          <FormularioDeObservacao
+            :chave="chave"
+            :observacoes="observacoes"
+            @registrada="registrada"
+            @chave-incorreta="sair('Chave da equipe incorreta.')"
+          />
+        </UCard>
+
+        <section
+          class="mt-8 grid gap-3"
+          aria-labelledby="titulo-lista"
+        >
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <h2
+              id="titulo-lista"
+              class="text-xs font-semibold uppercase tracking-wider text-muted"
+            >
+              <template v-if="filtrando">
+                {{ filtradas.length }} de {{ observacoes.length }} observações
+              </template>
+              <template v-else>
+                {{ observacoes.length === 1 ? '1 observação' : `${observacoes.length} observações` }}
+              </template>
+            </h2>
+            <div class="flex gap-4">
+              <UButton
+                color="primary"
+                variant="link"
+                icon="i-lucide-refresh-cw"
+                label="Atualizar"
+                class="min-h-11 px-0 text-sm"
+                :aria-busy="carregando"
+                @click="carregar(chave)"
+              />
+              <UButton
+                color="primary"
+                variant="link"
+                icon="i-lucide-log-out"
+                label="Sair"
+                class="min-h-11 px-0 text-sm"
+                @click="sair()"
+              />
+            </div>
+          </div>
+
+          <!-- Filtros no desktop: rua e data. -->
+          <div
+            v-if="observacoes.length > 0"
+            class="hidden items-center gap-3 lg:flex"
+          >
+            <USelect
+              v-model="filtroDeRua"
+              :items="opcoesDoFiltroDeRua"
+              value-key="value"
+              aria-label="Filtrar por rua"
+              class="h-10 w-56 rounded-paro-md"
+            />
+            <UInputDate
+              v-model="filtroDeDataNoCampo"
+              aria-label="Filtrar por data"
+              class="w-44"
+              :ui="{ base: 'h-10 rounded-paro-md bg-elevated text-sm tabular-nums' }"
+            />
+            <UButton
+              v-if="filtrando"
+              color="primary"
+              variant="link"
+              icon="i-lucide-x"
+              label="Limpar filtros"
+              class="min-h-11 px-0 text-sm"
+              @click="limparFiltros"
+            />
+          </div>
+
+          <p
+            v-if="erroDaLista"
+            class="flex items-center gap-2 text-xs font-medium text-error"
             role="alert"
           >
             <UIcon
@@ -294,257 +410,90 @@ const colunas: TableColumn<ObservacaoRegistrada>[] = [
               class="size-4 shrink-0"
               aria-hidden="true"
             />
-            {{ mensagem }}
-          </span>
-        </template>
-      </UFormField>
+            {{ erroDaLista }}
+          </p>
 
-      <UButton
-        type="submit"
-        color="neutral"
-        size="xl"
-        block
-        class="h-13 text-lg lg:h-11"
-        :loading="carregando"
-        :label="carregando ? undefined : 'Ver observações'"
-        :aria-label="carregando ? 'Carregando' : undefined"
-        :aria-busy="carregando"
-      />
-    </UCard>
-
-    <template v-else>
-      <!-- Qual fonte a chance está usando agora (ADR 0012). -->
-      <UAlert
-        class="mt-6"
-        :color="fonte === 'reais' ? 'success' : 'warning'"
-        variant="soft"
-        :icon="fonte === 'reais' ? 'i-lucide-circle-check' : 'i-lucide-flask-conical'"
-        :title="fonte === 'reais' ? 'A chance usa estas observações' : 'A chance ainda usa dados de demonstração'"
-        :description="fonte === 'reais'
-          ? 'O aviso de dados de demonstração não aparece mais no app.'
-          : 'As observações daqui ficam guardadas, mas só entram na chance quando NUXT_FONTE_DE_OBSERVACOES for &quot;reais&quot; no servidor.'"
-        :ui="{ title: 'text-sm', description: 'text-xs font-medium' }"
-      />
-
-      <!-- Resumo no desktop (referência Deel): três números do semestre. -->
-      <section
-        class="mt-6 hidden grid-cols-3 gap-4 lg:grid"
-        aria-label="Resumo do semestre"
-      >
-        <UCard :ui="{ body: 'grid gap-1 p-5 sm:p-5' }">
-          <p class="text-xs font-semibold uppercase tracking-wider text-muted">
-            Observações no semestre
-          </p>
-          <p class="text-3xl font-bold tabular-nums">
-            {{ queContam.length }}
-          </p>
-          <p class="text-xs text-muted">
-            Em dias letivos normais; {{ observacoes.length }} no total.
-          </p>
-        </UCard>
-        <UCard :ui="{ body: 'grid gap-1 p-5 sm:p-5' }">
-          <p class="text-xs font-semibold uppercase tracking-wider text-muted">
-            Ruas e faixas com chance
-          </p>
-          <p class="text-3xl font-bold tabular-nums">
-            {{ combinacoesComChance }}<span class="text-base font-semibold text-muted"> de {{ totalDeCombinacoes }}</span>
-          </p>
-          <p class="text-xs text-muted">
-            Com {{ MINIMO_DE_OBSERVACOES }} noites ou mais; as outras ficam Sem dado.
-          </p>
-        </UCard>
-        <UCard :ui="{ body: 'grid gap-1 p-5 sm:p-5' }">
-          <p class="text-xs font-semibold uppercase tracking-wider text-muted">
-            Última contagem
-          </p>
-          <p class="text-3xl font-bold tabular-nums">
-            {{ ultimaContagem ? dataCompleta(ultimaContagem) : '—' }}
-          </p>
-          <p class="text-xs text-muted">
-            A equipe observa 1 noite por semana.
-          </p>
-        </UCard>
-      </section>
-
-      <!-- Celular: o formulário fica na página, acima da lista. -->
-      <UCard
-        class="mt-6 lg:hidden"
-        aria-labelledby="titulo-nova"
-        :ui="{ body: 'grid gap-4' }"
-      >
-        <h2
-          id="titulo-nova"
-          class="text-base font-semibold"
-        >
-          Nova observação
-        </h2>
-        <FormularioDeObservacao
-          :chave="chave"
-          :observacoes="observacoes"
-          @registrada="registrada"
-          @chave-incorreta="sair('Chave da equipe incorreta.')"
-        />
-      </UCard>
-
-      <section
-        class="mt-8 grid gap-3"
-        aria-labelledby="titulo-lista"
-      >
-        <div class="flex flex-wrap items-center justify-between gap-2">
-          <h2
-            id="titulo-lista"
-            class="text-xs font-semibold uppercase tracking-wider text-muted"
+          <p
+            v-if="observacoes.length === 0"
+            class="py-4 text-sm text-muted"
           >
-            <template v-if="filtrando">
-              {{ filtradas.length }} de {{ observacoes.length }} observações
+            Nenhuma observação registrada.
+          </p>
+          <p
+            v-else-if="filtradas.length === 0"
+            class="py-4 text-sm text-muted"
+          >
+            Nenhuma observação com esses filtros.
+          </p>
+
+          <UTable
+            v-else
+            :data="filtradas"
+            :columns="colunas"
+            :ui="{
+              root: 'overflow-visible',
+              thead: 'max-lg:sr-only',
+              tbody: 'divide-y-0 max-lg:block',
+              tr: 'border-b border-default max-lg:grid max-lg:grid-cols-[auto_minmax(0,1fr)_auto] max-lg:items-center max-lg:gap-x-3 max-lg:py-3',
+              th: 'ps-0 pe-3 pt-0 pb-2 text-xs font-semibold uppercase tracking-wider text-muted',
+              td: 'h-12 py-2 ps-0 pe-3 align-middle text-sm max-lg:h-auto max-lg:p-0',
+            }"
+          >
+            <template #data-cell="{ row }">
+              {{ dataCompleta(row.original.data) }}
             </template>
-            <template v-else>
-              {{ observacoes.length === 1 ? '1 observação' : `${observacoes.length} observações` }}
+            <template #faixaHoraria-cell="{ row }">
+              {{ intervaloDaFaixaHoraria(row.original.faixaHoraria) }}
             </template>
-          </h2>
-          <div class="flex gap-4">
-            <UButton
-              color="primary"
-              variant="link"
-              icon="i-lucide-refresh-cw"
-              label="Atualizar"
-              class="min-h-11 px-0 text-sm"
-              :aria-busy="carregando"
-              @click="carregar(chave)"
-            />
-            <UButton
-              color="primary"
-              variant="link"
-              icon="i-lucide-log-out"
-              label="Sair"
-              class="min-h-11 px-0 text-sm"
-              @click="sair()"
-            />
-          </div>
-        </div>
+            <template #ruaCoberta-cell="{ row }">
+              {{ nomeDaRua(row.original.ruaCoberta) }}
+            </template>
+            <template #contagem-cell="{ row }">
+              {{ row.original.vagasOcupadas }} / {{ row.original.totalDeVagas }}
+              <span class="ms-1 text-xs text-muted">({{ ocupacaoDe(row.original) }}%)</span>
+            </template>
+            <template #acao-header>
+              <span class="sr-only">Ação</span>
+            </template>
+            <template #acao-cell="{ row }">
+              <UButton
+                color="error"
+                variant="link"
+                icon="i-lucide-trash-2"
+                label="Apagar"
+                aria-haspopup="dialog"
+                class="min-h-11 px-0 text-sm"
+                @click="pedirConfirmacao(row.original)"
+              />
+            </template>
+          </UTable>
+        </section>
 
-        <!-- Filtros no desktop: rua e data. -->
-        <div
-          v-if="observacoes.length > 0"
-          class="hidden items-center gap-3 lg:flex"
-        >
-          <USelect
-            v-model="filtroDeRua"
-            :items="opcoesDoFiltroDeRua"
-            value-key="value"
-            aria-label="Filtrar por rua"
-            class="h-10 w-56 rounded-paro-md"
-          />
-          <UInputDate
-            v-model="filtroDeDataNoCampo"
-            aria-label="Filtrar por data"
-            class="w-44"
-            :ui="{ base: 'h-10 rounded-paro-md bg-elevated text-sm tabular-nums' }"
-          />
-          <UButton
-            v-if="filtrando"
-            color="primary"
-            variant="link"
-            icon="i-lucide-x"
-            label="Limpar filtros"
-            class="min-h-11 px-0 text-sm"
-            @click="limparFiltros"
-          />
-        </div>
-
-        <p
-          v-if="erroDaLista"
-          class="flex items-center gap-2 text-xs font-medium text-error"
-          role="alert"
-        >
-          <UIcon
-            name="i-lucide-circle-alert"
-            class="size-4 shrink-0"
-            aria-hidden="true"
-          />
-          {{ erroDaLista }}
-        </p>
-
-        <p
-          v-if="observacoes.length === 0"
-          class="py-4 text-sm text-muted"
-        >
-          Nenhuma observação registrada.
-        </p>
-        <p
-          v-else-if="filtradas.length === 0"
-          class="py-4 text-sm text-muted"
-        >
-          Nenhuma observação com esses filtros.
-        </p>
-
-        <UTable
-          v-else
-          :data="filtradas"
-          :columns="colunas"
+        <!-- Desktop: formulário num painel lateral à direita (referências Mercury e Base44). -->
+        <USlideover
+          v-model:open="painelAberto"
+          title="Nova observação"
+          description="Lance a contagem de uma rua coberta numa faixa horária."
+          side="right"
+          :close="{ color: 'neutral', variant: 'outline', square: true, class: 'size-9 justify-center' }"
           :ui="{
-            root: 'overflow-visible',
-            thead: 'max-lg:sr-only',
-            tbody: 'divide-y-0 max-lg:block',
-            tr: 'border-b border-default max-lg:grid max-lg:grid-cols-[auto_minmax(0,1fr)_auto] max-lg:items-center max-lg:gap-x-3 max-lg:py-3',
-            th: 'ps-0 pe-3 pt-0 pb-2 text-xs font-semibold uppercase tracking-wider text-muted',
-            td: 'h-12 py-2 ps-0 pe-3 align-middle text-sm max-lg:h-auto max-lg:p-0',
+            overlay: 'z-40',
+            content: 'z-50 max-w-md bg-elevated ring-default',
+            title: 'text-base font-semibold text-default',
+            description: 'text-xs text-muted',
           }"
         >
-          <template #data-cell="{ row }">
-            {{ dataCompleta(row.original.data) }}
-          </template>
-          <template #faixaHoraria-cell="{ row }">
-            {{ intervaloDaFaixaHoraria(row.original.faixaHoraria) }}
-          </template>
-          <template #ruaCoberta-cell="{ row }">
-            {{ nomeDaRua(row.original.ruaCoberta) }}
-          </template>
-          <template #contagem-cell="{ row }">
-            {{ row.original.vagasOcupadas }} / {{ row.original.totalDeVagas }}
-            <span class="ms-1 text-xs text-muted">({{ ocupacaoDe(row.original) }}%)</span>
-          </template>
-          <template #acao-header>
-            <span class="sr-only">Ação</span>
-          </template>
-          <template #acao-cell="{ row }">
-            <UButton
-              color="error"
-              variant="link"
-              icon="i-lucide-trash-2"
-              label="Apagar"
-              aria-haspopup="dialog"
-              class="min-h-11 px-0 text-sm"
-              @click="pedirConfirmacao(row.original)"
+          <template #body>
+            <FormularioDeObservacao
+              :chave="chave"
+              :observacoes="observacoes"
+              @registrada="registrada"
+              @chave-incorreta="chaveRecusadaNoPainel"
             />
           </template>
-        </UTable>
-      </section>
-
-      <!-- Desktop: formulário num painel lateral à direita (referências Mercury e Base44). -->
-      <USlideover
-        v-model:open="painelAberto"
-        title="Nova observação"
-        description="Lance a contagem de uma rua coberta numa faixa horária."
-        side="right"
-        :close="{ color: 'neutral', variant: 'outline', square: true, class: 'size-9 justify-center' }"
-        :ui="{
-          overlay: 'z-40',
-          content: 'z-50 max-w-md bg-elevated ring-default',
-          title: 'text-base font-semibold text-default',
-          description: 'text-xs text-muted',
-        }"
-      >
-        <template #body>
-          <FormularioDeObservacao
-            :chave="chave"
-            :observacoes="observacoes"
-            @registrada="registrada"
-            @chave-incorreta="chaveRecusadaNoPainel"
-          />
-        </template>
-      </USlideover>
-    </template>
+        </USlideover>
+      </div>
+    </Transition>
 
     <!-- Confirmação (UModal), como em Sugestões de rua. -->
     <UModal
