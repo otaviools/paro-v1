@@ -184,18 +184,23 @@ function fecharAviso() {
         </p>
       </UCard>
 
-      <!-- Bloco de dado (design system, "Cards"): título com ícone e linhas separadas por border-default. -->
+      <!--
+        Faixa horária escolhida (referências Redfin e AllTrails): o horário
+        pequeno no topo, a chance em número grande com o selo da faixa de
+        chance ao lado, uma barra com a chance na cor da faixa e a base
+        embaixo. Sem dado: o selo tracejado e a explicação.
+      -->
       <UCard
         v-if="selecionada"
         as="section"
         class="mt-3"
         aria-labelledby="titulo-bloco"
         aria-live="polite"
-        :ui="{ body: 'p-4 sm:p-4 lg:p-6' }"
+        :ui="{ body: 'grid gap-3 p-4 sm:p-4 lg:p-6' }"
       >
         <h2
           id="titulo-bloco"
-          class="flex items-center gap-2 text-base font-semibold tabular-nums"
+          class="flex items-center gap-2 text-sm font-medium text-muted tabular-nums"
         >
           <UIcon
             name="i-lucide-clock"
@@ -205,35 +210,48 @@ function fecharAviso() {
           {{ intervaloDaFaixaHoraria(selecionada.faixaHoraria) }}
         </h2>
 
-        <dl class="mt-2 divide-y divide-default">
-          <div class="flex items-center justify-between gap-3 py-3 text-sm tabular-nums">
-            <dt class="text-xs text-muted">
-              Faixa de chance
-            </dt>
-            <dd class="flex items-center gap-2 text-right font-semibold">
-              <AmostraDeFaixaDeChance :estado="estadoDe(selecionada.estimativa)" />
-              {{ estadoDe(selecionada.estimativa) }}
-            </dd>
+        <template v-if="selecionada.estimativa.tipo === 'chance'">
+          <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+            <p class="text-4xl font-bold leading-none tracking-tight tabular-nums">
+              {{ Math.round(selecionada.estimativa.chance) }}%
+            </p>
+            <span
+              class="inline-flex items-center gap-2 rounded-full px-2.5 py-1 text-sm font-semibold"
+              :style="{ backgroundColor: `color-mix(in oklab, ${corDaFaixaDeChance(selecionada.estimativa.faixaDeChance)} 18%, transparent)` }"
+            >
+              <AmostraDeFaixaDeChance :estado="selecionada.estimativa.faixaDeChance" />
+              {{ selecionada.estimativa.faixaDeChance }}
+            </span>
           </div>
+          <p class="-mt-1 text-sm text-muted">
+            Chance de achar vaga
+          </p>
           <div
-            v-if="selecionada.estimativa.tipo === 'chance'"
-            class="flex items-center justify-between gap-3 py-3 text-sm tabular-nums"
+            class="h-2 overflow-hidden rounded-full bg-accented"
+            aria-hidden="true"
           >
-            <dt class="text-xs text-muted">
-              Chance
-            </dt>
-            <dd class="text-right font-semibold">
-              {{ textoDaChanceComBase(selecionada.estimativa.chance, selecionada.estimativa.base) }}
-            </dd>
+            <div
+              class="h-full rounded-full transition-[width] duration-300 motion-reduce:transition-none"
+              :style="{
+                width: `${Math.max(2, selecionada.estimativa.chance)}%`,
+                backgroundColor: corDaFaixaDeChance(selecionada.estimativa.faixaDeChance),
+              }"
+            />
           </div>
-        </dl>
+          <p class="text-xs text-muted tabular-nums">
+            {{ textoDaChanceComBase(selecionada.estimativa.chance, selecionada.estimativa.base) }}
+          </p>
+        </template>
 
-        <p
-          v-if="selecionada.estimativa.tipo === 'sem-dado'"
-          class="border-t border-default pt-3 text-sm"
-        >
-          Não temos observações suficientes nesta faixa horária
-        </p>
+        <template v-else>
+          <span class="inline-flex w-fit items-center gap-2 rounded-full bg-elevated px-2.5 py-1 text-sm font-semibold">
+            <AmostraDeFaixaDeChance estado="Sem dado" />
+            Sem dado
+          </span>
+          <p class="text-sm">
+            Não temos observações suficientes nesta faixa horária
+          </p>
+        </template>
       </UCard>
 
       <!-- Bloco de dado à parte da chance: dado declarado, não observado (ADR 0009). -->
