@@ -14,11 +14,11 @@ Regras de interface para o app Parô: cores, raios, componentes base e padrões 
 
 As referências do Mobbin entram só como padrão de layout, navegação e comportamento de componente. Nada de marca, logotipo, ilustração, cor ou texto dos apps de referência entra no Parô.
 
-O design system define só **cores e raios** (ADR 0027). As cores ficam nas variáveis do Nuxt UI (`--ui-*`), declaradas em `app/assets/css/main.css`. Os componentes usam as classes semânticas do Tailwind e do Nuxt UI (`bg-default`, `bg-elevated`, `text-muted`, `border-default`, `text-primary`, `bg-inverted`...), nunca o valor hexadecimal direto. Os únicos tokens próprios são os três raios. Tamanhos de texto, espaçamentos, alturas e larguras vêm da escala do Tailwind, escritos como classes nos componentes.
+O design system define só **cores e raios** (ADR 0027). As cores ficam nas variáveis do Nuxt UI (`--ui-*`), declaradas em `app/assets/css/main.css`. Os componentes usam as classes semânticas do Tailwind e do Nuxt UI (`bg-default`, `bg-elevated`, `text-muted`, `border-default`, `text-primary`, `bg-inverted`...), nunca o valor hexadecimal direto. Os tokens próprios são os três raios e as variáveis do vidro (`--vidro-*` e `--vidro-ativo-*`, seção Vidro). Tamanhos de texto, espaçamentos, alturas e larguras vêm da escala do Tailwind, escritos como classes nos componentes.
 
 Os tokens `--paro-*` marcados TEMPORÁRIO no `main.css` são apelidos que as telas ainda não migradas usam. Saem nos tickets de cada tela (#37 a #39). As cores do mapa (`--paro-mapa-*`) ficam, porque o Nuxt UI não tem variável de mapa.
 
-Os ajustes que valem para todo componente do Nuxt UI (raio dos botões, cards, avisos e gavetas; cores do aviso suave; seletor sem sombra) ficam em `app/app.config.ts`, com a lista de qual componente do Nuxt UI faz cada peça do design system.
+Os ajustes que valem para todo componente do Nuxt UI (raio e vidro dos botões, cards, avisos e gavetas; cores do aviso suave; seletor sem sombra) ficam em `app/app.config.ts`, com a lista de qual componente do Nuxt UI faz cada peça do design system.
 
 ## Princípios
 
@@ -26,7 +26,7 @@ Os ajustes que valem para todo componente do Nuxt UI (raio dos botões, cards, a
 2. **Rótulo e cor.** A faixa de chance é comunicada por rótulo textual mais cor: verde, amarelo ou vermelho (ADR 0033). O rótulo aparece sempre junto da cor.
 3. **Cor é escassa.** A interface é quase monocromática. Tons pastel aparecem só em chips ativos, etiquetas, links e avisos. Nenhuma área grande é colorida.
 4. **Noite primeiro.** O uso principal é à noite. O tema escuro é tão completo quanto o claro.
-5. **Vidro nas superfícies.** Cards, linhas de rua coberta, barra de abas, abas de faixa horária e botões de ícone e secundários são vidro: superfície translúcida com desfoque (classe `vidro`, ADR 0034). Avisos e gavetas continuam com fundo sólido. O único degradê é o fundo tingido do Detalhe da rua.
+5. **Vidro nas superfícies.** Cards, linhas de rua coberta, barra de abas, abas de faixa horária e botões são vidro em três camadas (classes `vidro` e `vidro-ativo`, seção Vidro). Avisos e gavetas continuam com fundo sólido. Fora o brilho do vidro, o único degradê é o fundo tingido do Detalhe da rua.
 6. **Uma ação principal por tela**, fixa no rodapé no mobile.
 
 ## Cores
@@ -42,11 +42,11 @@ Os ajustes que valem para todo componente do Nuxt UI (raio dos botões, cards, a
 | `--ui-border`, `--ui-border-muted`, `--ui-border-accented` | `border-default`, `border-muted`, `border-accented` | `#EAEAEA` | `#2C2C2C` | Contorno de cards, campos e separadores |
 | `--ui-text`, `--ui-text-highlighted`, `--ui-text-toned` | `text-default`, `text-highlighted`, `text-toned` | `#2F3437` | `#E8E7E4` | Texto principal; traço dos padrões de faixa de chance |
 | `--ui-text-muted`, `--ui-text-dimmed` | `text-muted`, `text-dimmed` | `#6F6E6A` | `#9B9A97` | Texto secundário, base, distância |
-| `--ui-bg-inverted`, `--ui-border-inverted` | `bg-inverted`, `border-inverted` | `#111111` | `#E8E7E4` | Fundo do botão principal |
-| `--ui-text-inverted` | `text-inverted` | `#FFFFFF` | `#191919` | Texto do botão principal |
-| `--ui-color-neutral-800` | `bg-neutral-800` | `#333333` | `#D6D5D1` | Botão principal pressionado ou com cursor |
+| `--ui-bg-inverted`, `--ui-border-inverted` | `bg-inverted`, `border-inverted` | `#111111` | `#E8E7E4` | Seletor liga/desliga ligado, ponto do carro no mapa |
+| `--ui-text-inverted` | `text-inverted` | `#FFFFFF` | `#191919` | Texto sobre `bg-inverted` |
+| `--ui-color-neutral-800` | `bg-neutral-800` | `#333333` | `#D6D5D1` | Sem uso nos componentes desde o vidro em três camadas |
 | `--ui-primary` | `text-primary`, `ring-primary` | `#1F6C9F` | `#A9D3F2` | Texto sobre o destaque, links, anel de foco |
-| `--ui-color-primary-100` | `bg-primary-100` | `#E1F3FE` | `#1C3446` | Chip ativo, item selecionado, fundo de aviso |
+| `--ui-color-primary-100` | `bg-primary-100` | `#E1F3FE` | `#1C3446` | Opção escolhida no seletor de opção com ícone, fundo de aviso |
 
 `--ui-text-dimmed` recebe o mesmo valor de `--ui-text-muted`: a paleta tem um só tom de texto secundário, e o cinza mais claro do Nuxt UI não passa no AA.
 
@@ -105,16 +105,48 @@ Regras:
 
 ## Raios
 
-Três raios próprios, no `@theme` do `main.css` (ADR 0027). As classes são `rounded-paro-sm`, `rounded-paro-md` e `rounded-paro-lg`.
+Três raios próprios, no `@theme` do `main.css` (ADR 0027). As classes são `rounded-paro-sm`, `rounded-paro-md` e `rounded-paro-lg`. O painel de ajustes visuais (F4) muda `--radius-paro-md` e `--radius-paro-lg` juntos.
 
 | Token | Valor | Onde |
 |---|---|---|
-| `--radius-paro-sm` | 6 px | Amostras de faixa de chance |
-| `--radius-paro-md` | 12 px | Botões, campos, linhas da lista de ruas, avisos, itens de menu |
-| `--radius-paro-lg` | 24 px | Cards, gavetas, barra de abas, painéis |
-| pílula (`rounded-full`) | — | Botões, abas de faixa horária, barra de abas, chips de horário e etiquetas (ADR 0034) |
+| `--radius-paro-sm` | 12 px | Raio pequeno |
+| `--radius-paro-md` | 16 px | Botões, abas de faixa horária, barra de abas, chips de horário, campos, linhas da lista de ruas, avisos, itens de menu |
+| `--radius-paro-lg` | 16 px | Cards, gavetas, painéis |
+| md menos 4 px | 12 px | Item escolhido dentro das abas de faixa horária e da barra de abas, que têm 4 px de folga interna |
 
-Cards nunca são pílula. Botões de ícone são círculos.
+Botões, abas e chips não são pílula, e botões de ícone não são círculo: todos usam `rounded-paro-md`. Ficam em pílula só as etiquetas, como o selo da faixa de chance e a distância a pé. As amostras de faixa de chance têm raio fixo de 3 px (amostra de 12 px) e 6 px (amostra de 32 px). Os quadrados do mapa de calor da chance têm raio de 6 px.
+
+O raio base do Nuxt UI (`--ui-radius`, 8 px) não mudou e não é controlado pelo F4. Componentes do Nuxt UI sem ajuste no `app.config.ts` usam 12 px (`rounded-md`).
+
+## Vidro
+
+Referência: botão de vidro do Figma do Parô, em três camadas. As classes `vidro` e `vidro-ativo` leem variáveis CSS declaradas no `main.css`: `:root` para o tema claro e `.dark` para o escuro. `--vidro-desfoque` vale para os dois temas.
+
+1. **Fundo:** brilho radial branco num canto (`*-brilho`, `*-brilho-x`, `*-brilho-y`) sobre uma cor translúcida (`*-fundo`, `*-fundo-alfa`), com um fio branco de 3% por dentro.
+2. **Borda:** 1 px na cor `*-borda` com opacidade `*-borda-alfa`.
+3. **Sombra de baixo:** sombra interna preta de `*-sombra-altura` com opacidade `*-sombra-alfa`.
+
+O desfoque do que está atrás é de 20 px (`--vidro-desfoque`), com saturação de 180%.
+
+| Variável | `vidro` claro | `vidro` escuro | `vidro-ativo` claro | `vidro-ativo` escuro |
+|---|---|---|---|---|
+| Brilho | 0 | 0,15 | 0,44 | 0,43 |
+| Posição do brilho (x, y) | 24%, 10% | 13,75%, 10% | 80%, 10% | 80%, 10% |
+| Fundo | `230 230 230` a 19% | `28 52 70` a 18% | `19 128 205` a 24% | `133 204 255` a 24% |
+| Borda | `0 170 255` a 0% | `169 211 242` a 0% | `102 194 255` a 0% | `173 221 255` a 0% |
+| Sombra de baixo | 3 px a 3% | 3 px a 60% | 0 px | 0 px |
+| Texto | não se aplica | não se aplica | `#191919` | `#FFFFFF` |
+
+| Classe | Onde |
+|---|---|
+| `vidro` | Cards, linhas de rua coberta, controle das abas de faixa horária, barra de abas, botões de ícone e secundários, chips de horário inativos, carregamento da Área da equipe |
+| `vidro-ativo` | Item escolhido (aba de faixa horária, aba da barra de abas, item do menu lateral do desktop, chip de horário) e botão principal |
+
+O vidro tem uma sombra embaixo. Por isso, nas abas de faixa horária e na barra de abas, a folga de baixo é 4 px mais `--vidro-sombra-altura`, para o item escolhido parecer centralizado.
+
+### Painel de ajustes visuais (F4)
+
+Em desenvolvimento, a tecla F4 abre o componente `DepuradorVisual`, e Esc fecha. Ele muda ao vivo o raio, o desfoque e as camadas de `vidro` e `vidro-ativo`, nos dois temas, e guarda os ajustes no navegador. "Copiar ajustes" gera o bloco de variáveis para colar no `main.css`, e "Restaurar" volta aos valores do `main.css`. O painel não entra no build de produção. Os valores padrão do painel repetem os do `main.css`. Se um mudar, mude o outro.
 
 ## Texto e medidas
 
@@ -159,16 +191,17 @@ Regra de produto das ADRs 0006 e 0033. Sempre rótulo **e** cor. As cores são a
 
 | Variante | Visual | Uso | Referência de layout |
 |---|---|---|---|
-| Principal | Fundo `bg-inverted`, texto `text-inverted`, pílula, 52 px, largura total, fixo no rodapé | Uma por tela: "Registrar vaga", "Saí", "Continuar" | Lime: botão grande fixo no rodapé |
-| Secundário | Vidro (classe `vidro`), borda `border-default`, texto `text-default`, pílula | Ao lado da principal: "Mudar saída" | Lime: dois botões lado a lado |
-| De ícone | Círculo de vidro de 40 px (classe `vidro`) | Controles do mapa, fechar gaveta, compartilhar | Lime e Pangea: botões flutuantes |
+| Principal | Classe `vidro-ativo`, texto `--vidro-ativo-texto`, raio `rounded-paro-md`, 52 px, largura total, fixo no rodapé | Uma por tela: "Registrar vaga", "Saí", "Continuar", "Como chegar" | Lime: botão grande fixo no rodapé |
+| Secundário | Classe `vidro`, texto `text-default`, raio `rounded-paro-md` | Ao lado da principal: "Mudar saída" | Lime: dois botões lado a lado |
+| De ícone | Quadrado de vidro de 40 px (classe `vidro`), raio `rounded-paro-md`, ícone em `text-primary` | Controles do mapa, voltar, fechar gaveta, compartilhar | Lime e Pangea: botões flutuantes; Figma do Parô: botão de vidro |
 | Link | Texto `text-primary`, sem fundo | "Como a chance é calculada", "Cancelar" | Lime: link de cancelar |
 | Destrutivo | Texto `text-error`, sem fundo, sempre com confirmação | "Apagar histórico" | Grok: ação de apagar no fim da lista |
 
 Estados:
 
-- **Pressionado:** fundo `bg-neutral-800` e `transform: scale(0.98)`.
-- **Foco:** anel de 2 px em `--ui-primary`, afastado 2 px.
+- **Com cursor:** brilho de 105%.
+- **Pressionado:** `transform: scale(0.98)`.
+- **Foco:** anel de 2 px em `--ui-primary`, afastado 2 px. Nas abas de faixa horária e na barra de abas, o anel fica colado ao item, com o mesmo raio dele.
 - **Desativado:** evitar. Quando inevitável, opacidade 0,4 e o motivo escrito ao lado.
 - **Carregando:** indicador no lugar do texto, mesma largura.
 
@@ -178,8 +211,8 @@ Alvo de toque mínimo de 44 × 44 px.
 
 | Componente | Visual | Onde |
 |---|---|---|
-| Chips de faixa horária | Pílula de 56 px de altura numa grade de 4 colunas (todas do mesmo tamanho), com o início da faixa em destaque ("21h") e o fim embaixo, menor ("até 21h30"); inativo em `vidro`; ativo na pílula de vidro azul das abas de faixa horária (`#A9D3F2` translúcido) | Saída prevista no registro (referência Waymo) |
-| Abas de faixa horária | `UButton` fantasmas num controle segmentado em pílula de `vidro`, largura total, 48 px de altura; a ativa ganha uma pílula de vidro azul que desliza até ela (`#A9D3F2` translúcido, 60% no claro com texto escuro e 40% no escuro com texto branco, borda fina e brilho de 1 px no topo) | Abas Agora, 18h, 19h e 20h no Início, na barra lateral e no Mapa |
+| Chips de faixa horária | Botão de 56 px de altura, raio `rounded-paro-md`, numa grade de 4 colunas (todas do mesmo tamanho), só com o início da faixa ("21h"); o fim ("até 21h30") fica só para leitores de tela; inativo em `vidro`; ativo em `vidro-ativo` | Saída prevista no registro e rotina de Ajustes (referência Waymo) |
+| Abas de faixa horária | `UButton` fantasmas num controle segmentado de `vidro`, raio `rounded-paro-md`, largura total, 48 px de altura; a ativa ganha um item `vidro-ativo` que desliza até ela em 200 ms | Abas Agora, 18h, 19h e 20h no Início, na barra lateral e no Mapa; período das Métricas da equipe |
 | Seletor de opção com ícone | Botões lado a lado, raio `rounded-paro-md`; o selecionado com fundo `bg-primary-100` e borda de 1,5 px na cor `--ui-primary` | Escolha da rua coberta no registro manual (referência Pangea) |
 | Linha com seletor liga/desliga | Título, parágrafo explicativo em `text-muted` e seletor à direita; ligado em `bg-inverted` | Ajustes: usar localização, forma de colaborar (referência Grok) |
 | Card de escolha única | Card com título e descrição; o escolhido com borda de 1,5 px na cor `--ui-text` | Primeira visita: forma de colaborar |
@@ -194,13 +227,14 @@ Regras:
 
 ### Cards
 
-Todos em vidro (classe `vidro`, ADR 0034), com raio `rounded-paro-lg`; as linhas de rua coberta com `rounded-paro-md`.
+Todos em vidro (classe `vidro`, seção Vidro), com raio `rounded-paro-lg`; as linhas de rua coberta com `rounded-paro-md`.
 
 | Card | Conteúdo | Referência de layout |
 |---|---|---|
 | Melhor chance | Etiqueta "MELHOR CHANCE · 19H" em `text-muted`, nome da rua, amostra de cor com rótulo, base, distância a pé e "Previsão, não garantia."; o card inteiro abre o Detalhe da rua na mesma faixa horária, com seta à direita do nome | Pangea: card de destaque no topo |
 | Linha de rua coberta | Amostra de cor, nome da rua, rótulo e base no subtítulo, distância numa etiqueta à direita; raio `rounded-paro-md` | Pangea: linha com distância; Waymo: valor à direita |
 | Seu registro de vaga | Saída prevista em `text-xl` como título, rua coberta abaixo, linha de ações com ícone e rótulo (Mudar saída, Voltar até o carro) | Waymo: viagem em andamento |
+| Faixa escolhida | No Detalhe da rua: o intervalo da faixa horária em `text-muted` com relógio; a chance em número grande (`text-4xl`) com o selo da faixa de chance ao lado (amostra e rótulo numa pílula tingida com 18% da cor da faixa); "Chance de achar vaga"; uma barra de 8 px preenchida até a chance na cor da faixa; a base embaixo em `text-xs` ("7 de 7 noites · última em 06/11"). Sem dado: selo tracejado "Sem dado" e "Não temos observações suficientes nesta faixa horária" | Redfin e AllTrails: número grande com selo |
 | Bloco de dado | Título com ícone e linhas de dado separadas por `border-default` | Pangea: blocos agrupados no detalhe |
 | Aviso | Fundo do sinal correspondente, texto do mesmo par, ícone, link opcional; raio `rounded-paro-md` | Lime: faixa informativa |
 
@@ -214,15 +248,28 @@ Só no painel desktop e nas telas da equipe. No mobile, toda tabela vira lista d
 - Coluna de faixa de chance sempre com amostra de cor e rótulo.
 - Sem listras alternadas e sem bordas verticais.
 
-### Gráfico de chance por faixa horária
+### Mapa de calor da chance
 
-No detalhe da rua (referência Swarm):
+No Detalhe da rua, "Chance ao longo da noite" é um mapa de calor desenhado com ECharts:
 
-- Uma barra por faixa horária, das 17h às 23h, preenchida com a cor da sua faixa de chance. A altura é a chance; Sem dado aparece como barra baixa com contorno tracejado.
-- A faixa horária selecionada ganha fundo `bg-primary-100` atrás da barra.
-- Exceção ao alvo de toque de 44 px: as 12 barras têm cerca de 25 px de largura no celular, porque não cabem com 44 px em 375 px. O Bloco de dado abaixo do gráfico mostra a faixa horária selecionada por texto.
-- Sem resumo no gráfico: a melhor faixa fica num card próprio logo abaixo ("Melhor faixa", com estrela, a amostra da faixa de chance e o intervalo, como "18h–18h30"; sem nenhuma, "Sem dado a noite toda").
-- Eixo X em `text-xs`, `text-muted`.
+- As colunas são as horas, de 17h a 22h. As duas linhas são a primeira e a segunda meia hora (":00" e ":30"). Cada quadrado é uma faixa horária.
+- Cada quadrado tem a cor da sua faixa de chance, com raio de 6 px e 4 px de folga. Sem dado é um quadrado vazio com contorno tracejado de 1,5 px em `text-default`.
+- Por cima de cada quadrado fica um botão transparente do mesmo tamanho. Tocar ou usar o teclado escolhe a faixa horária. O botão tem o nome acessível e o balão nativo com a faixa, a faixa de chance e a chance ("21h30–22h: Apertado, 57%").
+- A faixa horária escolhida ganha um contorno de 2 px na cor do texto.
+- Os rótulos ":00" e ":30" e os das horas ficam em HTML, em `text-xs` e `text-muted`, alinhados à grade.
+- Embaixo fica a legenda das faixas de chance.
+- A melhor faixa fica num card próprio logo abaixo ("Melhor faixa", com estrela, a amostra da faixa de chance e o intervalo, como "18h–18h30"; sem nenhuma, "Sem dado a noite toda").
+
+### Gráficos da equipe
+
+As Métricas da equipe usam ECharts, uma exceção à ADR 0028:
+
+- As barras verticais usam o dataset do ECharts. "Motoristas por semana" agrupa "Na semana" e "Voltaram" lado a lado, com a legenda do ECharts no topo. "Registros por noite" tem uma barra por noite.
+- Os gráficos verticais têm o controle deslizante de zoom embaixo. Arrastar o gráfico move o trecho, e Ctrl mais a roda do mouse (ou pinça) dá zoom. A roda sozinha rola a página.
+- "Ruas com mais registros" usa barras horizontais com o valor no fim.
+- "Registros por dia e horário" é um mapa de calor no estilo do GitHub: dias da semana nas linhas, faixas horárias nas colunas e 5 tons (vazio e quatro de `--ui-primary`, pelos quartis), com a escala "Menos … Mais".
+- As cores vêm das variáveis do tema, convertidas para rgba pelo `useCoresDoTema`, e mudam com o tema.
+- Os leitores de tela recebem o mesmo conteúdo numa lista ou tabela escondida.
 
 ### Gavetas, avisos flutuantes e carregamento
 
@@ -233,9 +280,10 @@ No detalhe da rua (referência Swarm):
 | Registro sobre o mapa (desktop) | Com um registro de vaga aberto e fora da aba Vaga, card de vidro à esquerda da legenda, com a largura e a altura dela: ponto verde piscando com "Seu registro de vaga", saída prevista, rua, chegada, "Saí" (botão cheio: avisa a saída e encerra o registro, como na aba Vaga) e "Mudar saída" (abre a aba Vaga). Com o painel da direita aberto, fica em cima da legenda. Entra subindo 12 px e aparecendo; sai descendo | Turo: card sobre o mapa |
 | Aviso flutuante | `UToast` em vidro tingido pelo sinal: sucesso com fundo `bg-success-100` translúcido, texto `text-success` e ícone de check; erro com `bg-error-100`, `text-error` e ícone de alerta. Desfoque, borda e sombra suaves, raio `rounded-paro-md`, some em 3 s | Waymo: confirmação |
 | Esqueleto | `USkeleton` em `bg-muted` no formato do conteúdo, com brilho que passa a cada 1,4 s (classe `brilho`) | Google e Finimize: carregamento |
+| Carregamento da Área da equipe | Pílula de `vidro` com o ícone girando e "Carregando…". Aparece enquanto a tela confere a chave guardada na aba e, nas Métricas, por cima dos resultados esmaecidos a cada requisição | Sem referência |
 | Etiqueta sobre o mapa | Fundo `bg-elevated`, borda, ícone de pegadas e a distância em metros em linha reta ("140 m em linha reta"). Sem minutos, porque o Parô não calcula rota (ADR 0020) | Lime: tempo a pé |
 
-O aviso "Dados de demonstração" (ADR 0012) é um botão redondo de 36 px com o ícone de laboratório no sinal `warning` (fundo pastel e ícone na cor do sinal). Fica ao lado do logotipo no Início (barra lateral do desktop e topo do celular) e no topo do Detalhe da rua: no celular, à direita do voltar; no desktop, à esquerda do fechar do painel da direita. O nome acessível diz "Dados de demonstração", e tocar abre um balão com o título e a explicação. No Mapa do celular continua o card Aviso no topo.
+O aviso "Dados de demonstração" (ADR 0012) é um botão de 36 px, raio `rounded-paro-md`, com o ícone de laboratório no sinal `warning` (fundo pastel e ícone na cor do sinal). Fica ao lado do logotipo no Início (barra lateral do desktop e topo do celular) e no topo do Detalhe da rua: no celular, à direita do voltar; no desktop, à esquerda do fechar do painel da direita. O nome acessível diz "Dados de demonstração", e tocar abre um balão com o título e a explicação. No Mapa do celular continua o card Aviso no topo.
 
 ### Fundo tingido
 
@@ -245,7 +293,7 @@ O Detalhe da rua tem um fundo tingido pela cor da faixa de chance da faixa horá
 
 - Entrada de conteúdo: opacidade de 0 a 1 com deslocamento de 8 px, 300 ms, `cubic-bezier(0.16, 1, 0.3, 1)`.
 - Gavetas: 250 ms com a mesma curva.
-- Troca de tela: a tela antiga sai na hora e a nova aparece com esmaecer de 200 ms. No celular, os blocos da tela nova (título, cards, seções) entram em cascata (referências Luma e Airbnb): cada um sobe 12 px e aparece em 360 ms, 40 ms depois do anterior, até o oitavo. O que é fixo (barra de abas, ação principal no rodapé, fundo tingido, mapa) fica parado. A tela nova abre no topo; voltar devolve a rolagem de antes.
+- Troca de tela: a tela antiga sai na hora e a nova aparece com esmaecer de 200 ms. No celular, os blocos da tela nova (título, cards, seções) entram em cascata (referências Luma e Airbnb): cada um sobe 12 px e aparece em 360 ms, 40 ms depois do anterior, até o oitavo. O que é fixo (barra de abas, ação principal no rodapé, fundo tingido, mapa) fica parado. A classe `cascata` aplica a mesma entrada a um bloco que chega depois da tela, como o conteúdo da Área da equipe depois de conferir a chave. A tela nova abre no topo; voltar devolve a rolagem de antes.
 - Só `transform` e `opacity`. Com `prefers-reduced-motion`, sem animação.
 
 ## Ícones
@@ -271,7 +319,7 @@ O Lucide não tem uma pessoa andando; `footprints` (pegadas) é o ícone mais pr
 
 ### Mobile
 
-- **Barra de abas flutuante** (referências Waymo e Luma), em pílula de vidro (classe `vidro`). Quatro abas com ícone e rótulo: Início, Mapa, Minha vaga e Ajustes. A aba ativa ganha fundo `bg-primary-100` em pílula, que desliza até ela em 250 ms, e texto `text-primary`. A barra some em Registrar vaga e na Primeira visita.
+- **Barra de abas flutuante** (referências Waymo e Luma), de vidro (classe `vidro`) com raio `rounded-paro-md`. Quatro abas com ícone e rótulo: Início, Mapa, Minha vaga e Ajustes. A aba ativa ganha um item `vidro-ativo`, que desliza até ela em 250 ms, e texto `text-primary`. A barra some em Registrar vaga e na Primeira visita.
 - **Mapa em tela cheia com gaveta** (referência Lime): botões de ícone flutuam no canto direito; tocar num trecho abre a gaveta de resumo; expandir abre o Detalhe da rua.
 - **Detalhe da rua** abre por cima, com botão de voltar no topo esquerdo.
 - **Ação principal fixa no rodapé** em toda tela que tem uma.
@@ -300,7 +348,7 @@ A partir de 1024 px, o Parô é um painel único de três colunas (referência T
 
 ## Tema escuro
 
-O tema segue o sistema por padrão e pode ser forçado nos Ajustes. Todas as cores têm valor escuro nas tabelas acima. O fundo é um carvão quente (`#191919`), nunca preto puro; o botão principal inverte para claro com texto escuro; os pastéis viram tons profundos com texto claro.
+O tema segue o sistema por padrão e pode ser forçado nos Ajustes. Todas as cores têm valor escuro nas tabelas acima. O fundo é um carvão quente (`#191919`), nunca preto puro. O vidro e o vidro ativo têm valores próprios para o escuro (seção Vidro), e o botão principal fica com o azul translúcido e texto branco. Os pastéis viram tons profundos com texto claro.
 
 ## Logotipo
 
