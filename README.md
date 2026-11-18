@@ -20,7 +20,7 @@ O app é um PWA instalável, sem cadastro e sem login. No desktop, as telas fica
 
 A Área da equipe mostra as métricas de uso em gráficos ECharts.
 
-<img src="docs/imagens/desktop-metricas.png" alt="Métricas da equipe no desktop: números do período, motoristas por semana e registros por noite">
+<img src="docs/imagens/desktop-metricas.png" alt="Métricas da equipe no desktop: aviso de demonstração, números do período, motoristas por semana, registros por noite e registros por dia e horário">
 
 ## Como a chance é calculada
 
