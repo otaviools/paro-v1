@@ -8,9 +8,10 @@
  * Como cada peça do design system vira componente do Nuxt UI:
  *
  * - Botão principal: <UButton color="neutral" size="xl" block> (52 px com h-13), em pílula.
- * - Botão secundário: <UButton color="neutral" variant="outline">, em pílula de vidro.
+ * - Botão secundário: <UButton color="neutral" variant="outline">, botão de vidro
+ *   de raio 12 px (teste da branch teste/botoes-quadrados; antes, pílula de vidro).
  * - Botão de ícone: <UButton color="neutral" variant="outline" square icon="...">,
- *   círculo de vidro (ADR 0034).
+ *   quadrado de vidro de raio 12 px com o ícone em primary (antes, círculo; ADR 0034).
  * - Botão link: <UButton color="primary" variant="link">.
  * - Botão destrutivo: <UButton color="error" variant="link">.
  * - Card: <UCard> (variante outline, a padrão).
@@ -34,20 +35,28 @@ export default defineAppConfig({
     // Botões (design system, "Botões"; ADR 0034): pílula; os de ícone viram círculo.
     button: {
       slots: {
-        base: 'rounded-full font-semibold',
+        base: 'rounded-paro-md font-semibold',
       },
       compoundVariants: [
         {
-          // Principal: pressionado ou com cursor em bg-neutral-800, encolhe 2%.
+          // Principal: vidro ativo (azul mais forte), encolhe 2% ao pressionar (teste/botoes-quadrados).
           color: 'neutral',
           variant: 'solid',
-          class: 'hover:bg-neutral-800 active:bg-neutral-800 active:scale-[0.98]',
+          class: 'vidro-ativo text-(--vidro-ativo-texto)! hover:brightness-105 active:scale-[0.98]',
         },
         {
-          // Secundário e de ícone: vidro (classe `vidro` do main.css; ADR 0034).
+          // Secundário e de ícone: botão de vidro em três camadas, raio de 12 px
+          // (classe `vidro` do main.css; teste da branch teste/botoes-quadrados).
           color: 'neutral',
           variant: 'outline',
           class: 'vidro hover:brightness-105 active:scale-[0.98]',
+        },
+        {
+          // De ícone: o ícone em primary, como no Figma.
+          color: 'neutral',
+          variant: 'outline',
+          square: true,
+          class: 'text-primary',
         },
       ],
     },

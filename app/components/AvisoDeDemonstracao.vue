@@ -21,7 +21,7 @@ defineOptions({ inheritAttrs: false })
       variant="soft"
       icon="i-lucide-flask-conical"
       aria-label="Dados de demonstração: a chance vem de observações fictícias"
-      class="size-9 justify-center rounded-full"
+      class="size-9 justify-center"
       :ui="{ leadingIcon: 'size-4.5' }"
     />
 

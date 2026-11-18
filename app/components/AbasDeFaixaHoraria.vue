@@ -36,7 +36,7 @@ const fundo = computed(() => {
 
 <template>
   <div
-    class="vidro w-full rounded-full p-1"
+    class="vidro w-full rounded-paro-md p-1 pb-[calc(--spacing(1)+var(--vidro-sombra-altura))]"
     role="tablist"
     :aria-label="rotulo ?? 'Faixa horária'"
   >
@@ -44,7 +44,7 @@ const fundo = computed(() => {
     <div class="relative grid auto-cols-fr grid-flow-col">
       <span
         v-if="fundo"
-        class="absolute inset-y-0 rounded-full bg-[#A9D3F2]/60 shadow-[inset_0_0_0_1px_rgb(255_255_255/0.55),inset_0_1px_0_rgb(255_255_255/0.85),0_4px_12px_rgb(31_108_159/0.18)] backdrop-blur-xl backdrop-saturate-180 transition-[left] duration-200 ease-out motion-reduce:transition-none dark:bg-[#A9D3F2]/40 dark:shadow-[inset_0_0_0_1px_rgb(169_211_242/0.4),inset_0_1px_0_rgb(255_255_255/0.3),0_4px_12px_rgb(0_0_0/0.3)]"
+        class="vidro-ativo absolute inset-y-0 rounded-[calc(var(--radius-paro-md)-4px)] transition-[left] duration-200 ease-out motion-reduce:transition-none"
         :style="fundo"
         aria-hidden="true"
       />
@@ -56,7 +56,7 @@ const fundo = computed(() => {
         :aria-controls="controla"
         color="neutral"
         variant="ghost"
-        class="relative h-10 justify-center tabular-nums transition-colors duration-200 hover:bg-transparent active:bg-transparent"
+        class="relative h-10 justify-center rounded-[calc(var(--radius-paro-md)-4px)] tabular-nums transition-colors focus-visible:outline-offset-0 duration-200 hover:bg-transparent active:bg-transparent"
         :class="escolhida === aba.valor ? 'text-[#191919] hover:text-[#191919] dark:text-white dark:hover:text-white' : 'text-default hover:text-highlighted'"
         @click="escolhida = aba.valor"
       >

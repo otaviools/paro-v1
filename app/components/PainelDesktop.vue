@@ -93,7 +93,7 @@ function abrirRua(id: string) {
       aria-label="Navegação principal"
       :ui="{
         list: 'grid gap-1',
-        link: 'gap-3 min-h-11 px-4 py-0 text-sm font-medium text-muted hover:text-default rounded-full before:hidden data-active:text-primary data-active:vidro',
+        link: 'gap-3 min-h-11 px-4 py-0 text-sm font-medium text-muted hover:text-default rounded-paro-md before:hidden data-active:vidro-ativo',
         linkLeadingIcon: 'size-5 text-current group-hover:text-current group-data-active:text-current',
       }"
     />
