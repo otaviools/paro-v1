@@ -13,14 +13,17 @@ const { abas, faixaHoraria, panorama, error, carregando } = usePanoramaDaNoite()
   <main class="mx-auto max-w-160 px-5 py-8 lg:hidden">
     <!--
       Topo: logotipo do Parô (36 px) com o aviso de demonstração (ícone de
-      laboratório) ao lado, à esquerda, e botão de tema à direita.
+      laboratório) ao lado, à esquerda, e os botões do GitHub e de tema à direita.
     -->
     <div class="mb-6 flex items-center justify-between gap-3">
       <div class="flex items-center gap-3">
         <LogoDoParo class="h-9" />
         <AvisoDeDemonstracao v-if="panorama?.demonstracao" />
       </div>
-      <BotaoDeTema />
+      <div class="flex items-center gap-1">
+        <BotaoDoGithub />
+        <BotaoDeTema />
+      </div>
     </div>
 
     <h1 class="text-2xl font-bold leading-tight tracking-tight">

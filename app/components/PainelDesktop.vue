@@ -82,7 +82,10 @@ function abrirRua(id: string) {
         <LogoDoParo class="h-9" />
         <AvisoDeDemonstracao v-if="panorama?.demonstracao" />
       </div>
-      <BotaoDeTema />
+      <div class="flex items-center gap-1">
+        <BotaoDoGithub />
+        <BotaoDeTema />
+      </div>
     </template>
 
     <!-- Item ativo em pílula de vidro (ADR 0034), como as abas de faixa horária. -->
