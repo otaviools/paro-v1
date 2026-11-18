@@ -82,7 +82,10 @@ function abrirRua(id: string) {
         <LogoDoParo class="h-9" />
         <AvisoDeDemonstracao v-if="panorama?.demonstracao" />
       </div>
-      <BotaoDeTema />
+      <div class="flex items-center gap-1">
+        <BotaoDoGithub />
+        <BotaoDeTema />
+      </div>
     </template>
 
     <!-- Item ativo em pílula de vidro (ADR 0034), como as abas de faixa horária. -->
@@ -93,7 +96,7 @@ function abrirRua(id: string) {
       aria-label="Navegação principal"
       :ui="{
         list: 'grid gap-1',
-        link: 'gap-3 min-h-11 px-4 py-0 text-sm font-medium text-muted hover:text-default rounded-paro-md before:hidden data-active:vidro-ativo',
+        link: 'gap-3 min-h-11 px-4 py-0 text-sm font-medium text-muted hover:text-default rounded-paro-md before:hidden data-active:vidro-escolhido',
         linkLeadingIcon: 'size-5 text-current group-hover:text-current group-data-active:text-current',
       }"
     />

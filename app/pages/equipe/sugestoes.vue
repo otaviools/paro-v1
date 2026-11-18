@@ -1,39 +1,19 @@
 <!--
   Tela da equipe: lê e apaga as sugestões de rua (ADRs 0013 e 0021; design
-  system, "Formulários › Campo de texto" e "Tabelas"). Sem conta: a chave da
-  equipe é digitada aqui, vai no cabeçalho Authorization e fica só nesta aba
-  do navegador (sessionStorage), nunca na URL nem no servidor. Cada sugestão
-  é apagada pela equipe depois de lida, sempre com confirmação.
+  system, "Formulários › Campo de texto" e "Tabelas"). É uma aba da Área da
+  equipe (TopoDaEquipe), ao lado de Observações e Métricas, com a mesma
+  chave (useChaveDaEquipe): vai no cabeçalho Authorization e fica só nesta
+  aba do navegador (sessionStorage), nunca na URL nem no servidor. Cada
+  sugestão é apagada pela equipe depois de lida, sempre com confirmação.
 -->
 <script setup lang="ts">
 import type { TableColumn } from '@nuxt/ui'
 
 definePageMeta({ semBarraDeAbas: true, foraDoPainelDesktop: true })
-useHead({ title: 'Sugestões de rua · Parô', meta: [{ name: 'robots', content: 'noindex' }] })
+useHead({ title: 'Sugestões | Parô', meta: [{ name: 'robots', content: 'noindex' }] })
 
-/** Onde a chave fica enquanto a aba estiver aberta. */
-const CHAVE_NA_SESSAO = 'paro:chave-da-equipe'
+const { lerChaveDaSessao, guardarChaveNaSessao } = useChaveDaEquipe()
 
-function lerChaveDaSessao(): string | null {
-  try {
-    return sessionStorage.getItem(CHAVE_NA_SESSAO)
-  }
-  catch {
-    return null
-  }
-}
-
-function guardarChaveNaSessao(valor: string | null) {
-  try {
-    if (valor === null) sessionStorage.removeItem(CHAVE_NA_SESSAO)
-    else sessionStorage.setItem(CHAVE_NA_SESSAO, valor)
-  }
-  catch {
-    // Sem sessionStorage (navegação privada restrita): a chave fica só na memória desta tela.
-  }
-}
-
-const digitada = ref('')
 /** Chave aceita pelo servidor; enquanto for null, a tela pede a chave. */
 const chave = ref<string | null>(null)
 const sugestoes = ref<SugestaoDeRua[]>([])
@@ -60,25 +40,23 @@ async function carregar(valor: string) {
     sugestoes.value = resultado.sugestoes
     chave.value = valor
     guardarChaveNaSessao(valor)
-    digitada.value = ''
   }
   else if (resultado.tipo === 'chave-incorreta') sair('Chave da equipe incorreta.')
   else if (chave.value) erroDaLista.value = 'Não foi possível carregar. Tente de novo.'
   else erroDaChave.value = 'Não foi possível carregar. Tente de novo.'
 }
 
-function entrar() {
-  const valor = digitada.value.trim()
-  if (!valor) {
-    erroDaChave.value = 'Digite a chave da equipe.'
-    return
-  }
-  carregar(valor)
-}
+/**
+ * Até ler a chave guardada na aba (só no navegador) e, se houver, carregar
+ * com ela, a tela mostra só o carregamento, sem o formulário da chave: assim
+ * trocar de aba na Área da equipe não pisca o formulário.
+ */
+const retomando = ref(true)
 
-onMounted(() => {
+onMounted(async () => {
   const guardada = lerChaveDaSessao()
-  if (guardada) carregar(guardada)
+  if (guardada) await carregar(guardada)
+  retomando.value = false
 })
 
 // --- Apagar depois de ler (ADR 0021) --------------------------------------------
@@ -141,7 +119,13 @@ function dataCompleta(data: string) {
 </script>
 
 <template>
-  <main class="mx-auto max-w-160 px-5 py-8 lg:px-8">
+  <main
+    class="mx-auto max-w-160 px-5 pt-4 pb-8 lg:px-8 lg:pt-8"
+    :class="chave ? 'lg:max-w-6xl' : 'lg:max-w-md'"
+  >
+    <!-- Voltar e abas da Área da equipe (Observações, Sugestões e Métricas). -->
+    <TopoDaEquipe />
+
     <h1 class="text-2xl font-bold leading-tight tracking-tight">
       Sugestões de rua
     </h1>
@@ -150,142 +134,117 @@ function dataCompleta(data: string) {
       depois de ler: é texto livre e pode conter dado pessoal.
     </p>
 
-    <UCard
-      v-if="!chave"
-      as="form"
-      class="mt-8"
-      novalidate
-      :ui="{ body: 'grid gap-4' }"
-      @submit.prevent="entrar"
+    <!--
+      Carregamento, chave ou lista: cada um entra com a transição das telas
+      (classes "pagina" do main.css), como em Observações e Métricas.
+    -->
+    <Transition
+      name="pagina"
+      :duration="{ enter: 700, leave: 0 }"
     >
-      <!-- Rótulo sempre visível; a nota fica entre o rótulo e o campo, e o erro abaixo do campo. -->
-      <UFormField
-        label="Chave da equipe"
-        description="Fica só nesta aba do navegador e some ao fechá-la."
-        :error="erroDaChave ?? false"
-        size="lg"
-        :ui="{ label: 'font-semibold', description: 'text-xs', container: 'mt-2', error: 'text-xs font-medium' }"
-      >
-        <UInput
-          v-model="digitada"
-          type="password"
-          autocomplete="off"
-          class="w-full"
-          :ui="{ base: 'h-12 rounded-paro-md bg-elevated text-sm lg:h-10' }"
-        />
-        <template #error="{ error: mensagem }">
-          <span
-            class="flex items-center gap-2"
-            role="alert"
-          >
-            <UIcon
-              name="i-lucide-circle-alert"
-              class="size-4 shrink-0"
-              aria-hidden="true"
-            />
-            {{ mensagem }}
-          </span>
-        </template>
-      </UFormField>
-
-      <UButton
-        type="submit"
-        color="neutral"
-        size="xl"
-        block
-        class="h-13 text-lg lg:h-11"
-        :loading="carregando"
-        :label="carregando ? undefined : 'Ver sugestões'"
-        :aria-label="carregando ? 'Carregando' : undefined"
-        :aria-busy="carregando"
+      <CarregandoDaEquipe
+        v-if="retomando"
+        key="carregando"
+        class="mt-16"
       />
-    </UCard>
 
-    <section
-      v-else
-      class="mt-8 grid gap-3"
-      aria-labelledby="titulo-lista"
-    >
-      <div class="flex flex-wrap items-center justify-between gap-2">
-        <h2
-          id="titulo-lista"
-          class="text-xs font-semibold uppercase tracking-wider text-muted"
-        >
-          {{ sugestoes.length === 1 ? '1 sugestão' : `${sugestoes.length} sugestões` }}
-        </h2>
-        <div class="flex gap-4">
-          <UButton
-            color="primary"
-            variant="link"
-            icon="i-lucide-refresh-cw"
-            label="Atualizar"
-            class="min-h-11 px-0 text-sm"
-            :aria-busy="carregando"
-            @click="carregar(chave)"
-          />
-          <UButton
-            color="primary"
-            variant="link"
-            icon="i-lucide-log-out"
-            label="Sair"
-            class="min-h-11 px-0 text-sm"
-            @click="sair()"
-          />
-        </div>
-      </div>
+      <ChaveDaEquipe
+        v-else-if="!chave"
+        key="chave"
+        class="mt-8"
+        acao="Ver sugestões"
+        :carregando="carregando"
+        :erro="erroDaChave"
+        @entrar="carregar"
+      />
 
-      <p
-        v-if="erroDaLista"
-        class="flex items-center gap-2 text-xs font-medium text-error"
-        role="alert"
-      >
-        <UIcon
-          name="i-lucide-circle-alert"
-          class="size-4 shrink-0"
-          aria-hidden="true"
-        />
-        {{ erroDaLista }}
-      </p>
-
-      <p
-        v-if="sugestoes.length === 0"
-        class="py-4 text-sm text-muted"
-      >
-        Nenhuma sugestão de rua para ler.
-      </p>
-
-      <UTable
+      <section
         v-else
-        :data="sugestoes"
-        :columns="colunas"
-        :ui="{
-          root: 'overflow-visible',
-          thead: 'max-lg:sr-only',
-          tbody: 'divide-y-0 max-lg:block',
-          tr: 'border-b border-default max-lg:grid max-lg:grid-cols-[minmax(0,1fr)_auto] max-lg:items-center max-lg:gap-x-3 max-lg:py-3',
-          th: 'ps-0 pe-3 pt-0 pb-2 text-xs font-semibold uppercase tracking-wider text-muted',
-          td: 'h-12 py-2 ps-0 pe-3 align-middle text-sm max-lg:h-auto max-lg:p-0',
-        }"
+        key="lista"
+        class="cascata mt-8 grid gap-3"
+        aria-labelledby="titulo-lista"
       >
-        <template #data-cell="{ row }">
-          {{ dataCompleta(row.original.data) }}
-        </template>
-        <template #acao-header>
-          <span class="sr-only">Ação</span>
-        </template>
-        <template #acao-cell="{ row }">
-          <UButton
-            color="error"
-            variant="link"
-            icon="i-lucide-trash-2"
-            label="Apagar"
-            aria-haspopup="dialog"
-            class="min-h-11 px-0 text-sm"
-            @click="pedirConfirmacao(row.original)"
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <h2
+            id="titulo-lista"
+            class="text-xs font-semibold uppercase tracking-wider text-muted"
+          >
+            {{ sugestoes.length === 1 ? '1 sugestão' : `${sugestoes.length} sugestões` }}
+          </h2>
+          <div class="flex gap-4">
+            <UButton
+              color="primary"
+              variant="link"
+              icon="i-lucide-refresh-cw"
+              label="Atualizar"
+              class="min-h-11 px-0 text-sm"
+              :aria-busy="carregando"
+              @click="carregar(chave)"
+            />
+            <UButton
+              color="primary"
+              variant="link"
+              icon="i-lucide-log-out"
+              label="Sair"
+              class="min-h-11 px-0 text-sm"
+              @click="sair()"
+            />
+          </div>
+        </div>
+
+        <p
+          v-if="erroDaLista"
+          class="flex items-center gap-2 text-xs font-medium text-error"
+          role="alert"
+        >
+          <UIcon
+            name="i-lucide-circle-alert"
+            class="size-4 shrink-0"
+            aria-hidden="true"
           />
-        </template>
-      </UTable>
-    </section>
+          {{ erroDaLista }}
+        </p>
+
+        <p
+          v-if="sugestoes.length === 0"
+          class="py-4 text-sm text-muted"
+        >
+          Nenhuma sugestão de rua para ler.
+        </p>
+
+        <UTable
+          v-else
+          :data="sugestoes"
+          :columns="colunas"
+          :ui="{
+            root: 'overflow-visible',
+            thead: 'max-lg:sr-only',
+            tbody: 'divide-y-0 max-lg:block',
+            tr: 'border-b border-default max-lg:grid max-lg:grid-cols-[minmax(0,1fr)_auto] max-lg:items-center max-lg:gap-x-3 max-lg:py-3',
+            th: 'ps-0 pe-3 pt-0 pb-2 text-xs font-semibold uppercase tracking-wider text-muted',
+            td: 'h-12 py-2 ps-0 pe-3 align-middle text-sm max-lg:h-auto max-lg:p-0',
+          }"
+        >
+          <template #data-cell="{ row }">
+            {{ dataCompleta(row.original.data) }}
+          </template>
+          <template #acao-header>
+            <span class="sr-only">Ação</span>
+          </template>
+          <template #acao-cell="{ row }">
+            <UButton
+              color="error"
+              variant="link"
+              icon="i-lucide-trash-2"
+              label="Apagar"
+              aria-haspopup="dialog"
+              class="min-h-11 px-0 text-sm"
+              @click="pedirConfirmacao(row.original)"
+            />
+          </template>
+        </UTable>
+      </section>
+    </Transition>
 
     <!-- Confirmação (UModal), como em Ajustes. -->
     <UModal

@@ -1,12 +1,12 @@
 <!--
-  Formulário da chave da equipe (Área da equipe: Observações e Métricas).
+  Formulário da chave da equipe (Área da equipe: Observações, Sugestões e Métricas).
   A chave é digitada aqui e a tela que o usa confere com o servidor; enquanto
   confere, o botão fica carregando.
 
   Interface:
   - prop `carregando`: o servidor está conferindo a chave.
   - prop `erro`: mensagem embaixo do campo ("Chave da equipe incorreta."), ou null.
-  - prop `acao`: texto do botão ("Ver observações", "Ver métricas").
+  - prop `acao`: texto do botão ("Ver observações", "Ver sugestões", "Ver métricas").
   - evento `entrar(chave)`: a chave digitada, sem espaços nas pontas. Vazia
     não emite: o próprio formulário pede para digitar.
 -->

@@ -145,7 +145,10 @@ function comecar() {
         <!-- No desktop, o logotipo fica na coluna da esquerda: aqui sobra só o botão de tema. -->
         <div class="mb-8 flex items-center justify-between gap-3 lg:absolute lg:top-8 lg:right-8 lg:mb-0">
           <LogoDoParo class="h-9 lg:hidden" />
-          <BotaoDeTema />
+          <div class="flex items-center gap-1">
+            <BotaoDoGithub />
+            <BotaoDeTema />
+          </div>
         </div>
 
         <section

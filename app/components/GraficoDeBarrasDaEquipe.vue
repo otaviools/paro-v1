@@ -59,10 +59,14 @@ const comParte = computed(() => props.barras.some(b => b.parte !== undefined))
 /** Espaço da legenda no topo, quando há `parte`. */
 const ALTURA_DA_LEGENDA = 32
 
-/** Altura: fixa no vertical (com o controle de zoom embaixo e a legenda); no horizontal, 36 px por item. */
+/**
+ * Altura: no vertical, a mesma com ou sem legenda, para o controle de zoom
+ * ficar na mesma linha em gráficos lado a lado (sem legenda, as barras
+ * ganham o espaço dela); no horizontal, 36 px por item.
+ */
 const altura = computed(() => {
   if (props.horizontal) return `${Math.max(1, props.barras.length) * 36 + 8}px`
-  return `${232 + (comParte.value ? ALTURA_DA_LEGENDA : 0)}px`
+  return `${232 + ALTURA_DA_LEGENDA}px`
 })
 
 const opcao = computed<EChartsOption>(() => {
