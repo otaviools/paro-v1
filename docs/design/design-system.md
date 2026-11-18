@@ -14,7 +14,7 @@ Regras de interface para o app Parô: cores, raios, componentes base e padrões 
 
 As referências do Mobbin entram só como padrão de layout, navegação e comportamento de componente. Nada de marca, logotipo, ilustração, cor ou texto dos apps de referência entra no Parô.
 
-O design system define só **cores e raios** (ADR 0027). As cores ficam nas variáveis do Nuxt UI (`--ui-*`), declaradas em `app/assets/css/main.css`. Os componentes usam as classes semânticas do Tailwind e do Nuxt UI (`bg-default`, `bg-elevated`, `text-muted`, `border-default`, `text-primary`, `bg-inverted`...), nunca o valor hexadecimal direto. Os tokens próprios são os três raios e as variáveis do vidro (`--vidro-*` e `--vidro-ativo-*`, seção Vidro). Tamanhos de texto, espaçamentos, alturas e larguras vêm da escala do Tailwind, escritos como classes nos componentes.
+O design system define só **cores e raios** (ADR 0027). As cores ficam nas variáveis do Nuxt UI (`--ui-*`), declaradas em `app/assets/css/main.css`. Os componentes usam as classes semânticas do Tailwind e do Nuxt UI (`bg-default`, `bg-elevated`, `text-muted`, `border-default`, `text-primary`, `bg-inverted`...), nunca o valor hexadecimal direto. Os tokens próprios são os três raios e as variáveis do vidro (`--vidro-*`, `--vidro-escolhido-*` e `--vidro-ativo-*`, seção Vidro). Tamanhos de texto, espaçamentos, alturas e larguras vêm da escala do Tailwind, escritos como classes nos componentes.
 
 Os tokens `--paro-*` marcados TEMPORÁRIO no `main.css` são apelidos que as telas ainda não migradas usam. Saem nos tickets de cada tela (#37 a #39). As cores do mapa (`--paro-mapa-*`) ficam, porque o Nuxt UI não tem variável de mapa.
 
@@ -26,7 +26,7 @@ Os ajustes que valem para todo componente do Nuxt UI (raio e vidro dos botões, 
 2. **Rótulo e cor.** A faixa de chance é comunicada por rótulo textual mais cor: verde, amarelo ou vermelho (ADR 0033). O rótulo aparece sempre junto da cor.
 3. **Cor é escassa.** A interface é quase monocromática. Tons pastel aparecem só em chips ativos, etiquetas, links e avisos. Nenhuma área grande é colorida.
 4. **Noite primeiro.** O uso principal é à noite. O tema escuro é tão completo quanto o claro.
-5. **Vidro nas superfícies.** Cards, linhas de rua coberta, barra de abas, abas de faixa horária e botões são vidro em três camadas (classes `vidro` e `vidro-ativo`, seção Vidro). Avisos e gavetas continuam com fundo sólido. Fora o brilho do vidro, o único degradê é o fundo tingido do Detalhe da rua.
+5. **Vidro nas superfícies.** Cards, linhas de rua coberta, barra de abas, abas de faixa horária e botões são vidro Solid Glass (classes `vidro`, `vidro-escolhido` e `vidro-ativo`, seção Vidro). Avisos e gavetas continuam com fundo sólido. O único degradê é o fundo tingido do Detalhe da rua.
 6. **Uma ação principal por tela**, fixa no rodapé no mobile.
 
 ## Cores
@@ -44,7 +44,7 @@ Os ajustes que valem para todo componente do Nuxt UI (raio e vidro dos botões, 
 | `--ui-text-muted`, `--ui-text-dimmed` | `text-muted`, `text-dimmed` | `#6F6E6A` | `#9B9A97` | Texto secundário, base, distância |
 | `--ui-bg-inverted`, `--ui-border-inverted` | `bg-inverted`, `border-inverted` | `#111111` | `#E8E7E4` | Seletor liga/desliga ligado, ponto do carro no mapa |
 | `--ui-text-inverted` | `text-inverted` | `#FFFFFF` | `#191919` | Texto sobre `bg-inverted` |
-| `--ui-color-neutral-800` | `bg-neutral-800` | `#333333` | `#D6D5D1` | Sem uso nos componentes desde o vidro em três camadas |
+| `--ui-color-neutral-800` | `bg-neutral-800` | `#333333` | `#D6D5D1` | Sem uso nos componentes desde o vidro |
 | `--ui-primary` | `text-primary`, `ring-primary` | `#1F6C9F` | `#A9D3F2` | Texto sobre o destaque, links, anel de foco |
 | `--ui-color-primary-100` | `bg-primary-100` | `#E1F3FE` | `#1C3446` | Opção escolhida no seletor de opção com ícone, fundo de aviso |
 
@@ -120,33 +120,31 @@ O raio base do Nuxt UI (`--ui-radius`, 8 px) não mudou e não é controlado pel
 
 ## Vidro
 
-Referência: botão de vidro do Figma do Parô, em três camadas. As classes `vidro` e `vidro-ativo` leem variáveis CSS declaradas no `main.css`: `:root` para o tema claro e `.dark` para o escuro. `--vidro-desfoque` vale para os dois temas.
+Referência: [Solid Glass](https://github.com/deeplethe/solid-glass) (opção C: o acabamento dele com o azul do Parô). O acabamento fica na borda do vidro e o rosto é uma cor lisa, sem degradê. As classes `vidro`, `vidro-escolhido` e `vidro-ativo` leem variáveis CSS declaradas no `main.css`: `:root` para o tema claro e `.dark` para o escuro. As cores ficam em canais (`R G B`) e alfas separados.
 
-1. **Fundo:** brilho radial branco num canto (`*-brilho`, `*-brilho-x`, `*-brilho-y`) sobre uma cor translúcida (`*-fundo`, `*-fundo-alfa`), com um fio branco de 3% por dentro.
-2. **Borda:** 1 px na cor `*-borda` com opacidade `*-borda-alfa`.
-3. **Sombra de baixo:** sombra interna preta de `*-sombra-altura` com opacidade `*-sombra-alfa`.
+1. **Fundo:** cor translúcida (`*-fundo`, `*-fundo-alfa`) com desfoque de 26 px (`--vidro-desfoque`). A saturação é de 180% no claro e de 100% no escuro (`--vidro-saturacao`), para o vidro escuro ficar cinza neutro.
+2. **Luz:** linha branca de 1 px no topo (`*-luz-alfa`). No `vidro`, mais um fio branco por dentro (`--vidro-dentro-alfa`).
+3. **Contorno:** 1 px na cor `*-contorno` com opacidade `*-contorno-alfa`. No `vidro` fica por fora; no `vidro-escolhido`, por dentro; no `vidro-ativo`, é só a linha de sombra da base.
+4. **Sombra por baixo:** macia e puxada para baixo, na cor `--vidro-sombra` com opacidade `*-sombra-alfa`. O `vidro-escolhido` não tem.
 
-O desfoque do que está atrás é de 20 px (`--vidro-desfoque`), com saturação de 180%.
-
-| Variável | `vidro` claro | `vidro` escuro | `vidro-ativo` claro | `vidro-ativo` escuro |
-|---|---|---|---|---|
-| Brilho | 0 | 0,15 | 0,44 | 0,43 |
-| Posição do brilho (x, y) | 24%, 10% | 13,75%, 10% | 80%, 10% | 80%, 10% |
-| Fundo | `230 230 230` a 19% | `28 52 70` a 18% | `19 128 205` a 24% | `133 204 255` a 24% |
-| Borda | `0 170 255` a 0% | `169 211 242` a 0% | `102 194 255` a 0% | `173 221 255` a 0% |
-| Sombra de baixo | 3 px a 3% | 3 px a 60% | 0 px | 0 px |
-| Texto | não se aplica | não se aplica | `#191919` | `#FFFFFF` |
+| Variável | `vidro` claro | `vidro` escuro | `vidro-escolhido` claro | `vidro-escolhido` escuro | `vidro-ativo` claro | `vidro-ativo` escuro |
+|---|---|---|---|---|---|---|
+| Fundo | `248 249 251` a 60% | `48 48 48` a 46% | `31 108 159` a 10% | `169 211 242` a 12% | `31 108 159` a 90% | `169 211 242` a 90% |
+| Luz no topo | 90% | 16% | 85% | 22% | 30% | 100% |
+| Fio por dentro | 35% | 4% | não se aplica | não se aplica | não se aplica | não se aplica |
+| Contorno | `62 68 82` a 10% | `255 255 255` a 6% | `31 108 159` a 18% | `169 211 242` a 14% | base `0 0 0` a 40% | base `0 0 0` a 22% |
+| Sombra por baixo | `33 44 74` a 28% | `0 0 0` a 60% | sem sombra | sem sombra | 28% | 60% |
+| Texto | não se aplica | não se aplica | `#1F6C9F` | `#A9D3F2` | `#FFFFFF` | `#10283A` |
 
 | Classe | Onde |
 |---|---|
 | `vidro` | Cards, linhas de rua coberta, controle das abas de faixa horária, barra de abas, botões de ícone e secundários, chips de horário inativos, carregamento da Área da equipe |
-| `vidro-ativo` | Item escolhido (aba de faixa horária, aba da barra de abas, item do menu lateral do desktop, chip de horário) e botão principal |
-
-O vidro tem uma sombra embaixo. Por isso, nas abas de faixa horária e na barra de abas, a folga de baixo é 4 px mais `--vidro-sombra-altura`, para o item escolhido parecer centralizado.
+| `vidro-escolhido` | Item escolhido: aba de faixa horária, aba da barra de abas, item do menu lateral do desktop, chip de horário |
+| `vidro-ativo` | Botão principal |
 
 ### Painel de ajustes visuais (F4)
 
-Em desenvolvimento, a tecla F4 abre o componente `DepuradorVisual`, e Esc fecha. Ele muda ao vivo o raio, o desfoque e as camadas de `vidro` e `vidro-ativo`, nos dois temas, e guarda os ajustes no navegador. "Copiar ajustes" gera o bloco de variáveis para colar no `main.css`, e "Restaurar" volta aos valores do `main.css`. O painel não entra no build de produção. Os valores padrão do painel repetem os do `main.css`. Se um mudar, mude o outro.
+Em desenvolvimento, a tecla F4 abre o componente `DepuradorVisual`, e Esc fecha. Ele muda ao vivo o raio, o desfoque e as camadas de `vidro`, `vidro-escolhido` e `vidro-ativo`, nos dois temas, e guarda os ajustes no navegador. "Copiar ajustes" gera o bloco de variáveis para colar no `main.css`, e "Restaurar" volta aos valores do `main.css`. O painel não entra no build de produção. Os valores padrão do painel repetem os do `main.css`. Se um mudar, mude o outro.
 
 ## Texto e medidas
 
@@ -211,8 +209,8 @@ Alvo de toque mínimo de 44 × 44 px.
 
 | Componente | Visual | Onde |
 |---|---|---|
-| Chips de faixa horária | Botão de 56 px de altura, raio `rounded-paro-md`, numa grade de 4 colunas (todas do mesmo tamanho), só com o início da faixa ("21h"); o fim ("até 21h30") fica só para leitores de tela; inativo em `vidro`; ativo em `vidro-ativo` | Saída prevista no registro e rotina de Ajustes (referência Waymo) |
-| Abas de faixa horária | `UButton` fantasmas num controle segmentado de `vidro`, raio `rounded-paro-md`, largura total, 48 px de altura; a ativa ganha um item `vidro-ativo` que desliza até ela em 200 ms | Abas Agora, 18h, 19h e 20h no Início, na barra lateral e no Mapa; período das Métricas da equipe |
+| Chips de faixa horária | Botão de 56 px de altura, raio `rounded-paro-md`, numa grade de 4 colunas (todas do mesmo tamanho), só com o início da faixa ("21h"); o fim ("até 21h30") fica só para leitores de tela; inativo em `vidro`; ativo em `vidro-escolhido` | Saída prevista no registro e rotina de Ajustes (referência Waymo) |
+| Abas de faixa horária | `UButton` fantasmas num controle segmentado de `vidro`, raio `rounded-paro-md`, largura total, 48 px de altura; a ativa ganha um item `vidro-escolhido` que desliza até ela em 200 ms | Abas Agora, 18h, 19h e 20h no Início, na barra lateral e no Mapa; período das Métricas da equipe |
 | Seletor de opção com ícone | Botões lado a lado, raio `rounded-paro-md`; o selecionado com fundo `bg-primary-100` e borda de 1,5 px na cor `--ui-primary` | Escolha da rua coberta no registro manual (referência Pangea) |
 | Linha com seletor liga/desliga | Título, parágrafo explicativo em `text-muted` e seletor à direita; ligado em `bg-inverted` | Ajustes: usar localização, forma de colaborar (referência Grok) |
 | Card de escolha única | Card com título e descrição; o escolhido com borda de 1,5 px na cor `--ui-text` | Primeira visita: forma de colaborar |
@@ -319,7 +317,7 @@ O Lucide não tem uma pessoa andando; `footprints` (pegadas) é o ícone mais pr
 
 ### Mobile
 
-- **Barra de abas flutuante** (referências Waymo e Luma), de vidro (classe `vidro`) com raio `rounded-paro-md`. Quatro abas com ícone e rótulo: Início, Mapa, Minha vaga e Ajustes. A aba ativa ganha um item `vidro-ativo`, que desliza até ela em 250 ms, e texto `text-primary`. A barra some em Registrar vaga e na Primeira visita.
+- **Barra de abas flutuante** (referências Waymo e Luma), de vidro (classe `vidro`) com raio `rounded-paro-md`. Quatro abas com ícone e rótulo: Início, Mapa, Minha vaga e Ajustes. A aba ativa ganha um item `vidro-escolhido`, que desliza até ela em 250 ms, e texto `text-primary`. A barra some em Registrar vaga e na Primeira visita.
 - **Mapa em tela cheia com gaveta** (referência Lime): botões de ícone flutuam no canto direito; tocar num trecho abre a gaveta de resumo; expandir abre o Detalhe da rua.
 - **Detalhe da rua** abre por cima, com botão de voltar no topo esquerdo.
 - **Ação principal fixa no rodapé** em toda tela que tem uma.
@@ -348,7 +346,7 @@ A partir de 1024 px, o Parô é um painel único de três colunas (referência T
 
 ## Tema escuro
 
-O tema segue o sistema por padrão e pode ser forçado nos Ajustes. Todas as cores têm valor escuro nas tabelas acima. O fundo é um carvão quente (`#191919`), nunca preto puro. O vidro e o vidro ativo têm valores próprios para o escuro (seção Vidro), e o botão principal fica com o azul translúcido e texto branco. Os pastéis viram tons profundos com texto claro.
+O tema segue o sistema por padrão e pode ser forçado nos Ajustes. Todas as cores têm valor escuro nas tabelas acima. O fundo é um carvão quente (`#191919`), nunca preto puro. Os três vidros têm valores próprios para o escuro (seção Vidro): o vidro fica cinza neutro, e o botão principal fica azul claro com texto azul-escuro. Os pastéis viram tons profundos com texto claro.
 
 ## Logotipo
 

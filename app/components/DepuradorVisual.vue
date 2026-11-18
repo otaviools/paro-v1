@@ -1,9 +1,10 @@
 <!--
   Painel de ajustes visuais (só em desenvolvimento): F4 abre e fecha; Esc
-  fecha. Mexe ao vivo nas variáveis do vidro em três camadas (--vidro-* e
-  --vidro-ativo-* do main.css) e no raio (--radius-paro-md e -lg), nos temas
-  claro e escuro, para o vidro normal (cards, abas, botões de ícone e
-  secundários) e o ativo (item escolhido e botão principal).
+  fecha. Mexe ao vivo nas variáveis do vidro Solid Glass (--vidro-*,
+  --vidro-escolhido-* e --vidro-ativo-* do main.css) e no raio
+  (--radius-paro-md e -lg), nos temas claro e escuro, para o vidro normal
+  (cards, abas, botões de ícone e secundários), o escolhido (aba, chip e item
+  de menu escolhidos) e o ativo (botão principal).
 
   Como funciona: os valores vivem aqui, por tema, e viram um <style> no
   <head> com o mesmo formato do main.css (:root e .dark), que vence o
@@ -16,18 +17,19 @@
 -->
 <script setup lang="ts">
 type Tema = 'claro' | 'escuro'
-type Variante = 'normal' | 'ativo'
+type Variante = 'normal' | 'escolhido' | 'ativo'
 
+/**
+ * Camadas de uma variante. `sombraAlfa` é a sombra por baixo (o escolhido não
+ * tem); no ativo, `contorno` é a linha de sombra da base.
+ */
 interface Camadas {
-  brilho: number
-  brilhoX: number
-  brilhoY: number
   fundo: string
   fundoAlfa: number
-  borda: string
-  bordaAlfa: number
-  sombraAltura: number
-  sombraAlfa: number
+  luzAlfa: number
+  contorno: string
+  contornoAlfa: number
+  sombraAlfa?: number
 }
 
 interface Ajustes {
@@ -38,20 +40,23 @@ interface Ajustes {
 
 const VALORES_PADRAO: Ajustes = {
   raio: 16,
-  desfoque: 20,
+  desfoque: 26,
   temas: {
     claro: {
-      normal: { brilho: 0, brilhoX: 24, brilhoY: 10, fundo: '#E6E6E6', fundoAlfa: 0.19, borda: '#00AAFF', bordaAlfa: 0, sombraAltura: 3, sombraAlfa: 0.03 },
-      ativo: { brilho: 0.44, brilhoX: 80, brilhoY: 10, fundo: '#1380CD', fundoAlfa: 0.24, borda: '#66C2FF', bordaAlfa: 0, sombraAltura: 0, sombraAlfa: 0.3 },
+      normal: { fundo: '#F8F9FB', fundoAlfa: 0.6, luzAlfa: 0.9, contorno: '#3E4452', contornoAlfa: 0.1, sombraAlfa: 0.28 },
+      escolhido: { fundo: '#1F6C9F', fundoAlfa: 0.1, luzAlfa: 0.85, contorno: '#1F6C9F', contornoAlfa: 0.18 },
+      ativo: { fundo: '#1F6C9F', fundoAlfa: 0.9, luzAlfa: 0.3, contorno: '#000000', contornoAlfa: 0.4, sombraAlfa: 0.28 },
     },
     escuro: {
-      normal: { brilho: 0.15, brilhoX: 13.75, brilhoY: 10, fundo: '#1C3446', fundoAlfa: 0.18, borda: '#A9D3F2', bordaAlfa: 0, sombraAltura: 3, sombraAlfa: 0.6 },
-      ativo: { brilho: 0.43, brilhoX: 80, brilhoY: 10, fundo: '#85CCFF', fundoAlfa: 0.24, borda: '#ADDDFF', bordaAlfa: 0, sombraAltura: 0, sombraAlfa: 0.3 },
+      normal: { fundo: '#303030', fundoAlfa: 0.46, luzAlfa: 0.16, contorno: '#FFFFFF', contornoAlfa: 0.06, sombraAlfa: 0.6 },
+      escolhido: { fundo: '#A9D3F2', fundoAlfa: 0.12, luzAlfa: 0.22, contorno: '#A9D3F2', contornoAlfa: 0.14 },
+      ativo: { fundo: '#A9D3F2', fundoAlfa: 0.9, luzAlfa: 1, contorno: '#000000', contornoAlfa: 0.22, sombraAlfa: 0.6 },
     },
   },
 }
 
-const GUARDADO = 'paro:depurador-visual'
+// Chave nova: os ajustes guardados do vidro em três camadas não servem mais.
+const GUARDADO = 'paro:depurador-visual-solid-glass'
 
 const copiaDe = (a: Ajustes): Ajustes => JSON.parse(JSON.stringify(a))
 
@@ -73,15 +78,12 @@ const arredondar = (n: number) => Number(n.toFixed(2))
 
 function variaveisDe(c: Camadas, prefixo: string) {
   return [
-    `  ${prefixo}-brilho: ${arredondar(c.brilho)};`,
-    `  ${prefixo}-brilho-x: ${arredondar(c.brilhoX)}%;`,
-    `  ${prefixo}-brilho-y: ${arredondar(c.brilhoY)}%;`,
     `  ${prefixo}-fundo: ${canais(c.fundo)};`,
     `  ${prefixo}-fundo-alfa: ${arredondar(c.fundoAlfa)};`,
-    `  ${prefixo}-borda: ${canais(c.borda)};`,
-    `  ${prefixo}-borda-alfa: ${arredondar(c.bordaAlfa)};`,
-    `  ${prefixo}-sombra-altura: ${c.sombraAltura}px;`,
-    `  ${prefixo}-sombra-alfa: ${arredondar(c.sombraAlfa)};`,
+    `  ${prefixo}-luz-alfa: ${arredondar(c.luzAlfa)};`,
+    `  ${prefixo}-contorno: ${canais(c.contorno)};`,
+    `  ${prefixo}-contorno-alfa: ${arredondar(c.contornoAlfa)};`,
+    ...(c.sombraAlfa === undefined ? [] : [`  ${prefixo}-sombra-alfa: ${arredondar(c.sombraAlfa)};`]),
   ]
 }
 
@@ -95,11 +97,13 @@ const css = computed(() => {
     `  --radius-paro-lg: ${a.raio}px;`,
     `  --vidro-desfoque: ${a.desfoque}px;`,
     ...variaveisDe(a.temas.claro.normal, '--vidro'),
+    ...variaveisDe(a.temas.claro.escolhido, '--vidro-escolhido'),
     ...variaveisDe(a.temas.claro.ativo, '--vidro-ativo'),
     '}',
     '',
     '.dark {',
     ...variaveisDe(a.temas.escuro.normal, '--vidro'),
+    ...variaveisDe(a.temas.escuro.escolhido, '--vidro-escolhido'),
     ...variaveisDe(a.temas.escuro.ativo, '--vidro-ativo'),
     '}',
   ].join('\n')
@@ -198,14 +202,11 @@ function trocarTema() {
 }
 
 /** Controles deslizantes das camadas: rótulo, chave, mínimo, máximo, passo e unidade. */
-const CONTROLES: { rotulo: string, chave: keyof Camadas, min: number, max: number, passo: number, unidade: '%' | 'px' | 'alfa' }[] = [
-  { rotulo: 'Brilho do canto', chave: 'brilho', min: 0, max: 1, passo: 0.01, unidade: 'alfa' },
-  { rotulo: 'Brilho: posição X', chave: 'brilhoX', min: 0, max: 100, passo: 1, unidade: '%' },
-  { rotulo: 'Brilho: posição Y', chave: 'brilhoY', min: 0, max: 100, passo: 1, unidade: '%' },
+const CONTROLES: { rotulo: string, chave: 'fundoAlfa' | 'luzAlfa' | 'contornoAlfa' | 'sombraAlfa', min: number, max: number, passo: number, unidade: '%' | 'px' | 'alfa' }[] = [
   { rotulo: 'Fundo: opacidade', chave: 'fundoAlfa', min: 0, max: 1, passo: 0.01, unidade: 'alfa' },
-  { rotulo: 'Borda: opacidade', chave: 'bordaAlfa', min: 0, max: 1, passo: 0.01, unidade: 'alfa' },
-  { rotulo: 'Sombra de baixo: altura', chave: 'sombraAltura', min: 0, max: 8, passo: 1, unidade: 'px' },
-  { rotulo: 'Sombra de baixo: opacidade', chave: 'sombraAlfa', min: 0, max: 1, passo: 0.01, unidade: 'alfa' },
+  { rotulo: 'Linha de luz no topo', chave: 'luzAlfa', min: 0, max: 1, passo: 0.01, unidade: 'alfa' },
+  { rotulo: 'Contorno: opacidade', chave: 'contornoAlfa', min: 0, max: 1, passo: 0.01, unidade: 'alfa' },
+  { rotulo: 'Sombra por baixo', chave: 'sombraAlfa', min: 0, max: 1, passo: 0.01, unidade: 'alfa' },
 ]
 
 function mostrar(valor: number, unidade: '%' | 'px' | 'alfa') {
@@ -282,12 +283,12 @@ function mostrar(valor: number, unidade: '%' | 'px' | 'alfa') {
       </section>
 
       <div
-        class="grid grid-cols-2 gap-1 rounded-md bg-elevated p-1"
+        class="grid grid-cols-3 gap-1 rounded-md bg-elevated p-1"
         role="tablist"
         aria-label="Variante do vidro"
       >
         <button
-          v-for="v in (['normal', 'ativo'] as const)"
+          v-for="v in (['normal', 'escolhido', 'ativo'] as const)"
           :key="v"
           type="button"
           role="tab"
@@ -296,7 +297,7 @@ function mostrar(valor: number, unidade: '%' | 'px' | 'alfa') {
           :class="variante === v ? 'bg-default shadow-sm' : 'text-muted'"
           @click="variante = v"
         >
-          {{ v === 'normal' ? 'Normal' : 'Ativo / principal' }}
+          {{ v === 'normal' ? 'Normal' : v === 'escolhido' ? 'Escolhido' : 'Principal' }}
         </button>
       </div>
 
@@ -311,9 +312,9 @@ function mostrar(valor: number, unidade: '%' | 'px' | 'alfa') {
             >
           </label>
           <label class="grid gap-1">
-            <span>Cor da borda</span>
+            <span>{{ variante === 'ativo' ? 'Cor da base' : 'Cor do contorno' }}</span>
             <input
-              v-model="camadas.borda"
+              v-model="camadas.contorno"
               type="color"
               class="h-8 w-full cursor-pointer rounded border border-default bg-transparent"
             >
@@ -321,13 +322,13 @@ function mostrar(valor: number, unidade: '%' | 'px' | 'alfa') {
         </div>
 
         <label
-          v-for="controle in CONTROLES"
+          v-for="controle in CONTROLES.filter(c => camadas[c.chave] !== undefined)"
           :key="controle.chave"
           class="grid gap-1"
         >
           <span class="flex justify-between">
             <span>{{ controle.rotulo }}</span>
-            <span class="tabular-nums text-muted">{{ mostrar(camadas[controle.chave] as number, controle.unidade) }}</span>
+            <span class="tabular-nums text-muted">{{ mostrar(camadas[controle.chave] ?? 0, controle.unidade) }}</span>
           </span>
           <input
             v-model.number="camadas[controle.chave]"
@@ -359,11 +360,14 @@ function mostrar(valor: number, unidade: '%' | 'px' | 'alfa') {
 
       <!-- Amostras para comparar sem sair do lugar. -->
       <section
-        class="grid grid-cols-2 gap-2"
+        class="grid grid-cols-3 gap-2"
         aria-label="Amostras"
       >
         <div class="vidro rounded-paro-md p-3 text-center font-medium">
           Normal
+        </div>
+        <div class="vidro-escolhido rounded-paro-md p-3 text-center font-medium">
+          Escolhido
         </div>
         <div class="vidro-ativo rounded-paro-md p-3 text-center font-medium">
           Ativo
