@@ -88,6 +88,12 @@ function aoTeclar(evento: KeyboardEvent) {
  * (64 + 12 px) e da ação principal fixa no rodapé (52 + 12 px), com folga de
  * 12 px. Um aviso por vez: o novo troca o anterior.
  */
+/**
+ * Painel de ajustes visuais do F4 (DepuradorVisual): só em desenvolvimento.
+ * Em produção, import.meta.dev é false e o componente nem é carregado.
+ */
+const emDesenvolvimento = import.meta.dev
+
 const lugarDosAvisos: ToasterProps = {
   position: 'bottom-center',
   duration: DURACAO_DO_AVISO,
@@ -165,5 +171,6 @@ const lugarDosAvisos: ToasterProps = {
     <AvisoFlutuante />
     <!-- Por cima de tudo até o app terminar de montar na primeira abertura. -->
     <TelaDeAbertura />
+    <LazyDepuradorVisual v-if="emDesenvolvimento" />
   </UApp>
 </template>
