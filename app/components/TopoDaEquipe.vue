@@ -1,6 +1,6 @@
 <!--
-  Topo da Área da equipe: botão de voltar e as abas Observações e Métricas,
-  no controle segmentado de vidro das abas de faixa horária. As duas telas
+  Topo da Área da equipe: botão de voltar e as abas Observações, Sugestões e
+  Métricas, no controle segmentado de vidro das abas de faixa horária. As telas
   usam a mesma chave da equipe (useChaveDaEquipe), então trocar de aba não
   pede a chave de novo. Trocar de aba substitui a página no histórico, para
   "voltar" sair da Área da equipe.
@@ -11,11 +11,12 @@ const router = useRouter()
 
 const ABAS = [
   { valor: 'observacoes', rotulo: 'Observações' },
+  { valor: 'sugestoes', rotulo: 'Sugestões' },
   { valor: 'metricas', rotulo: 'Métricas' },
 ]
 
 const aba = computed({
-  get: () => (route.path.endsWith('/metricas') ? 'metricas' : 'observacoes'),
+  get: () => ABAS.find(a => route.path.endsWith(`/${a.valor}`))?.valor ?? 'observacoes',
   set: (valor: string | null) => {
     if (valor) navigateTo(`/equipe/${valor}`, { replace: true })
   },
