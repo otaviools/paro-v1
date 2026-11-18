@@ -3,7 +3,7 @@
   escolha de horário): UDrawer com título à esquerda e botão de fechar à
   direita, grupos de faixas horárias numa grade de 4 colunas (chips do mesmo
   tamanho) e "Salvar" como ação principal cheia no rodapé, com o horário
-  marcado ("Salvar · saída 21h30"). Aqui, para escolher a faixa horária de
+  marcado ("Salvar saída às 21h30"). Aqui, para escolher a faixa horária de
   saída prevista. Fechar sem salvar (botão, Esc, toque fora ou arrastar para
   baixo) não muda nada. No desktop, abre embaixo do painel da direita, com a
   largura dele (432 px), onde a pessoa estava.
@@ -13,7 +13,7 @@
   - prop `grupos`: grupos de faixas horárias, cada um com rótulo e chips.
   - prop `escolhida`: faixa horária já escolhida, marcada ao abrir.
   - prop `salvando`: enquanto salva, o botão mostra o carregamento.
-  - prop `acao`: o que a faixa horária é, no botão ("Salvar · saída 21h30");
+  - prop `acao`: o que a faixa horária é, no botão ("Salvar saída às 21h30");
     padrão "saída".
   - prop `opcaoVazia`: rótulo de uma escolha sem faixa horária ("Sem
     rotina"), num chip de largura total acima dos grupos. Opcional.
@@ -52,10 +52,10 @@ function fechar() {
   aberta.value = false
 }
 
-/** "Salvar · saída 21h30", "Salvar · sem rotina", ou só "Salvar" sem nada marcado. */
+/** "Salvar saída às 21h30", "Salvar sem rotina", ou só "Salvar" sem nada marcado. */
 const rotuloDoSalvar = computed(() => {
-  if (marcada.value === VAZIA && props.opcaoVazia) return `Salvar · ${props.opcaoVazia.toLowerCase()}`
-  return marcada.value ? `Salvar · ${props.acao ?? 'saída'} ${rotuloDaFaixaHoraria(marcada.value)}` : 'Salvar'
+  if (marcada.value === VAZIA && props.opcaoVazia) return `Salvar ${props.opcaoVazia.toLowerCase()}`
+  return marcada.value ? `Salvar ${props.acao ?? 'saída'} às ${rotuloDaFaixaHoraria(marcada.value)}` : 'Salvar'
 })
 
 /** Sem nada marcado, "Salvar" só fecha. */
