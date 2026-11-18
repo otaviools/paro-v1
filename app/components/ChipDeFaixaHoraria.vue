@@ -2,7 +2,7 @@
   Chip de faixa horária (design system, "Formulários"; referências Careem e
   Airbnb, grade de horários): pílula de 56 px de altura que ocupa a coluna da
   grade, só com o início da faixa ("21h"); o fim ("até 21h30") fica só para
-  leitores de tela. Inativo em vidro; ativo em vidro-ativo, como as abas de
+  leitores de tela. Inativo em vidro; ativo em vidro-escolhido, como as abas de
   faixa horária.
 
   Interface:
@@ -25,7 +25,7 @@ const fim = computed(() => props.faixaHoraria && intervaloDaFaixaHoraria(props.f
     variant="ghost"
     class="grid h-14 w-full place-content-center gap-0 rounded-paro-md px-2 text-center tabular-nums transition-[background-color,box-shadow,color] duration-200 active:scale-[0.98] motion-reduce:transition-none"
     :class="ativo
-      ? 'vidro-ativo'
+      ? 'vidro-escolhido'
       : 'vidro text-default hover:brightness-105'"
   >
     <template v-if="faixaHoraria">
