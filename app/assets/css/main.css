@@ -5,9 +5,9 @@
 @theme {
   --font-sans: 'Figtree', ui-sans-serif, system-ui, sans-serif;
 
-  --radius-paro-sm: 6px;   /* amostras de faixa de chance */
-  --radius-paro-md: 12px;  /* botões, campos, linhas da lista, avisos, itens de menu */
-  --radius-paro-lg: 24px;  /* cards, gavetas, barra de abas, painéis */
+  --radius-paro-sm: 12px;   /* amostras de faixa de chance */
+  --radius-paro-md: 16px;  /* teste/botoes-quadrados: era 12px */  /* botões, campos, linhas da lista, avisos, itens de menu */
+  --radius-paro-lg: 16px;  /* teste/botoes-quadrados: era 24px */  /* cards, gavetas, barra de abas, painéis */
 }
 
 /*
@@ -162,7 +162,8 @@
 
 /*
  * Raio base do Nuxt UI: 8 px. Assim o rounded-md dos componentes do Nuxt UI
- * sem ajuste no app.config.ts fica em 12 px, o mesmo de --radius-paro-md.
+ * sem ajuste no app.config.ts fica em 12 px (o --radius-paro-md era 12 px antes do
+ * teste/botoes-quadrados; o painel do F4 não mexe neste raio).
  */
 :root {
   --ui-radius: 8px;
@@ -273,21 +274,88 @@ body {
  * atrás em vez de sumir nele. O !important vence o ring e o bg dos botões do
  * Nuxt UI, que também usam box-shadow e background-color.
  */
-@utility vidro {
-  background-color: color-mix(in oklab, var(--ui-bg-elevated) 55%, transparent) !important;
-  backdrop-filter: blur(20px) saturate(180%);
-  box-shadow:
-    inset 0 0 0 1px rgb(0 0 0 / 0.06),
-    inset 0 1px 0 rgb(255 255 255 / 0.7),
-    0 8px 24px rgb(0 0 0 / 0.08) !important;
+/*
+ * Vidro em três camadas (teste, branch teste/botoes-quadrados; referência
+ * do Figma), em cards, abas, menu, barra de abas e botões:
+ * 1. Fundo: brilho radial branco num canto sobre uma cor translúcida, com
+ *    um fio branco de 3% por dentro.
+ * 2. Borda: 1 px de cor translúcida.
+ * 3. Sombra interna embaixo, preta, que dá o volume.
+ * Os valores ficam em variáveis (--vidro-* e --vidro-ativo-*, por tema) para
+ * o painel de ajustes visuais do F4 (DepuradorVisual, só em desenvolvimento)
+ * poder mudar tudo ao vivo; o "Copiar" dele gera este mesmo bloco de
+ * variáveis. O raio vem de --radius-paro-md e --radius-paro-lg.
+ */
+:root {
+  --vidro-desfoque: 20px;
 
-  @variant dark {
-    background-color: rgb(255 255 255 / 0.08) !important;
-    box-shadow:
-      inset 0 0 0 1px rgb(255 255 255 / 0.1),
-      inset 0 1px 0 rgb(255 255 255 / 0.14),
-      0 8px 24px rgb(0 0 0 / 0.3) !important;
-  }
+  --vidro-brilho: 0;
+  --vidro-brilho-x: 24%;
+  --vidro-brilho-y: 10%;
+  --vidro-fundo: 230 230 230;
+  --vidro-fundo-alfa: 0.19;
+  --vidro-borda: 0 170 255;
+  --vidro-borda-alfa: 0;
+  --vidro-sombra-altura: 3px;
+  --vidro-sombra-alfa: 0.03;
+
+  --vidro-ativo-brilho: 0.44;
+  --vidro-ativo-brilho-x: 80%;
+  --vidro-ativo-brilho-y: 10%;
+  --vidro-ativo-fundo: 19 128 205;
+  --vidro-ativo-fundo-alfa: 0.24;
+  --vidro-ativo-borda: 102 194 255;
+  --vidro-ativo-borda-alfa: 0;
+  --vidro-ativo-sombra-altura: 0px;
+  --vidro-ativo-sombra-alfa: 0.3;
+  --vidro-ativo-texto: #191919;
+}
+
+.dark {
+  --vidro-brilho: 0.15;
+  --vidro-brilho-x: 13.75%;
+  --vidro-brilho-y: 10%;
+  --vidro-fundo: 28 52 70;
+  --vidro-fundo-alfa: 0.18;
+  --vidro-borda: 169 211 242;
+  --vidro-borda-alfa: 0;
+  --vidro-sombra-altura: 3px;
+  --vidro-sombra-alfa: 0.6;
+
+  --vidro-ativo-brilho: 0.43;
+  --vidro-ativo-brilho-x: 80%;
+  --vidro-ativo-brilho-y: 10%;
+  --vidro-ativo-fundo: 133 204 255;
+  --vidro-ativo-fundo-alfa: 0.24;
+  --vidro-ativo-borda: 173 221 255;
+  --vidro-ativo-borda-alfa: 0;
+  --vidro-ativo-sombra-altura: 0px;
+  --vidro-ativo-sombra-alfa: 0.3;
+  --vidro-ativo-texto: #FFFFFF;
+}
+
+@utility vidro {
+  background:
+    radial-gradient(112.64% 114.81% at var(--vidro-brilho-x) var(--vidro-brilho-y), rgb(255 255 255 / var(--vidro-brilho)) 0%, rgb(255 255 255 / 0) 100%),
+    rgb(var(--vidro-fundo) / var(--vidro-fundo-alfa)) !important;
+  backdrop-filter: blur(var(--vidro-desfoque)) saturate(180%);
+  box-shadow:
+    inset 0 0 0 1px rgb(var(--vidro-borda) / var(--vidro-borda-alfa)),
+    inset 0 0 0 1px rgb(255 255 255 / 0.03),
+    inset 0 calc(var(--vidro-sombra-altura) * -1) 0 0 rgb(0 0 0 / var(--vidro-sombra-alfa)) !important;
+}
+
+/* Vidro do item escolhido e do botão principal: as mesmas camadas, com valores próprios. */
+@utility vidro-ativo {
+  background:
+    radial-gradient(112.64% 114.81% at var(--vidro-ativo-brilho-x) var(--vidro-ativo-brilho-y), rgb(255 255 255 / var(--vidro-ativo-brilho)) 0%, rgb(255 255 255 / 0) 100%),
+    rgb(var(--vidro-ativo-fundo) / var(--vidro-ativo-fundo-alfa)) !important;
+  backdrop-filter: blur(var(--vidro-desfoque)) saturate(180%);
+  color: var(--vidro-ativo-texto);
+  box-shadow:
+    inset 0 0 0 1px rgb(var(--vidro-ativo-borda) / var(--vidro-ativo-borda-alfa)),
+    inset 0 0 0 1px rgb(255 255 255 / 0.03),
+    inset 0 calc(var(--vidro-ativo-sombra-altura) * -1) 0 0 rgb(0 0 0 / var(--vidro-ativo-sombra-alfa)) !important;
 }
 
 /* Tela de abertura: o ô azul do logotipo cresce 12% e volta, clareando no meio do caminho. */
@@ -349,7 +417,9 @@ body {
  * os blocos que ficam no fluxo: o que é fixed, absolute ou sticky (barra de
  * abas, ação principal no rodapé, fundo tingido, mapa) fica parado, porque
  * mover o pai deles faria tudo pular. O nuxt.config segura as classes de
- * entrada por 700 ms, para a cascata terminar antes de elas saírem.
+ * entrada por 700 ms, para a cascata terminar antes de elas saírem. A
+ * classe `cascata` faz o mesmo num bloco que entra depois da tela, como o
+ * conteúdo da Área da equipe, que só chega depois de conferir a chave.
  */
 @keyframes surgir-bloco {
   from {
@@ -359,15 +429,15 @@ body {
 }
 
 @media (width < 64rem) and (prefers-reduced-motion: no-preference) {
-  :is(.pagina-enter-active main, main.pagina-enter-active) > :not(.fixed, .absolute, .sticky) {
+  :is(.pagina-enter-active main, main.pagina-enter-active, .cascata.pagina-enter-active) > :not(.fixed, .absolute, .sticky) {
     animation: surgir-bloco 360ms cubic-bezier(0.16, 1, 0.3, 1) both;
   }
 
-  :is(.pagina-enter-active main, main.pagina-enter-active) > :nth-child(2) { animation-delay: 40ms; }
-  :is(.pagina-enter-active main, main.pagina-enter-active) > :nth-child(3) { animation-delay: 80ms; }
-  :is(.pagina-enter-active main, main.pagina-enter-active) > :nth-child(4) { animation-delay: 120ms; }
-  :is(.pagina-enter-active main, main.pagina-enter-active) > :nth-child(5) { animation-delay: 160ms; }
-  :is(.pagina-enter-active main, main.pagina-enter-active) > :nth-child(6) { animation-delay: 200ms; }
-  :is(.pagina-enter-active main, main.pagina-enter-active) > :nth-child(7) { animation-delay: 240ms; }
-  :is(.pagina-enter-active main, main.pagina-enter-active) > :nth-child(n+8) { animation-delay: 280ms; }
+  :is(.pagina-enter-active main, main.pagina-enter-active, .cascata.pagina-enter-active) > :nth-child(2) { animation-delay: 40ms; }
+  :is(.pagina-enter-active main, main.pagina-enter-active, .cascata.pagina-enter-active) > :nth-child(3) { animation-delay: 80ms; }
+  :is(.pagina-enter-active main, main.pagina-enter-active, .cascata.pagina-enter-active) > :nth-child(4) { animation-delay: 120ms; }
+  :is(.pagina-enter-active main, main.pagina-enter-active, .cascata.pagina-enter-active) > :nth-child(5) { animation-delay: 160ms; }
+  :is(.pagina-enter-active main, main.pagina-enter-active, .cascata.pagina-enter-active) > :nth-child(6) { animation-delay: 200ms; }
+  :is(.pagina-enter-active main, main.pagina-enter-active, .cascata.pagina-enter-active) > :nth-child(7) { animation-delay: 240ms; }
+  :is(.pagina-enter-active main, main.pagina-enter-active, .cascata.pagina-enter-active) > :nth-child(n+8) { animation-delay: 280ms; }
 }

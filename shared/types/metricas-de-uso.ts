@@ -1,4 +1,5 @@
 import type { Data } from './area-coberta'
+import type { FonteDeObservacoes } from './observacoes'
 import type { TotalDeRegistros } from './registros-de-vaga'
 
 /** Corpo de `POST /api/sessoes`: só o identificador mensal sorteado no celular (ADR 0004). */
@@ -47,5 +48,9 @@ export interface Relatorio {
   registrosPorNoite: RegistrosDaNoite[]
 }
 
-/** Resposta de `GET /api/equipe/metricas`: o período pedido e o relatório. */
-export type RespostaDasMetricas = ConsultaDasMetricas & Relatorio
+/**
+ * Resposta de `GET /api/equipe/metricas`: o período pedido, o relatório e a
+ * fonte. Com a fonte "ficticias" (demonstração, ADR 0012), o relatório é
+ * fictício; com "reais", vem do banco.
+ */
+export type RespostaDasMetricas = ConsultaDasMetricas & Relatorio & { fonte: FonteDeObservacoes }

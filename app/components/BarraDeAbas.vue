@@ -25,14 +25,14 @@ const indiceAtivo = computed(() =>
 <template>
   <!-- Alinhada às bordas do conteúdo das telas (até 640 px, margem de 20 px). -->
   <nav
-    class="fixed inset-x-5 bottom-[calc(--spacing(3)+env(safe-area-inset-bottom))] z-10 mx-auto flex h-16 max-w-150 vidro rounded-full p-1 lg:hidden"
+    class="fixed inset-x-5 bottom-[calc(--spacing(3)+env(safe-area-inset-bottom))] z-10 mx-auto flex h-16 max-w-150 vidro rounded-paro-md p-1 pb-[calc(--spacing(1)+var(--vidro-sombra-altura))] lg:hidden"
     aria-label="Navegação principal"
   >
     <!-- Fundo da aba ativa: as abas têm a mesma largura, então ele anda de 100% em 100%. -->
-    <span class="pointer-events-none absolute inset-1">
+    <span class="pointer-events-none absolute inset-x-1 top-1 bottom-[calc(--spacing(1)+var(--vidro-sombra-altura))]">
       <span
         v-if="indiceAtivo >= 0"
-        class="absolute inset-y-0 left-0 w-1/4 rounded-full bg-primary-100 transition-transform duration-250 ease-out motion-reduce:transition-none"
+        class="vidro-ativo absolute inset-y-0 left-0 w-1/4 rounded-[calc(var(--radius-paro-md)-4px)] transition-transform duration-250 ease-out motion-reduce:transition-none"
         :style="{ transform: `translateX(${indiceAtivo * 100}%)` }"
         aria-hidden="true"
       />
@@ -41,7 +41,7 @@ const indiceAtivo = computed(() =>
       v-for="(aba, indice) in abas"
       :key="aba.para"
       :to="aba.para"
-      class="relative flex flex-1 flex-col items-center justify-center gap-1 rounded-full text-sm font-medium leading-tight transition-colors duration-250 motion-reduce:transition-none"
+      class="relative flex flex-1 flex-col items-center justify-center gap-1 rounded-[calc(var(--radius-paro-md)-4px)] text-sm font-medium focus-visible:outline-offset-0 leading-tight transition-colors duration-250 motion-reduce:transition-none"
       :class="indice === indiceAtivo ? 'text-primary' : 'text-muted'"
     >
       <UIcon

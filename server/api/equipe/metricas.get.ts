@@ -8,7 +8,10 @@ export default defineEventHandler(async (event): Promise<RespostaDasMetricas> =>
   const { de, ate } = getQuery<EntradaNaoValidada<ConsultaDasMetricas>>(event)
   try {
     if (typeof de !== 'string' || typeof ate !== 'string') throw new PeriodoInvalido()
-    return { de, ate, ...await metricasDeUsoDoApp.relatorio(de, ate) }
+    // Na demonstração (ADR 0012), as métricas também são fictícias, como as observações.
+    const fonte = fonteDeObservacoes()
+    const relatorio = fonte === 'reais' ? await metricasDeUsoDoApp.relatorio(de, ate) : metricasFicticias.relatorio(de, ate)
+    return { de, ate, fonte, ...relatorio }
   }
   catch (erro) {
     if (erro instanceof PeriodoInvalido) throw createError({ statusCode: 400, message: erro.message })

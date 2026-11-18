@@ -325,7 +325,7 @@ function apagarHistorico() {
     </section>
 
     <!--
-      Área da equipe: entrada para a tela de observações (ADR 0011), que pede a
+      Área da equipe: entrada para Observações (ADR 0011) e Métricas, que pedem a
       chave da equipe. Fica no fim de Ajustes, para a equipe registrar as
       contagens de campo pelo celular sem decorar o endereço.
     -->
@@ -357,7 +357,7 @@ function apagarHistorico() {
         />
       </UCard>
       <p class="mt-2 max-w-[70ch] text-xs text-muted">
-        Só para a equipe do Parô: registrar as contagens feitas nas ruas, com a chave da equipe.
+        Só para a equipe do Parô: registrar as contagens feitas nas ruas e ver as métricas de uso, com a chave da equipe.
       </p>
     </section>
 

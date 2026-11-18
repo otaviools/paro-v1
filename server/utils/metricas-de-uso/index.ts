@@ -45,6 +45,12 @@ function diasEntre(de: Data, ate: Data): number {
   return (Date.parse(`${ate}T00:00:00Z`) - Date.parse(`${de}T00:00:00Z`)) / DIA_EM_MS
 }
 
+/** Recusa com PeriodoInvalido um período invertido, fora do formato ou com mais de 366 dias. */
+export function exigirPeriodoValido(de: Data, ate: Data): void {
+  const dias = diasEntre(de, ate)
+  if (!(dias >= 0 && dias <= MAXIMO_DE_DIAS_DO_RELATORIO)) throw new PeriodoInvalido()
+}
+
 export interface DependenciasDasMetricasDeUso {
   banco: Banco
   /**
@@ -58,7 +64,7 @@ export interface DependenciasDasMetricasDeUso {
 const segundaDe = (coluna: string) => `(${coluna} - (extract(isodow from ${coluna})::int - 1))`
 
 /** As datas de `de` a `ate`, inclusive, no formato "AAAA-MM-DD". */
-function datasEntre(de: Data, ate: Data): Data[] {
+export function datasEntre(de: Data, ate: Data): Data[] {
   const datas: Data[] = []
   for (let dia = new Date(`${de}T00:00:00Z`); dia <= new Date(`${ate}T00:00:00Z`); dia.setUTCDate(dia.getUTCDate() + 1)) {
     datas.push(dia.toISOString().slice(0, 10))
@@ -128,8 +134,7 @@ export function criarMetricasDeUso({ banco, registrosDeVaga }: DependenciasDasMe
      * total de registros das noites já fechadas. Período de até 366 dias.
      */
     async relatorio(de: Data, ate: Data): Promise<Relatorio> {
-      const dias = diasEntre(de, ate)
-      if (!(dias >= 0 && dias <= MAXIMO_DE_DIAS_DO_RELATORIO)) throw new PeriodoInvalido()
+      exigirPeriodoValido(de, ate)
       const { rows: respostas } = await banco.query<{ data: string, sim: number, nao: number }>(
         `select to_char(data, 'YYYY-MM-DD') as data,
            (count(*) filter (where ajudou))::int as sim,
