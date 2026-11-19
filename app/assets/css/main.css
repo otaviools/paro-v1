@@ -340,6 +340,16 @@ body {
   --vidro-ativo-texto: #10283A;
 }
 
+/*
+ * Aviso flutuante (AvisoFlutuante): card de vidro escuro nos dois temas (vem
+ * com a classe `dark`), mais opaco que os cards para ler bem sobre qualquer
+ * tela. Duas classes, para vencer o alfa do .dark daqui e do <style> que o
+ * painel do F4 (DepuradorVisual) põe no fim do <head> em desenvolvimento.
+ */
+.dark.aviso-flutuante {
+  --vidro-fundo-alfa: 0.94;
+}
+
 /* O !important vence o ring e o bg dos botões do Nuxt UI, que também usam box-shadow e background-color. */
 @utility vidro {
   background: rgb(var(--vidro-fundo) / var(--vidro-fundo-alfa)) !important;

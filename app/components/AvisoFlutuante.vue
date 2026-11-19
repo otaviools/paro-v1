@@ -1,10 +1,11 @@
 <!--
   Aviso flutuante (design system, "Gavetas, avisos flutuantes e carregamento";
-  referência Waymo): UToast em vidro (ADR 0034), raio de 12 px, some em 3 s.
-  A cor vem do tipo: sucesso em verde com ícone de check; erro em vermelho com
-  ícone de alerta. Fundo do sinal translúcido com desfoque, texto do mesmo par. O <UApp> do app.vue põe os toasts embaixo, no centro, acima da
-  barra de abas e da ação principal fixa no rodapé, para não cobrir "Saí" em
-  Minha vaga; um aviso novo troca o anterior.
+  referência Waymo): UToast num card escuro de vidro (classe `vidro` dentro de
+  `.dark`, nos dois temas), raio de 12 px, some em 3 s. O texto vem com uma
+  bolinha ao lado: verde (o verde de Tranquilo) para sucesso, vermelha (o
+  vermelho de Difícil) para erro, com um halo suave da mesma cor. O <UApp> do
+  app.vue põe o aviso logo acima da barra de abas no celular e no canto
+  superior direito no desktop; um aviso novo troca o anterior.
 
   Interface: sem props, slots nem eventos; fica uma vez só, no app.vue. As
   telas avisam pela store: `useAvisoFlutuanteStore().avisar('Texto.')`, ou
@@ -14,19 +15,19 @@
 import { DURACAO_DO_AVISO } from '~/stores/aviso-flutuante'
 import type { TipoDeAviso } from '~/stores/aviso-flutuante'
 
-/** Vidro tingido pela cor do sinal: fundo translúcido, desfoque, borda e sombra suaves. */
-const ESTILO: Record<TipoDeAviso, { icone: string, raiz: string, texto: string }> = {
-  sucesso: {
-    icone: 'i-lucide-circle-check',
-    raiz: 'bg-success-100/75 ring-success/25',
-    texto: 'text-success',
-  },
-  erro: {
-    icone: 'i-lucide-circle-alert',
-    raiz: 'bg-error-100/75 ring-error/25',
-    texto: 'text-error',
-  },
+/** Bolinha do tipo de aviso, desenhada no ::before do card, com halo de 4 px. */
+const BOLINHA: Record<TipoDeAviso, string> = {
+  sucesso: 'before:bg-green-500 before:ring-green-500/20',
+  erro: 'before:bg-red-500 before:ring-red-500/20',
 }
+
+/**
+ * Card escuro: a classe `dark` faz o vidro e o texto usarem os valores do tema
+ * escuro também no claro; `aviso-flutuante` (main.css) deixa o fundo mais
+ * opaco que o dos cards, para o aviso ler bem sobre qualquer tela.
+ */
+const CARD = 'dark aviso-flutuante vidro items-center gap-3 rounded-paro-md px-4 py-3'
+  + ' before:size-2 before:shrink-0 before:rounded-full before:ring-4 before:content-[\'\']'
 
 const avisosNaTela = useToast()
 const avisoFlutuante = useAvisoFlutuanteStore()
@@ -34,17 +35,15 @@ const avisoFlutuante = useAvisoFlutuanteStore()
 // Cada `avisar` vira um toast, mesmo quando o texto repete o do aviso anterior.
 const parar = avisoFlutuante.$onAction(({ name, args }) => {
   if (name !== 'avisar') return
-  const estilo = ESTILO[(args[1] as TipoDeAviso | undefined) ?? 'sucesso']
+  const tipo = (args[1] as TipoDeAviso | undefined) ?? 'sucesso'
   avisosNaTela.add({
     title: args[0] as string,
-    icon: estilo.icone,
     duration: DURACAO_DO_AVISO,
     close: false,
     progress: false,
     ui: {
-      root: `items-center gap-3 rounded-paro-md px-4 py-3 ring-1 shadow-[0_8px_24px_rgb(0_0_0/0.12)] backdrop-blur-xl backdrop-saturate-180 ${estilo.raiz}`,
-      icon: `size-5 shrink-0 ${estilo.texto}`,
-      title: `text-sm font-medium ${estilo.texto}`,
+      root: `${CARD} ${BOLINHA[tipo]}`,
+      title: 'text-sm font-medium text-highlighted',
     },
   })
 })
