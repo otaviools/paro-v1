@@ -49,7 +49,6 @@ const id = useId()
     <!-- Trilho de 44 × 24 px; o ::after estende o alvo de toque para 44 × 44 px. -->
     <USwitch
       :model-value="ligado"
-      color="neutral"
       size="xl"
       :ui="{ base: 'relative after:absolute after:inset-x-0 after:-inset-y-2.5' }"
       :aria-labelledby="`${id}-titulo`"

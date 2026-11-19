@@ -133,10 +133,14 @@ export default defineAppConfig({
       ],
     },
 
-    // Seletor liga/desliga (design system, "Linha com seletor"): ligado em bg-inverted, sem sombra.
+    // Seletor liga/desliga (design system, "Linha com seletor"): ligado em bg-inverted, nunca no azul
+    // do primary, e sem sombra. Vale para todo USwitch, sem precisar de color="neutral".
     switch: {
       slots: {
         thumb: 'shadow-none bg-default data-[state=unchecked]:bg-inverted/50',
+      },
+      defaultVariants: {
+        color: 'neutral',
       },
     },
   },
