@@ -1,7 +1,7 @@
 <!--
   Aviso flutuante (design system, "Gavetas, avisos flutuantes e carregamento";
-  referência Waymo): UToast num card escuro de vidro (classe `vidro` dentro de
-  `.dark`, nos dois temas), raio de 12 px, some em 3 s. O texto vem com uma
+  referência Waymo): UToast num card de vidro que segue o tema (claro no claro,
+  escuro no escuro), mais opaco que os cards, raio de 12 px, some em 3 s. O texto vem com uma
   bolinha ao lado: verde (o verde de Tranquilo) para sucesso, vermelha (o
   vermelho de Difícil) para erro, com um halo suave da mesma cor. O <UApp> do
   app.vue põe o aviso logo acima da barra de abas no celular e no canto
@@ -22,11 +22,10 @@ const BOLINHA: Record<TipoDeAviso, string> = {
 }
 
 /**
- * Card escuro: a classe `dark` faz o vidro e o texto usarem os valores do tema
- * escuro também no claro; `aviso-flutuante` (main.css) deixa o fundo mais
+ * Card de vidro do tema; `aviso-flutuante` (main.css) deixa o fundo mais
  * opaco que o dos cards, para o aviso ler bem sobre qualquer tela.
  */
-const CARD = 'dark aviso-flutuante vidro items-center gap-3 rounded-paro-md px-4 py-3'
+const CARD = 'aviso-flutuante vidro items-center gap-3 rounded-paro-md px-4 py-3'
   + ' before:size-2 before:shrink-0 before:rounded-full before:ring-4 before:content-[\'\']'
 
 const avisosNaTela = useToast()
