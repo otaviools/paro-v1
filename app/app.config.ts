@@ -104,6 +104,12 @@ export default defineAppConfig({
         segment: 'rounded-none focus:bg-accented',
       },
     },
+    // O mesmo para o campo de horário (conferência da grade horária, desktop).
+    inputTime: {
+      slots: {
+        segment: 'rounded-none focus:bg-accented',
+      },
+    },
     // O mesmo para o popover (calendário do campo de data, balões).
     popover: {
       slots: {

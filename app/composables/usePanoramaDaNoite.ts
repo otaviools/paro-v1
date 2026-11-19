@@ -6,10 +6,12 @@ const FAIXAS_HORARIAS_DAS_ABAS = ['18:00', '19:00', '20:00']
 /**
  * Panorama da noite com as abas de faixa horária do Início e do Mapa:
  * Agora, 18h, 19h e 20h, mais a rotina quando não é uma delas. Abre na
- * rotina do celular; sem rotina, em Agora.
+ * rotina do celular; sem rotina, em Agora. Com grade horária (ADR 0035), a
+ * rotina do dia é a melhor chegada para a primeira aula; em dia sem aula,
+ * abre em Agora.
  */
 export function usePanoramaDaNoite() {
-  /** Rotina do celular; lida só no navegador, depois de montar. */
+  /** Rotina do celular (ou a melhor chegada do dia, com grade); lida só no navegador, depois de montar. */
   const rotina = ref<string | null>(null)
 
   const abas = computed(() => {
@@ -36,8 +38,11 @@ export function usePanoramaDaNoite() {
     immediate: false,
   })
 
-  onMounted(() => {
-    rotina.value = dadosDoCelularDoAparelho().rotina()
+  const { ler: lerHojeDaGrade } = useHojeDaGrade()
+
+  onMounted(async () => {
+    const hoje = await lerHojeDaGrade()
+    rotina.value = hoje ? (hoje.melhorChegada?.faixaHoraria ?? null) : dadosDoCelularDoAparelho().rotina()
     faixaHoraria.value = rotina.value ?? 'agora'
     execute()
   })

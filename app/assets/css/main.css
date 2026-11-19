@@ -172,13 +172,13 @@
 /*
  * Anel de foco (design system, "Botões"): 2 px em --ui-primary, afastado 2 px.
  * Não vale para campos (texto, número, área de texto, lista de seleção e
- * segmentos da data): eles já têm o foco do Nuxt UI, com halo e borda na cor
- * primária, e os dois juntos viravam uma borda dobrada ao clicar. Nos
- * segmentos da data (dia, mês e ano), o anel virava uma borda arredondada em
- * volta de cada número; o segmento em foco ganha fundo (app.config.ts,
- * inputDate).
+ * segmentos da data e do horário): eles já têm o foco do Nuxt UI, com halo
+ * e borda na cor primária, e os dois juntos viravam uma borda dobrada ao
+ * clicar. Nos segmentos da data e do horário (dia, mês, ano, hora e minuto),
+ * o anel virava uma borda arredondada em volta de cada número; o segmento em
+ * foco ganha fundo (app.config.ts, inputDate e inputTime).
  */
-:focus-visible:not(input, textarea, select, [role="combobox"], [data-reka-date-field-segment]) {
+:focus-visible:not(input, textarea, select, [role="combobox"], [data-reka-date-field-segment], [data-reka-time-field-segment]) {
   outline: 2px solid var(--ui-primary);
   outline-offset: 2px;
 }
@@ -438,6 +438,28 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .pagina-enter-active {
     transition: none;
+  }
+}
+
+/*
+ * Faixa de leitura da grade horária (ImportarGradeHoraria, referências
+ * Hypelist e GoPay): desce e sobe pela folha enquanto o PDF é lido. Com
+ * movimento reduzido, fica parada no meio da folha.
+ */
+@keyframes ler-folha {
+  to {
+    translate: 0 76px;
+  }
+}
+
+.faixa-de-leitura {
+  animation: ler-folha 1.4s ease-in-out infinite alternate;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .faixa-de-leitura {
+    animation: none;
+    translate: 0 38px;
   }
 }
 

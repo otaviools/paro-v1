@@ -1,62 +1,57 @@
 <!--
-  Ajustes (referências Grok, Waymo e Pangea): rotina, forma de colaborar em
-  linhas com seletor, a sugestão de rua, o aviso de privacidade e "Apagar
-  histórico" no fim da lista, sempre com confirmação. Rotina e forma de
-  colaborar ficam só no celular (ADRs 0004, 0010 e 0015); a sugestão de rua
-  vai ao servidor só com o texto (ADR 0013).
+  Ajustes (referências Grok, Waymo e Pangea): a rotina, pela grade horária
+  (ADR 0035), a forma de colaborar em linhas com seletor, a sugestão de rua,
+  o aviso de privacidade e "Apagar histórico" no fim da lista, sempre com
+  confirmação. Grade horária e forma de colaborar ficam só no celular (ADRs
+  0004, 0010, 0015 e 0035); a sugestão de rua vai ao servidor só com o texto
+  (ADR 0013). Não há mais campo para o horário de chegada habitual; uma
+  rotina já guardada continua valendo até salvar uma grade.
 -->
 <script setup lang="ts">
 import { dadosDoCelularDoAparelho } from '~/dados-do-celular'
 import type { DadosDoCelular, FormaDeColaborar } from '~/dados-do-celular'
+import { DIAS_DA_SEMANA, NOMES_DOS_DIAS } from '~/grade-horaria'
+import type { GradeHoraria } from '~/grade-horaria'
 
 // No desktop, abre no painel da direita, com o mapa ao lado e margem de 24 px (lg:px-6).
 definePageMeta({ painelDesktop: 'direita' })
 
-const { data: faixasHorarias } = await useFaixasHorarias()
 /** Noite de agora; lida no navegador, para saber se há um registro de vaga aberto. */
 const { lerNoite } = useAgora()
 
-/** A rotina e a forma de colaborar ficam só no celular: são lidas e guardadas no navegador. */
+/** A grade horária e a forma de colaborar ficam só no celular: são lidas e guardadas no navegador. */
 let dados: DadosDoCelular | undefined
-const rotina = ref<string | null>(null)
 const forma = ref<FormaDeColaborar>('nenhuma')
+/** Grade horária importada (ADR 0035). */
+const grade = ref<GradeHoraria | null>(null)
 
 onMounted(() => {
   dados = dadosDoCelularDoAparelho()
-  rotina.value = dados.rotina()
   forma.value = dados.formaDeColaborar()
+  grade.value = dados.gradeHoraria()
 })
 
-function escolher(faixaHoraria: string | null) {
-  dados?.definirRotina(faixaHoraria)
-  rotina.value = faixaHoraria
+const importador = ref<{ escolherPdf: () => void, editar: (grade: GradeHoraria | null) => void }>()
+
+function salvarGrade(nova: GradeHoraria) {
+  dados ??= dadosDoCelularDoAparelho()
+  dados.definirGradeHoraria(nova)
+  grade.value = nova
+  avisar('Grade horária salva. O Início abre na melhor chegada de cada dia.')
 }
 
-/** "Sem rotina" é uma opção do menu; no celular, é a rotina nula. */
-const SEM_ROTINA = 'sem-rotina'
-
-const opcoesDeRotina = computed(() => [
-  { label: 'Sem rotina', value: SEM_ROTINA },
-  ...(faixasHorarias.value ?? []).map(f => ({ label: rotuloDaFaixaHoraria(f), value: f })),
-])
-
-const rotinaEscolhida = computed({
-  get: () => rotina.value ?? SEM_ROTINA,
-  set: (valor: string | undefined) => escolher(!valor || valor === SEM_ROTINA ? null : valor),
-})
-
-/*
- * No celular, a rotina é escolhida numa gaveta com a grade de horários (a
- * mesma da saída prevista), em vez da lista suspensa: alvos de toque maiores
- * e o padrão dos outros componentes. No desktop continua a lista suspensa.
- */
-const gavetaDaRotina = ref<{ abrir: () => void, fechar: () => void }>()
-const gruposDaRotina = computed(() => [{ rotulo: 'Horários', faixasHorarias: faixasHorarias.value ?? [] }])
-
-function salvarRotina(faixaHoraria: string | null) {
-  escolher(faixaHoraria)
-  gavetaDaRotina.value?.fechar()
+function removerGrade() {
+  dados ??= dadosDoCelularDoAparelho()
+  dados.definirGradeHoraria(null)
+  grade.value = null
+  avisar('Grade horária removida deste celular.')
 }
+
+/** Dias com aula da grade, em ordem: "Segunda · 19h às 21h50". */
+const diasDaGrade = computed(() => DIAS_DA_SEMANA.flatMap((dia) => {
+  const aulas = grade.value?.[dia]
+  return aulas ? [{ dia, nome: NOMES_DOS_DIAS[dia], inicio: aulas.inicio, fim: aulas.fim }] : []
+}))
 
 // --- Forma de colaborar (ADR 0010) ---------------------------------------------
 
@@ -115,7 +110,7 @@ async function pedirConfirmacao() {
 function apagarHistorico() {
   dados ??= dadosDoCelularDoAparelho()
   dados.apagarHistorico()
-  rotina.value = null
+  grade.value = null
   confirmacaoAberta.value = false
   avisar('Histórico apagado deste celular.')
 }
@@ -164,55 +159,102 @@ function apagarHistorico() {
         Rotina
       </h2>
 
+      <!-- Com grade horária (ADR 0035): os dias com aula, editar e remover. -->
       <UCard
+        v-if="grade"
         class="mt-3"
         :ui="{ body: 'grid gap-2' }"
       >
-        <h3
-          id="nome-rotina"
-          class="text-base font-semibold leading-tight"
-        >
-          Horário de chegada habitual
+        <h3 class="text-base font-semibold leading-tight">
+          Grade horária
         </h3>
         <p class="max-w-[70ch] text-xs text-muted">
-          O Parô abre na faixa horária em que você costuma chegar. Sem rotina, abre em Agora.
-          Fica guardada só neste celular.
+          Em dia com aula, o Parô abre na melhor chegada para a primeira aula e sugere a saída prevista no fim da
+          última. Em dia sem aula, abre em Agora. Fica guardada só neste celular.
         </p>
-
-        <!-- Só seleção, sem digitar: USelect, e não um campo com busca. -->
-        <!-- Celular: campo que abre a gaveta de horários. -->
+        <ul class="mt-1 grid">
+          <li
+            v-for="item in diasDaGrade"
+            :key="item.dia"
+            class="flex items-center justify-between gap-3 border-b border-default py-2 text-sm last:border-b-0"
+          >
+            <span class="font-medium">{{ item.nome }}</span>
+            <span class="tabular-nums text-muted">
+              {{ rotuloDaFaixaHoraria(item.inicio) }} às {{ rotuloDaFaixaHoraria(item.fim) }}
+            </span>
+          </li>
+        </ul>
+        <div class="mt-2 grid grid-cols-2 gap-2">
+          <UButton
+            color="neutral"
+            variant="outline"
+            icon="i-lucide-pencil"
+            label="Editar"
+            block
+            class="min-h-11 text-sm"
+            aria-haspopup="dialog"
+            @click="importador?.editar(grade)"
+          />
+          <UButton
+            color="neutral"
+            variant="outline"
+            icon="i-lucide-file-up"
+            label="Novo PDF"
+            block
+            class="min-h-11 text-sm"
+            @click="importador?.escolherPdf()"
+          />
+        </div>
         <UButton
-          color="neutral"
-          variant="outline"
-          trailing-icon="i-lucide-chevron-down"
-          aria-haspopup="dialog"
-          aria-labelledby="nome-rotina"
-          class="mt-2 h-12 w-full justify-between rounded-paro-md bg-elevated px-3 text-base font-normal lg:hidden"
-          :ui="{ trailingIcon: 'size-5 text-dimmed' }"
-          @click="gavetaDaRotina?.abrir()"
-        >
-          {{ rotina ? rotuloDaFaixaHoraria(rotina) : 'Sem rotina' }}
-        </UButton>
-        <!-- Desktop: lista suspensa, só seleção. -->
-        <USelect
-          v-model="rotinaEscolhida"
-          class="mt-2 hidden h-10 w-full rounded-paro-md lg:flex"
-          :items="opcoesDeRotina"
-          value-key="value"
-          aria-labelledby="nome-rotina"
-          placeholder="Escolha um horário"
-        />
-        <GavetaDeEscolha
-          ref="gavetaDaRotina"
-          titulo="Horário de chegada habitual"
-          acao="chegada"
-          opcao-vazia="Sem rotina"
-          :grupos="gruposDaRotina"
-          :escolhida="rotina"
-          @salvar="salvarRotina"
-          @limpar="salvarRotina(null)"
+          color="error"
+          variant="link"
+          icon="i-lucide-x"
+          label="Remover grade"
+          class="min-h-11 justify-self-start px-0 text-sm"
+          @click="removerGrade"
         />
       </UCard>
+
+      <UCard
+        v-else
+        class="mt-3"
+        :ui="{ body: 'grid gap-2' }"
+      >
+        <h3 class="text-base font-semibold leading-tight">
+          Grade horária
+        </h3>
+
+        <!-- Grade horária da ESAMC em PDF (ADR 0035). -->
+        <div class="mt-2 grid gap-2">
+          <UButton
+            color="neutral"
+            variant="outline"
+            icon="i-lucide-file-up"
+            label="Importar grade horária (PDF)"
+            block
+            class="min-h-11 text-sm"
+            @click="importador?.escolherPdf()"
+          />
+          <UButton
+            color="neutral"
+            variant="outline"
+            icon="i-lucide-pencil"
+            label="Preencher a grade à mão"
+            block
+            aria-haspopup="dialog"
+            class="min-h-11 text-smp"
+            @click="importador?.editar(null)"
+          />
+          <p class="max-w-[70ch] text-xs text-muted">
+            No portal da ESAMC, salve o horário em Imprimir › Salvar como PDF. O PDF não é guardado.
+          </p>
+        </div>
+      </UCard>
+
+      <ImportarGradeHoraria
+        ref="importador"
+        @salvar="salvarGrade"
+      />
     </section>
 
     <section
@@ -395,7 +437,7 @@ function apagarHistorico() {
     >
       <template #body>
         <p class="max-w-[70ch] text-sm">
-          Apaga deste celular a rotina, o registro de vaga com o código, o ponto do carro e o histórico de vagas. Não dá para desfazer.
+          Apaga deste celular a rotina, a grade horária, o registro de vaga com o código, o ponto do carro e o histórico de vagas. Não dá para desfazer.
           A forma de colaborar continua como está.
         </p>
 

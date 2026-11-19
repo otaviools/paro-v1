@@ -1,37 +1,39 @@
 <!--
-  Primeira visita (design system, "Fluxos"; referências Tinder e Waymo): duas
+  Primeira visita (design system, "Fluxos"; referências Tinder e Waymo): três
   telas cheias, sem barra de abas. A primeira apresenta o Parô; a segunda
   pede a forma de colaborar em cards de escolha única, com "Nenhuma por
   enquanto" já escolhida: tudo começa desligado e não existe localização
-  contínua (ADR 0010). O aviso de privacidade abre numa gaveta a partir de um
+  contínua (ADR 0010). A terceira oferece importar a grade horária da ESAMC
+  em PDF (ADR 0035), opcional. O aviso de privacidade abre numa gaveta a partir de um
   link. A escolha e o fim da Primeira visita ficam nos Dados do celular, e a
   Primeira visita não aparece de novo.
 -->
 <script setup lang="ts">
 import { dadosDoCelularDoAparelho } from '~/dados-do-celular'
 import type { FormaDeColaborar } from '~/dados-do-celular'
+import { DIAS_DA_SEMANA, ENDERECO_DO_PORTAL } from '~/grade-horaria'
+import type { GradeHoraria } from '~/grade-horaria'
 
 definePageMeta({ semBarraDeAbas: true, foraDoPainelDesktop: true })
 
-const passo = ref<'boas-vindas' | 'forma-de-colaborar'>('boas-vindas')
+const passo = ref<'boas-vindas' | 'forma-de-colaborar' | 'grade-horaria'>('boas-vindas')
 const forma = ref<FormaDeColaborar>('nenhuma')
 
 const formas: { valor: FormaDeColaborar, titulo: string, descricao: string }[] = [
   {
     valor: 'localizacao-ligada',
     titulo: 'Com localização ligada',
-    descricao: 'Ao registrar a vaga, o celular lê a sua posição uma vez e propõe a rua coberta mais próxima. '
-      + 'O ponto do carro fica só neste celular, para Voltar até o carro.',
+    descricao: 'Lê a posição uma vez e propõe a rua mais próxima. O ponto do carro fica só no celular.',
   },
   {
     valor: 'manual',
     titulo: 'Manual',
-    descricao: 'Você escolhe a rua coberta numa lista. A localização não é usada, e Voltar até o carro não fica disponível.',
+    descricao: 'Você escolhe a rua numa lista, sem usar a localização.',
   },
   {
     valor: 'nenhuma',
     titulo: 'Nenhuma por enquanto',
-    descricao: 'Só consultar a chance. O registro de vaga fica desligado até você mudar em Ajustes.',
+    descricao: 'Só consultar a chance. Dá para ligar depois em Ajustes.',
   },
 ]
 
@@ -39,17 +41,17 @@ const cards: { icone: string, titulo: string, texto: string }[] = [
   {
     icone: 'i-lucide-user-x',
     titulo: 'Sem cadastro',
-    texto: 'Sem conta e sem login. O Parô não pede nada que identifique você.',
+    texto: 'Sem conta, sem login e sem dados seus.',
   },
   {
     icone: 'i-lucide-info',
     titulo: 'Chance, não garantia',
-    texto: 'A chance diz com que frequência a rua coberta não estava cheia em noites anteriores, sempre com a base.',
+    texto: 'Com que frequência a rua teve vaga nas noites anteriores.',
   },
   {
     icone: 'i-lucide-car',
     titulo: 'Avise quem está chegando',
-    texto: 'Se quiser, registre a sua vaga com a saída prevista. É opcional.',
+    texto: 'Se quiser, registre a vaga com a saída prevista.',
   },
 ]
 
@@ -60,6 +62,17 @@ const cards: { icone: string, titulo: string, texto: string }[] = [
 const rodape = 'fixed inset-x-0 bottom-0 z-10 mx-auto grid max-w-160 gap-1 bg-default/70 backdrop-blur-xl lg:backdrop-blur-none px-5 pt-3 pb-[calc(--spacing(3)+env(safe-area-inset-bottom))] lg:static lg:w-full lg:max-w-md lg:bg-transparent lg:px-0 lg:pt-6 lg:pb-0'
 
 const privacidade = ref<{ abrir: () => void }>()
+
+// --- Grade horária (ADR 0035) -------------------------------------------------
+
+const importador = ref<{ escolherPdf: () => void, editar: (grade: GradeHoraria | null) => void }>()
+const grade = ref<GradeHoraria | null>(null)
+const diasComAula = computed(() => DIAS_DA_SEMANA.filter(d => grade.value?.[d]).length)
+
+function salvarGrade(nova: GradeHoraria) {
+  dadosDoCelularDoAparelho().definirGradeHoraria(nova)
+  grade.value = nova
+}
 
 function comecar() {
   const dados = dadosDoCelularDoAparelho()
@@ -157,13 +170,12 @@ function comecar() {
         >
           <h1
             id="titulo-boas-vindas"
-            class="text-2xl font-bold leading-tight tracking-tight lg:text-center"
+            class="text-2xl font-bold leading-tight tracking-tight"
           >
             Chance de vaga nas ruas cobertas
           </h1>
-          <p class="-mt-4 max-w-[70ch] text-sm text-muted lg:text-center">
-            O Parô mostra em quais ruas cobertas e faixas horárias costuma haver vaga à noite, para você decidir
-            antes de sair de casa.
+          <p class="-mt-4 max-w-[70ch] text-sm text-muted">
+            Veja onde costuma ter vaga à noite antes de sair de casa.
           </p>
 
           <!-- No desktop, cards compactos: ícone ao lado do título e do texto. -->
@@ -210,7 +222,7 @@ function comecar() {
         </footer>
       </template>
 
-      <template v-else>
+      <template v-else-if="passo === 'forma-de-colaborar'">
         <UButton
           color="neutral"
           variant="outline"
@@ -228,13 +240,12 @@ function comecar() {
         >
           <h1
             id="titulo-forma"
-            class="text-2xl font-bold leading-tight tracking-tight lg:text-center"
+            class="text-2xl font-bold leading-tight tracking-tight"
           >
             Como você quer colaborar?
           </h1>
-          <p class="-mt-4 max-w-[70ch] text-sm text-muted lg:text-center">
-            Ao estacionar, você pode fazer um registro de vaga para avisar quem está chegando quando a sua vaga deve
-            ficar livre. Tudo começa desligado, e você muda quando quiser em Ajustes.
+          <p class="-mt-4 max-w-[70ch] text-sm text-muted">
+            Ao estacionar, avise quando a vaga deve ficar livre. Tudo começa desligado.
           </p>
 
           <!--
@@ -259,10 +270,6 @@ function comecar() {
               description: 'max-w-[70ch] text-xs',
             }"
           />
-
-          <p class="max-w-[70ch] text-xs text-muted lg:text-center">
-            A localização nunca é acompanhada e a posição exata nunca sai do celular.
-          </p>
         </section>
 
         <!-- Rodapé: "Começar" e, embaixo dele, o link do aviso de privacidade. -->
@@ -271,9 +278,9 @@ function comecar() {
             color="neutral"
             size="xl"
             block
-            label="Começar"
+            label="Continuar"
             class="h-13 text-lg lg:h-11"
-            @click="comecar"
+            @click="passo = 'grade-horaria'"
           />
           <UButton
             color="primary"
@@ -284,6 +291,106 @@ function comecar() {
             @click="privacidade?.abrir()"
           />
         </footer>
+      </template>
+
+      <template v-else>
+        <UButton
+          color="neutral"
+          variant="outline"
+          square
+          icon="i-lucide-arrow-left"
+          aria-label="Voltar"
+          class="-mt-8 mb-4 size-10 justify-center lg:absolute lg:top-8 lg:left-8 lg:m-0 lg:size-9"
+          :ui="{ leadingIcon: 'size-5' }"
+          @click="passo = 'forma-de-colaborar'"
+        />
+
+        <section
+          class="grid gap-6 motion-safe:animate-[slide-in-from-bottom-and-fade_300ms_cubic-bezier(0.16,1,0.3,1)] lg:w-full lg:max-w-md"
+          aria-labelledby="titulo-grade"
+        >
+          <h1
+            id="titulo-grade"
+            class="text-2xl font-bold leading-tight tracking-tight"
+          >
+            Estuda na ESAMC?
+          </h1>
+          <p class="-mt-4 max-w-[70ch] text-sm text-muted">
+            Importe o horário de aulas e o Parô sugere a melhor chegada e a saída de cada dia. É opcional.
+          </p>
+
+          <UCard :ui="{ body: 'grid gap-3' }">
+            <template v-if="grade">
+              <p class="flex items-center gap-2 text-sm font-semibold">
+                <UIcon
+                  name="i-lucide-circle-check"
+                  class="size-5 shrink-0 text-success"
+                  aria-hidden="true"
+                />
+                Grade salva: {{ diasComAula === 1 ? '1 dia com aula' : `${diasComAula} dias com aula` }}
+              </p>
+              <UButton
+                color="neutral"
+                variant="outline"
+                icon="i-lucide-pencil"
+                label="Conferir a grade"
+                block
+                aria-haspopup="dialog"
+                class="min-h-11 text-sm"
+                @click="importador?.editar(grade)"
+              />
+            </template>
+            <template v-else>
+              <UButton
+                color="neutral"
+                variant="outline"
+                icon="i-lucide-file-up"
+                label="Importar horário de aulas (PDF)"
+                block
+                class="min-h-11 text-sm"
+                @click="importador?.escolherPdf()"
+              />
+              <UButton
+                color="neutral"
+                variant="outline"
+                icon="i-lucide-pencil"
+                label="Preencher à mão"
+                block
+                aria-haspopup="dialog"
+                class="min-h-11 text-sm"
+                @click="importador?.editar(null)"
+              />
+            </template>
+            <p class="max-w-[70ch] text-xs text-muted">
+              No seu navegador, abra o horário de aulas no
+              <ULink
+                :to="ENDERECO_DO_PORTAL"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="font-medium text-primary underline underline-offset-2"
+              >
+                portal da ESAMC<span class="sr-only"> (abre em nova aba)</span>
+              </ULink>
+              e use Imprimir › Salvar como PDF. O PDF não sai do celular.
+            </p>
+          </UCard>
+        </section>
+
+        <footer :class="rodape">
+          <UButton
+            color="neutral"
+            size="xl"
+            block
+            :label="grade ? 'Começar' : 'Pular e começar'"
+            class="h-13 text-lg lg:h-11"
+            @click="comecar"
+          />
+        </footer>
+
+        <ImportarGradeHoraria
+          ref="importador"
+          @salvar="salvarGrade"
+        />
       </template>
 
       <Gaveta

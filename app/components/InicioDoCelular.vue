@@ -1,7 +1,7 @@
 <!--
   Conteúdo do Início no celular: logotipo, aviso de demonstração, saudação com
   apelido engraçado ("Boa noite, Ímã de Vaga"), bloco do registro de
-  vaga, Panorama da noite por faixa horária e a pergunta "A previsão ajudou
+  vaga, card "Hoje" da grade horária, Panorama da noite por faixa horária e a pergunta "A previsão ajudou
   hoje?". No desktop, as abas, a melhor chance, a lista e a pergunta ficam na
   barra lateral do PainelDesktop.
 -->
@@ -51,6 +51,8 @@ const titulo = computed(() =>
     </h1>
 
     <BlocoDoRegistroDeVaga class="mt-6" />
+    <!-- Dia com aula na grade horária: a melhor chegada (ADR 0035); some com o registro aberto. -->
+    <CardHojeDaGrade class="mt-6" />
 
     <PanoramaDaFaixaHoraria
       v-model:faixa-horaria="faixaHoraria"
