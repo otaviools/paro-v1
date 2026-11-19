@@ -188,6 +188,55 @@ describe('Dados do celular', () => {
     })
   })
 
+  describe('grade horária', () => {
+    const grade = { seg: { inicio: '19:00', fim: '21:50' }, qua: { inicio: '19:00', fim: '20:40' } }
+
+    it('não existe antes de importar', () => {
+      expect(criarDadosDoCelular(armazenamentoEmMemoria()).gradeHoraria()).toBeNull()
+    })
+
+    it('fica no aparelho quando o app abre de novo', () => {
+      const aparelho = armazenamentoEmMemoria()
+      criarDadosDoCelular(aparelho).definirGradeHoraria(grade)
+
+      expect(criarDadosDoCelular(aparelho).gradeHoraria()).toEqual(grade)
+    })
+
+    it('substitui a rotina de um horário só', () => {
+      const dados = criarDadosDoCelular(armazenamentoEmMemoria())
+      dados.definirRotina('19:00')
+
+      dados.definirGradeHoraria(grade)
+
+      expect(dados.rotina()).toBeNull()
+    })
+
+    it('sai do aparelho quando a pessoa remove a grade', () => {
+      const dados = criarDadosDoCelular(armazenamentoEmMemoria())
+      dados.definirGradeHoraria(grade)
+
+      dados.definirGradeHoraria(null)
+
+      expect(dados.gradeHoraria()).toBeNull()
+    })
+
+    it('ignora dias guardados fora da noite ou estragados', () => {
+      const aparelho = armazenamentoEmMemoria()
+      aparelho.setItem('paro:grade-horaria', '{"seg":{"inicio":"19:00","fim":"21:50"},"sab":{"inicio":"13:00","fim":"14:40"},"ter":{"inicio":"x"}}')
+
+      expect(criarDadosDoCelular(aparelho).gradeHoraria()).toEqual({ seg: { inicio: '19:00', fim: '21:50' } })
+    })
+
+    it('é apagada com o histórico', () => {
+      const dados = criarDadosDoCelular(armazenamentoEmMemoria())
+      dados.definirGradeHoraria(grade)
+
+      dados.apagarHistorico()
+
+      expect(dados.gradeHoraria()).toBeNull()
+    })
+  })
+
   describe('histórico de vagas', () => {
     const registro = {
       codigo: 'codigo-do-servidor',

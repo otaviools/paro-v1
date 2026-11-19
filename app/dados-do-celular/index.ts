@@ -1,3 +1,6 @@
+import { DIAS_DA_SEMANA, eAulaDaNoite } from '../grade-horaria'
+import type { GradeHoraria } from '../grade-horaria'
+
 /**
  * Armazenamento do aparelho. `localStorage` satisfaz esta interface; nos
  * testes, o armazenamento em memória fica no lugar dele.
@@ -75,6 +78,7 @@ const CHAVE_DA_PRIMEIRA_VISITA = 'paro:primeira-visita-concluida'
 const CHAVE_DA_SESSAO_DO_MES = 'paro:sessao-do-mes'
 const CHAVE_DA_RESPOSTA_AJUDOU = 'paro:respondeu-ajudou'
 const CHAVE_DO_HISTORICO_DE_VAGAS = 'paro:historico-de-vagas'
+const CHAVE_DA_GRADE_HORARIA = 'paro:grade-horaria'
 
 /** Mês no formato "AAAA-MM". */
 export type Mes = string
@@ -90,7 +94,7 @@ function sortearId(): string {
  * de histórico entra aqui. A forma de colaborar e a Primeira visita não são
  * histórico, são escolhas da pessoa, e ficam.
  */
-const CHAVES_DO_HISTORICO = [CHAVE_DA_ROTINA, CHAVE_DO_REGISTRO, CHAVE_DO_PONTO_DO_CARRO, CHAVE_DO_HISTORICO_DE_VAGAS]
+const CHAVES_DO_HISTORICO = [CHAVE_DA_ROTINA, CHAVE_DA_GRADE_HORARIA, CHAVE_DO_REGISTRO, CHAVE_DO_PONTO_DO_CARRO, CHAVE_DO_HISTORICO_DE_VAGAS]
 
 /** Tira acento e cedilha: "saídaPrevista" vira "saidaPrevista" (ADR 0026). */
 function semAcento(texto: string): string {
@@ -175,6 +179,41 @@ export function criarDadosDoCelular(armazenamento: Armazenamento) {
     definirRotina(faixaHoraria: FaixaHoraria | null): void {
       if (faixaHoraria === null) armazenamento.removeItem(CHAVE_DA_ROTINA)
       else armazenamento.setItem(CHAVE_DA_ROTINA, faixaHoraria)
+    },
+
+    /**
+     * Grade horária importada (ADR 0035), ou null sem grade. Só voltam os
+     * dias com aula da noite válidos; um valor estragado vale como sem grade.
+     */
+    gradeHoraria(): GradeHoraria | null {
+      const guardada = armazenamento.getItem(CHAVE_DA_GRADE_HORARIA)
+      if (guardada === null) return null
+      try {
+        const lida = JSON.parse(guardada) as GradeHoraria
+        const grade: GradeHoraria = {}
+        for (const dia of DIAS_DA_SEMANA) {
+          const aulas = lida?.[dia]
+          if (aulas && eAulaDaNoite(aulas)) grade[dia] = { inicio: aulas.inicio, fim: aulas.fim }
+        }
+        return grade
+      }
+      catch {
+        return null
+      }
+    },
+
+    /**
+     * Guarda a grade horária, que substitui a rotina: a rotina de um horário
+     * só sai do aparelho. Null remove a grade, e o app volta a abrir em Agora
+     * até a pessoa escolher uma rotina de novo.
+     */
+    definirGradeHoraria(grade: GradeHoraria | null): void {
+      if (grade === null) {
+        armazenamento.removeItem(CHAVE_DA_GRADE_HORARIA)
+        return
+      }
+      armazenamento.setItem(CHAVE_DA_GRADE_HORARIA, JSON.stringify(grade))
+      armazenamento.removeItem(CHAVE_DA_ROTINA)
     },
 
     /**
@@ -280,8 +319,8 @@ export function criarDadosDoCelular(armazenamento: Armazenamento) {
     },
 
     /**
-     * "Apagar histórico" (ADR 0004): limpa a rotina, o registro de vaga com o
-     * código, o ponto do carro e o histórico de vagas. Limpa só o celular; sem o código, o registro
+     * "Apagar histórico" (ADR 0004): limpa a rotina, a grade horária, o
+     * registro de vaga com o código, o ponto do carro e o histórico de vagas. Limpa só o celular; sem o código, o registro
      * aberto no servidor não pode mais ser alterado e expira no fim da noite
      * (ADR 0014).
      */
