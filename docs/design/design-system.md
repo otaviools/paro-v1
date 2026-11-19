@@ -123,14 +123,14 @@ O raio base do Nuxt UI (`--ui-radius`, 8 px) não mudou e não é controlado pel
 Referência: [Solid Glass](https://github.com/deeplethe/solid-glass) (opção C: o acabamento dele com o azul do Parô). O acabamento fica na borda do vidro e o rosto é uma cor lisa, sem degradê. As classes `vidro`, `vidro-escolhido` e `vidro-ativo` leem variáveis CSS declaradas no `main.css`: `:root` para o tema claro e `.dark` para o escuro. As cores ficam em canais (`R G B`) e alfas separados.
 
 1. **Fundo:** cor translúcida (`*-fundo`, `*-fundo-alfa`) com desfoque de 26 px (`--vidro-desfoque`). A saturação é de 180% no claro e de 100% no escuro (`--vidro-saturacao`), para o vidro escuro ficar cinza neutro.
-2. **Luz:** linha branca de 1 px no topo (`*-luz-alfa`). No `vidro`, mais um fio branco por dentro (`--vidro-dentro-alfa`).
+2. **Luz:** linha de 1 px no topo, na cor `*-luz` (branca por padrão) com opacidade `*-luz-alfa`. No `vidro`, mais um fio branco por dentro (`--vidro-dentro-alfa`).
 3. **Contorno:** 1 px na cor `*-contorno` com opacidade `*-contorno-alfa`. No `vidro` fica por fora; no `vidro-escolhido`, por dentro; no `vidro-ativo`, é só a linha de sombra da base.
 4. **Sombra por baixo:** macia e puxada para baixo, na cor `--vidro-sombra` com opacidade `*-sombra-alfa`. O `vidro-escolhido` não tem.
 
 | Variável | `vidro` claro | `vidro` escuro | `vidro-escolhido` claro | `vidro-escolhido` escuro | `vidro-ativo` claro | `vidro-ativo` escuro |
 |---|---|---|---|---|---|---|
 | Fundo | `248 249 251` a 60% | `48 48 48` a 46% | `31 108 159` a 10% | `169 211 242` a 12% | `31 108 159` a 90% | `169 211 242` a 90% |
-| Luz no topo | 90% | 16% | 85% | 22% | 30% | 100% |
+| Luz no topo | `255 255 255` a 90% | `255 255 255` a 16% | `255 255 255` a 85% | `255 255 255` a 22% | `255 255 255` a 30% | `255 255 255` a 100% |
 | Fio por dentro | 35% | 4% | não se aplica | não se aplica | não se aplica | não se aplica |
 | Contorno | `62 68 82` a 10% | `255 255 255` a 6% | `31 108 159` a 18% | `169 211 242` a 14% | base `0 0 0` a 40% | base `0 0 0` a 22% |
 | Sombra por baixo | `33 44 74` a 28% | `0 0 0` a 60% | sem sombra | sem sombra | 28% | 60% |
@@ -144,7 +144,7 @@ Referência: [Solid Glass](https://github.com/deeplethe/solid-glass) (opção C:
 
 ### Painel de ajustes visuais (F4)
 
-Em desenvolvimento, a tecla F4 abre o componente `DepuradorVisual`, e Esc fecha. Ele muda ao vivo o raio, o desfoque e as camadas de `vidro`, `vidro-escolhido` e `vidro-ativo`, nos dois temas, e guarda os ajustes no navegador. "Copiar ajustes" gera o bloco de variáveis para colar no `main.css`, e "Restaurar" volta aos valores do `main.css`. O painel não entra no build de produção. Os valores padrão do painel repetem os do `main.css`. Se um mudar, mude o outro.
+Em desenvolvimento, a tecla F4 abre o componente `DepuradorVisual`, e Esc fecha. Ele muda ao vivo o raio, o desfoque e as camadas (cores do fundo, da luz no topo e do contorno, e as opacidades) de `vidro`, `vidro-escolhido` e `vidro-ativo`, nos dois temas, e guarda os ajustes no navegador. "Copiar ajustes" gera o bloco de variáveis para colar no `main.css`, e "Restaurar" volta aos valores do `main.css`. O painel não entra no build de produção. Os valores padrão do painel repetem os do `main.css`. Se um mudar, mude o outro.
 
 ## Texto e medidas
 
