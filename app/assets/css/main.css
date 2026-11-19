@@ -287,31 +287,31 @@ body {
   --vidro-saturacao: 180%;
 
   --vidro-fundo: 248 249 251;
-  --vidro-fundo-alfa: 0.6;
-  --vidro-luz: 255 255 255;
-  --vidro-luz-alfa: 0.9;
+  --vidro-fundo-alfa: 0.46;
+  --vidro-luz: 31 158 255;
+  --vidro-luz-alfa: 0.21;
   --vidro-dentro-alfa: 0.35;
-  --vidro-contorno: 62 68 82;
-  --vidro-contorno-alfa: 0.1;
+  --vidro-contorno: 107 107 107;
+  --vidro-contorno-alfa: 0.12;
   --vidro-sombra: 33 44 74;
-  --vidro-sombra-alfa: 0.28;
+  --vidro-sombra-alfa: 0.2;
 
-  --vidro-escolhido-fundo: 31 108 159;
-  --vidro-escolhido-fundo-alfa: 0.1;
-  --vidro-escolhido-luz: 255 255 255;
-  --vidro-escolhido-luz-alfa: 0.85;
-  --vidro-escolhido-contorno: 31 108 159;
-  --vidro-escolhido-contorno-alfa: 0.18;
+  --vidro-escolhido-fundo: 41 169 255;
+  --vidro-escolhido-fundo-alfa: 0.14;
+  --vidro-escolhido-luz: 41 169 255;
+  --vidro-escolhido-luz-alfa: 0.21;
+  --vidro-escolhido-contorno: 115 155 181;
+  --vidro-escolhido-contorno-alfa: 0.12;
   --vidro-escolhido-texto: #1F6C9F;
 
-  --vidro-ativo-fundo: 31 108 159;
-  --vidro-ativo-fundo-alfa: 0.9;
-  --vidro-ativo-luz: 255 255 255;
-  --vidro-ativo-luz-alfa: 0.3;
-  --vidro-ativo-contorno: 0 0 0;
-  --vidro-ativo-contorno-alfa: 0.4;
-  --vidro-ativo-sombra-alfa: 0.28;
-  --vidro-ativo-texto: #FFFFFF;
+  --vidro-ativo-fundo: 123 195 249;
+  --vidro-ativo-fundo-alfa: 0.81;
+  --vidro-ativo-luz: 0 125 214;
+  --vidro-ativo-luz-alfa: 0.2;
+  --vidro-ativo-contorno: 197 220 238;
+  --vidro-ativo-contorno-alfa: 0.12;
+  --vidro-ativo-sombra-alfa: 0.2;
+  --vidro-ativo-texto: #10283A;
 }
 
 .dark {

@@ -129,12 +129,12 @@ Referência: [Solid Glass](https://github.com/deeplethe/solid-glass) (opção C:
 
 | Variável | `vidro` claro | `vidro` escuro | `vidro-escolhido` claro | `vidro-escolhido` escuro | `vidro-ativo` claro | `vidro-ativo` escuro |
 |---|---|---|---|---|---|---|
-| Fundo | `248 249 251` a 60% | `48 48 48` a 46% | `31 108 159` a 10% | `169 211 242` a 12% | `31 108 159` a 90% | `169 211 242` a 90% |
-| Luz no topo | `255 255 255` a 90% | `255 255 255` a 16% | `255 255 255` a 85% | `255 255 255` a 22% | `255 255 255` a 30% | `255 255 255` a 100% |
+| Fundo | `248 249 251` a 46% | `48 48 48` a 46% | `41 169 255` a 14% | `169 211 242` a 12% | `123 195 249` a 81% | `169 211 242` a 90% |
+| Luz no topo | `31 158 255` a 21% | `255 255 255` a 16% | `41 169 255` a 21% | `255 255 255` a 22% | `0 125 214` a 20% | `255 255 255` a 100% |
 | Fio por dentro | 35% | 4% | não se aplica | não se aplica | não se aplica | não se aplica |
-| Contorno | `62 68 82` a 10% | `255 255 255` a 6% | `31 108 159` a 18% | `169 211 242` a 14% | base `0 0 0` a 40% | base `0 0 0` a 22% |
-| Sombra por baixo | `33 44 74` a 28% | `0 0 0` a 60% | sem sombra | sem sombra | 28% | 60% |
-| Texto | não se aplica | não se aplica | `#1F6C9F` | `#A9D3F2` | `#FFFFFF` | `#10283A` |
+| Contorno | `107 107 107` a 12% | `255 255 255` a 6% | `115 155 181` a 12% | `169 211 242` a 14% | base `197 220 238` a 12% | base `0 0 0` a 22% |
+| Sombra por baixo | `33 44 74` a 20% | `0 0 0` a 60% | sem sombra | sem sombra | 20% | 60% |
+| Texto | não se aplica | não se aplica | `#1F6C9F` | `#A9D3F2` | `#10283A` | `#10283A` |
 
 | Classe | Onde |
 |---|---|

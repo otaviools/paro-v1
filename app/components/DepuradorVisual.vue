@@ -44,9 +44,9 @@ const VALORES_PADRAO: Ajustes = {
   desfoque: 26,
   temas: {
     claro: {
-      normal: { fundo: '#F8F9FB', fundoAlfa: 0.6, luz: '#FFFFFF', luzAlfa: 0.9, contorno: '#3E4452', contornoAlfa: 0.1, sombraAlfa: 0.28 },
-      escolhido: { fundo: '#1F6C9F', fundoAlfa: 0.1, luz: '#FFFFFF', luzAlfa: 0.85, contorno: '#1F6C9F', contornoAlfa: 0.18 },
-      ativo: { fundo: '#1F6C9F', fundoAlfa: 0.9, luz: '#FFFFFF', luzAlfa: 0.3, contorno: '#000000', contornoAlfa: 0.4, sombraAlfa: 0.28 },
+      normal: { fundo: '#F8F9FB', fundoAlfa: 0.46, luz: '#1F9EFF', luzAlfa: 0.21, contorno: '#6B6B6B', contornoAlfa: 0.12, sombraAlfa: 0.2 },
+      escolhido: { fundo: '#29A9FF', fundoAlfa: 0.14, luz: '#29A9FF', luzAlfa: 0.21, contorno: '#739BB5', contornoAlfa: 0.12 },
+      ativo: { fundo: '#7BC3F9', fundoAlfa: 0.81, luz: '#007DD6', luzAlfa: 0.2, contorno: '#C5DCEE', contornoAlfa: 0.12, sombraAlfa: 0.2 },
     },
     escuro: {
       normal: { fundo: '#303030', fundoAlfa: 0.46, luz: '#FFFFFF', luzAlfa: 0.16, contorno: '#FFFFFF', contornoAlfa: 0.06, sombraAlfa: 0.6 },
