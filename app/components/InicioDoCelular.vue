@@ -1,11 +1,31 @@
 <!--
-  Conteúdo do Início no celular: logotipo, aviso de demonstração, bloco do registro de
+  Conteúdo do Início no celular: logotipo, aviso de demonstração, saudação com
+  apelido engraçado ("Boa noite, Ímã de Vaga"), bloco do registro de
   vaga, Panorama da noite por faixa horária e a pergunta "A previsão ajudou
   hoje?". No desktop, as abas, a melhor chance, a lista e a pergunta ficam na
   barra lateral do PainelDesktop.
 -->
 <script setup lang="ts">
 const { abas, faixaHoraria, panorama, error, carregando } = usePanoramaDaNoite()
+
+/*
+ * Título: saudação do horário com um apelido engraçado ("Boa noite, Ímã de
+ * Vaga"). Os dois só existem no navegador (o relógio é o do aparelho e o
+ * sorteio daria outro nome no servidor); até lá, o título é "Início", que a
+ * tela de abertura cobre. O apelido fica o mesmo ao trocar de tela e muda ao
+ * abrir o app de novo.
+ */
+const nomeEngracado = useState<string | null>('nome-engracado', () => null)
+const saudacao = ref<string | null>(null)
+
+onMounted(() => {
+  saudacao.value = saudacaoDoHorario(new Date().getHours())
+  nomeEngracado.value ??= sortearNomeEngracado()
+})
+
+const titulo = computed(() =>
+  saudacao.value && nomeEngracado.value ? `${saudacao.value}, ${nomeEngracado.value}` : 'Início',
+)
 </script>
 
 <template>
@@ -26,8 +46,8 @@ const { abas, faixaHoraria, panorama, error, carregando } = usePanoramaDaNoite()
       </div>
     </div>
 
-    <h1 class="text-2xl font-bold leading-tight tracking-tight">
-      Início
+    <h1 class="text-2xl font-bold leading-tight tracking-tight text-balance">
+      {{ titulo }}
     </h1>
 
     <BlocoDoRegistroDeVaga class="mt-6" />

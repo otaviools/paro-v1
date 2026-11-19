@@ -26,6 +26,7 @@ type Variante = 'normal' | 'escolhido' | 'ativo'
 interface Camadas {
   fundo: string
   fundoAlfa: number
+  luz: string
   luzAlfa: number
   contorno: string
   contornoAlfa: number
@@ -43,14 +44,14 @@ const VALORES_PADRAO: Ajustes = {
   desfoque: 26,
   temas: {
     claro: {
-      normal: { fundo: '#F8F9FB', fundoAlfa: 0.6, luzAlfa: 0.9, contorno: '#3E4452', contornoAlfa: 0.1, sombraAlfa: 0.28 },
-      escolhido: { fundo: '#1F6C9F', fundoAlfa: 0.1, luzAlfa: 0.85, contorno: '#1F6C9F', contornoAlfa: 0.18 },
-      ativo: { fundo: '#1F6C9F', fundoAlfa: 0.9, luzAlfa: 0.3, contorno: '#000000', contornoAlfa: 0.4, sombraAlfa: 0.28 },
+      normal: { fundo: '#F8F9FB', fundoAlfa: 0.46, luz: '#1F9EFF', luzAlfa: 0.21, contorno: '#6B6B6B', contornoAlfa: 0.12, sombraAlfa: 0.2 },
+      escolhido: { fundo: '#29A9FF', fundoAlfa: 0.14, luz: '#29A9FF', luzAlfa: 0.21, contorno: '#739BB5', contornoAlfa: 0.12 },
+      ativo: { fundo: '#7BC3F9', fundoAlfa: 0.81, luz: '#007DD6', luzAlfa: 0.2, contorno: '#C5DCEE', contornoAlfa: 0.12, sombraAlfa: 0.2 },
     },
     escuro: {
-      normal: { fundo: '#303030', fundoAlfa: 0.46, luzAlfa: 0.16, contorno: '#FFFFFF', contornoAlfa: 0.06, sombraAlfa: 0.6 },
-      escolhido: { fundo: '#A9D3F2', fundoAlfa: 0.12, luzAlfa: 0.22, contorno: '#A9D3F2', contornoAlfa: 0.14 },
-      ativo: { fundo: '#A9D3F2', fundoAlfa: 0.9, luzAlfa: 1, contorno: '#000000', contornoAlfa: 0.22, sombraAlfa: 0.6 },
+      normal: { fundo: '#303030', fundoAlfa: 0.46, luz: '#FFFFFF', luzAlfa: 0.16, contorno: '#FFFFFF', contornoAlfa: 0.06, sombraAlfa: 0.6 },
+      escolhido: { fundo: '#A9D3F2', fundoAlfa: 0.12, luz: '#FFFFFF', luzAlfa: 0.22, contorno: '#A9D3F2', contornoAlfa: 0.14 },
+      ativo: { fundo: '#A9D3F2', fundoAlfa: 0.9, luz: '#FFFFFF', luzAlfa: 1, contorno: '#000000', contornoAlfa: 0.22, sombraAlfa: 0.6 },
     },
   },
 }
@@ -80,6 +81,7 @@ function variaveisDe(c: Camadas, prefixo: string) {
   return [
     `  ${prefixo}-fundo: ${canais(c.fundo)};`,
     `  ${prefixo}-fundo-alfa: ${arredondar(c.fundoAlfa)};`,
+    `  ${prefixo}-luz: ${canais(c.luz)};`,
     `  ${prefixo}-luz-alfa: ${arredondar(c.luzAlfa)};`,
     `  ${prefixo}-contorno: ${canais(c.contorno)};`,
     `  ${prefixo}-contorno-alfa: ${arredondar(c.contornoAlfa)};`,
@@ -133,10 +135,22 @@ function aoTeclar(evento: KeyboardEvent) {
   else if (evento.key === 'Escape' && aberto.value) aberto.value = false
 }
 
+/**
+ * Ajustes guardados por cima dos padrões, camada por camada: um valor que não
+ * existia quando os ajustes foram guardados (ex.: a cor da luz) vem do padrão.
+ */
+function juntarComPadrao(guardado: Partial<Ajustes>): Ajustes {
+  const padrao = copiaDe(VALORES_PADRAO)
+  const temas = Object.fromEntries((['claro', 'escuro'] as const).map(t => [t, Object.fromEntries(
+    (['normal', 'escolhido', 'ativo'] as const).map(v => [v, { ...padrao.temas[t][v], ...guardado.temas?.[t]?.[v] }]),
+  )])) as Ajustes['temas']
+  return { ...padrao, ...guardado, temas }
+}
+
 onMounted(() => {
   try {
     const guardado = localStorage.getItem(GUARDADO)
-    if (guardado) ajustes.value = { ...copiaDe(VALORES_PADRAO), ...JSON.parse(guardado) }
+    if (guardado) ajustes.value = juntarComPadrao(JSON.parse(guardado))
   }
   catch {
     // Guardado inválido: fica com os valores do main.css.
@@ -302,7 +316,7 @@ function mostrar(valor: number, unidade: '%' | 'px' | 'alfa') {
       </div>
 
       <section class="grid gap-3">
-        <div class="grid grid-cols-2 gap-3">
+        <div class="grid grid-cols-3 gap-3">
           <label class="grid gap-1">
             <span>Cor do fundo</span>
             <input
@@ -312,7 +326,15 @@ function mostrar(valor: number, unidade: '%' | 'px' | 'alfa') {
             >
           </label>
           <label class="grid gap-1">
-            <span>{{ variante === 'ativo' ? 'Cor da base' : 'Cor do contorno' }}</span>
+            <span>Cor da luz</span>
+            <input
+              v-model="camadas.luz"
+              type="color"
+              class="h-8 w-full cursor-pointer rounded border border-default bg-transparent"
+            >
+          </label>
+          <label class="grid gap-1">
+            <span>{{ variante === 'ativo' ? 'Cor da base' : 'Contorno' }}</span>
             <input
               v-model="camadas.contorno"
               type="color"

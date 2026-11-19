@@ -306,28 +306,13 @@ function apagarHistorico() {
           @click="privacidade?.abrir()"
         />
       </UCard>
-
-      <!-- Ação de apagar no fim da lista (referência Grok); sempre com confirmação. -->
-      <div class="mt-6 grid gap-1">
-        <UButton
-          color="error"
-          variant="link"
-          icon="i-lucide-trash-2"
-          label="Apagar histórico"
-          aria-haspopup="dialog"
-          class="min-h-11 justify-self-start px-0 text-sm"
-          @click="pedirConfirmacao"
-        />
-        <p class="max-w-[70ch] text-xs text-muted">
-          Limpa deste celular a rotina, o registro de vaga com o código e o ponto do carro.
-        </p>
-      </div>
     </section>
 
     <!--
       Área da equipe: entrada para Observações (ADR 0011) e Métricas, que pedem a
-      chave da equipe. Fica no fim de Ajustes, para a equipe registrar as
-      contagens de campo pelo celular sem decorar o endereço.
+      chave da equipe. Fica perto do fim de Ajustes, antes do Apagar histórico,
+      para a equipe registrar as contagens de campo pelo celular sem decorar o
+      endereço.
     -->
     <section
       class="mt-8"
@@ -360,6 +345,22 @@ function apagarHistorico() {
         Só para a equipe do Parô: registrar as contagens feitas nas ruas e ver as métricas de uso, com a chave da equipe.
       </p>
     </section>
+
+    <!-- Ação de apagar por último, no fim de Ajustes (referência Grok); sempre com confirmação. -->
+    <div class="mt-8 grid gap-1">
+      <UButton
+        color="error"
+        variant="link"
+        icon="i-lucide-trash-2"
+        label="Apagar histórico"
+        aria-haspopup="dialog"
+        class="min-h-11 justify-self-start px-0 text-sm"
+        @click="pedirConfirmacao"
+      />
+      <p class="max-w-[70ch] text-xs text-muted">
+        Limpa deste celular a rotina, o registro de vaga com o código e o ponto do carro.
+      </p>
+    </div>
 
     <Gaveta
       ref="sugestao"

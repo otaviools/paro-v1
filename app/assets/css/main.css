@@ -287,28 +287,31 @@ body {
   --vidro-saturacao: 180%;
 
   --vidro-fundo: 248 249 251;
-  --vidro-fundo-alfa: 0.6;
-  --vidro-luz-alfa: 0.9;
+  --vidro-fundo-alfa: 0.46;
+  --vidro-luz: 31 158 255;
+  --vidro-luz-alfa: 0.21;
   --vidro-dentro-alfa: 0.35;
-  --vidro-contorno: 62 68 82;
-  --vidro-contorno-alfa: 0.1;
+  --vidro-contorno: 107 107 107;
+  --vidro-contorno-alfa: 0.12;
   --vidro-sombra: 33 44 74;
-  --vidro-sombra-alfa: 0.28;
+  --vidro-sombra-alfa: 0.2;
 
-  --vidro-escolhido-fundo: 31 108 159;
-  --vidro-escolhido-fundo-alfa: 0.1;
-  --vidro-escolhido-luz-alfa: 0.85;
-  --vidro-escolhido-contorno: 31 108 159;
-  --vidro-escolhido-contorno-alfa: 0.18;
+  --vidro-escolhido-fundo: 41 169 255;
+  --vidro-escolhido-fundo-alfa: 0.14;
+  --vidro-escolhido-luz: 41 169 255;
+  --vidro-escolhido-luz-alfa: 0.21;
+  --vidro-escolhido-contorno: 115 155 181;
+  --vidro-escolhido-contorno-alfa: 0.12;
   --vidro-escolhido-texto: #1F6C9F;
 
-  --vidro-ativo-fundo: 31 108 159;
-  --vidro-ativo-fundo-alfa: 0.9;
-  --vidro-ativo-luz-alfa: 0.3;
-  --vidro-ativo-contorno: 0 0 0;
-  --vidro-ativo-contorno-alfa: 0.4;
-  --vidro-ativo-sombra-alfa: 0.28;
-  --vidro-ativo-texto: #FFFFFF;
+  --vidro-ativo-fundo: 123 195 249;
+  --vidro-ativo-fundo-alfa: 0.81;
+  --vidro-ativo-luz: 0 125 214;
+  --vidro-ativo-luz-alfa: 0.2;
+  --vidro-ativo-contorno: 197 220 238;
+  --vidro-ativo-contorno-alfa: 0.12;
+  --vidro-ativo-sombra-alfa: 0.2;
+  --vidro-ativo-texto: #10283A;
 }
 
 .dark {
@@ -317,6 +320,7 @@ body {
 
   --vidro-fundo: 48 48 48;
   --vidro-fundo-alfa: 0.46;
+  --vidro-luz: 255 255 255;
   --vidro-luz-alfa: 0.16;
   --vidro-dentro-alfa: 0.04;
   --vidro-contorno: 255 255 255;
@@ -326,6 +330,7 @@ body {
 
   --vidro-escolhido-fundo: 169 211 242;
   --vidro-escolhido-fundo-alfa: 0.12;
+  --vidro-escolhido-luz: 255 255 255;
   --vidro-escolhido-luz-alfa: 0.22;
   --vidro-escolhido-contorno: 169 211 242;
   --vidro-escolhido-contorno-alfa: 0.14;
@@ -333,6 +338,7 @@ body {
 
   --vidro-ativo-fundo: 169 211 242;
   --vidro-ativo-fundo-alfa: 0.9;
+  --vidro-ativo-luz: 255 255 255;
   --vidro-ativo-luz-alfa: 1;
   --vidro-ativo-contorno: 0 0 0;
   --vidro-ativo-contorno-alfa: 0.22;
@@ -340,12 +346,22 @@ body {
   --vidro-ativo-texto: #10283A;
 }
 
+/*
+ * Aviso flutuante (AvisoFlutuante): card de vidro do tema (claro no claro,
+ * escuro no escuro), mais opaco que os cards para ler bem sobre qualquer
+ * tela. Vale no próprio card, então vence o alfa que ele herda do :root e do
+ * .dark (daqui e do <style> do painel do F4).
+ */
+.aviso-flutuante {
+  --vidro-fundo-alfa: 0.94;
+}
+
 /* O !important vence o ring e o bg dos botões do Nuxt UI, que também usam box-shadow e background-color. */
 @utility vidro {
   background: rgb(var(--vidro-fundo) / var(--vidro-fundo-alfa)) !important;
   backdrop-filter: blur(var(--vidro-desfoque)) saturate(var(--vidro-saturacao));
   box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / var(--vidro-luz-alfa)),
+    inset 0 1px 0 rgb(var(--vidro-luz) / var(--vidro-luz-alfa)),
     inset 0 0 0 1px rgb(255 255 255 / var(--vidro-dentro-alfa)),
     0 0 0 1px rgb(var(--vidro-contorno) / var(--vidro-contorno-alfa)),
     0 1px 2px rgb(var(--vidro-sombra) / calc(var(--vidro-sombra-alfa) / 4)),
@@ -357,7 +373,7 @@ body {
   background: rgb(var(--vidro-escolhido-fundo) / var(--vidro-escolhido-fundo-alfa)) !important;
   color: var(--vidro-escolhido-texto);
   box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / var(--vidro-escolhido-luz-alfa)),
+    inset 0 1px 0 rgb(var(--vidro-escolhido-luz) / var(--vidro-escolhido-luz-alfa)),
     inset 0 0 0 1px rgb(var(--vidro-escolhido-contorno) / var(--vidro-escolhido-contorno-alfa)) !important;
 }
 
@@ -367,7 +383,7 @@ body {
   backdrop-filter: blur(14px);
   color: var(--vidro-ativo-texto);
   box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / var(--vidro-ativo-luz-alfa)),
+    inset 0 1px 0 rgb(var(--vidro-ativo-luz) / var(--vidro-ativo-luz-alfa)),
     inset 0 -1px 0 rgb(var(--vidro-ativo-contorno) / var(--vidro-ativo-contorno-alfa)),
     0 1px 2px rgb(var(--vidro-sombra) / calc(var(--vidro-ativo-sombra-alfa) / 4)),
     0 8px 18px -9px rgb(var(--vidro-sombra) / var(--vidro-ativo-sombra-alfa)) !important;

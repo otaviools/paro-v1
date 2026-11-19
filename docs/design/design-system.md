@@ -123,18 +123,18 @@ O raio base do Nuxt UI (`--ui-radius`, 8 px) não mudou e não é controlado pel
 Referência: [Solid Glass](https://github.com/deeplethe/solid-glass) (opção C: o acabamento dele com o azul do Parô). O acabamento fica na borda do vidro e o rosto é uma cor lisa, sem degradê. As classes `vidro`, `vidro-escolhido` e `vidro-ativo` leem variáveis CSS declaradas no `main.css`: `:root` para o tema claro e `.dark` para o escuro. As cores ficam em canais (`R G B`) e alfas separados.
 
 1. **Fundo:** cor translúcida (`*-fundo`, `*-fundo-alfa`) com desfoque de 26 px (`--vidro-desfoque`). A saturação é de 180% no claro e de 100% no escuro (`--vidro-saturacao`), para o vidro escuro ficar cinza neutro.
-2. **Luz:** linha branca de 1 px no topo (`*-luz-alfa`). No `vidro`, mais um fio branco por dentro (`--vidro-dentro-alfa`).
+2. **Luz:** linha de 1 px no topo, na cor `*-luz` (branca por padrão) com opacidade `*-luz-alfa`. No `vidro`, mais um fio branco por dentro (`--vidro-dentro-alfa`).
 3. **Contorno:** 1 px na cor `*-contorno` com opacidade `*-contorno-alfa`. No `vidro` fica por fora; no `vidro-escolhido`, por dentro; no `vidro-ativo`, é só a linha de sombra da base.
 4. **Sombra por baixo:** macia e puxada para baixo, na cor `--vidro-sombra` com opacidade `*-sombra-alfa`. O `vidro-escolhido` não tem.
 
 | Variável | `vidro` claro | `vidro` escuro | `vidro-escolhido` claro | `vidro-escolhido` escuro | `vidro-ativo` claro | `vidro-ativo` escuro |
 |---|---|---|---|---|---|---|
-| Fundo | `248 249 251` a 60% | `48 48 48` a 46% | `31 108 159` a 10% | `169 211 242` a 12% | `31 108 159` a 90% | `169 211 242` a 90% |
-| Luz no topo | 90% | 16% | 85% | 22% | 30% | 100% |
+| Fundo | `248 249 251` a 46% | `48 48 48` a 46% | `41 169 255` a 14% | `169 211 242` a 12% | `123 195 249` a 81% | `169 211 242` a 90% |
+| Luz no topo | `31 158 255` a 21% | `255 255 255` a 16% | `41 169 255` a 21% | `255 255 255` a 22% | `0 125 214` a 20% | `255 255 255` a 100% |
 | Fio por dentro | 35% | 4% | não se aplica | não se aplica | não se aplica | não se aplica |
-| Contorno | `62 68 82` a 10% | `255 255 255` a 6% | `31 108 159` a 18% | `169 211 242` a 14% | base `0 0 0` a 40% | base `0 0 0` a 22% |
-| Sombra por baixo | `33 44 74` a 28% | `0 0 0` a 60% | sem sombra | sem sombra | 28% | 60% |
-| Texto | não se aplica | não se aplica | `#1F6C9F` | `#A9D3F2` | `#FFFFFF` | `#10283A` |
+| Contorno | `107 107 107` a 12% | `255 255 255` a 6% | `115 155 181` a 12% | `169 211 242` a 14% | base `197 220 238` a 12% | base `0 0 0` a 22% |
+| Sombra por baixo | `33 44 74` a 20% | `0 0 0` a 60% | sem sombra | sem sombra | 20% | 60% |
+| Texto | não se aplica | não se aplica | `#1F6C9F` | `#A9D3F2` | `#10283A` | `#10283A` |
 
 | Classe | Onde |
 |---|---|
@@ -144,7 +144,7 @@ Referência: [Solid Glass](https://github.com/deeplethe/solid-glass) (opção C:
 
 ### Painel de ajustes visuais (F4)
 
-Em desenvolvimento, a tecla F4 abre o componente `DepuradorVisual`, e Esc fecha. Ele muda ao vivo o raio, o desfoque e as camadas de `vidro`, `vidro-escolhido` e `vidro-ativo`, nos dois temas, e guarda os ajustes no navegador. "Copiar ajustes" gera o bloco de variáveis para colar no `main.css`, e "Restaurar" volta aos valores do `main.css`. O painel não entra no build de produção. Os valores padrão do painel repetem os do `main.css`. Se um mudar, mude o outro.
+Em desenvolvimento, a tecla F4 abre o componente `DepuradorVisual`, e Esc fecha. Ele muda ao vivo o raio, o desfoque e as camadas (cores do fundo, da luz no topo e do contorno, e as opacidades) de `vidro`, `vidro-escolhido` e `vidro-ativo`, nos dois temas, e guarda os ajustes no navegador. "Copiar ajustes" gera o bloco de variáveis para colar no `main.css`, e "Restaurar" volta aos valores do `main.css`. O painel não entra no build de produção. Os valores padrão do painel repetem os do `main.css`. Se um mudar, mude o outro.
 
 ## Texto e medidas
 
@@ -276,7 +276,9 @@ As Métricas da equipe usam ECharts, uma exceção à ADR 0028:
 | Gaveta sobre o mapa | Raio `rounded-paro-lg` no topo, alça de 32 × 4 px, botão de fechar; dois pontos de parada (resumo e expandida) | Lime: gaveta da rua |
 | Gaveta de escolha | Título à esquerda e botão de fechar à direita, grupos de chips em grade e "Salvar" como ação principal cheia no rodapé, com o horário marcado ("Salvar saída às 21h30"); no desktop, abre embaixo do painel da direita, com a largura dele; pode ter uma escolha vazia em largura total acima dos grupos ("Sem rotina"). Usada na saída prevista e, no celular, na rotina de Ajustes (no desktop, a rotina continua na lista suspensa) | Careem e Airbnb: escolha de horário |
 | Registro sobre o mapa (desktop) | Com um registro de vaga aberto e fora da aba Vaga, card de vidro à esquerda da legenda, com a largura e a altura dela: ponto verde piscando com "Seu registro de vaga", saída prevista, rua, chegada, "Saí" (botão cheio: avisa a saída e encerra o registro, como na aba Vaga) e "Mudar saída" (abre a aba Vaga). Com o painel da direita aberto, fica em cima da legenda. Entra subindo 12 px e aparecendo; sai descendo | Turo: card sobre o mapa |
-| Aviso flutuante | `UToast` em vidro tingido pelo sinal: sucesso com fundo `bg-success-100` translúcido, texto `text-success` e ícone de check; erro com `bg-error-100`, `text-error` e ícone de alerta. Desfoque, borda e sombra suaves, raio `rounded-paro-md`, some em 3 s | Waymo: confirmação |
+| Registro no Início (celular) | Com um registro de vaga aberto, card abaixo do título do Início: ponto verde piscando com "Seu registro de vaga", saída prevista e rua; embaixo, "Saí" (botão cheio, como na aba Vaga), "Voltar até o carro" (com o ponto do carro) e "Ver minha vaga", em largura total, um por linha | Rivian: bloco na tela inicial |
+| Saudação do Início (celular) | O título do Início é a saudação do horário do aparelho ("Bom dia" das 5h às 11h59, "Boa tarde" do meio-dia às 17h59, "Boa noite" no resto) com um apelido engraçado sorteado de quem busca vaga, sem gênero ("Boa noite, Ímã de Vaga"). Os apelidos são curtos (até 14 caracteres, `LIMITE_DO_APELIDO`) para o título nunca quebrar a linha, nem num celular de 320 px. O apelido fica o mesmo ao trocar de tela e muda ao abrir o app de novo | Sem referência |
+| Aviso flutuante | `UToast` num card de vidro que segue o tema, claro no claro e escuro no escuro (classes `aviso-flutuante` e `vidro`; fundo a 94%), raio `rounded-paro-md`, texto `text-highlighted` com uma bolinha de 8 px ao lado: verde (o verde de Tranquilo) para sucesso, vermelha (o vermelho de Difícil) para erro, com halo de 4 px da mesma cor. No celular, 8 px acima da barra de abas, com a largura dela; no desktop, no canto superior direito, a 24 px das bordas, com 352 px de largura. Some em 3 s | Waymo: confirmação |
 | Esqueleto | `USkeleton` em `bg-muted` no formato do conteúdo, com brilho que passa a cada 1,4 s (classe `brilho`) | Google e Finimize: carregamento |
 | Carregamento da Área da equipe | Pílula de `vidro` com o ícone girando e "Carregando…". Aparece enquanto a tela confere a chave guardada na aba e, nas Métricas, por cima dos resultados esmaecidos a cada requisição | Sem referência |
 | Etiqueta sobre o mapa | Fundo `bg-elevated`, borda, ícone de pegadas e a distância em metros em linha reta ("140 m em linha reta"). Sem minutos, porque o Parô não calcula rota (ADR 0020) | Lime: tempo a pé |
@@ -341,7 +343,7 @@ A partir de 1024 px, o Parô é um painel único de três colunas (referência T
 | Consultar | Início → linha da rua → Detalhe da rua → Como chegar |
 | Pelo mapa | Mapa → toque no trecho → gaveta → Detalhe da rua |
 | Registrar | Minha vaga → Registrar vaga → escolher rua e saída prevista → Seu registro de vaga |
-| Encerrar | Seu registro de vaga → Saí → aviso flutuante → Início |
+| Encerrar | Seu registro de vaga → Saí → aviso flutuante → Início. Também pelo "Saí" do bloco do registro de vaga no Início (celular) e do card sobre o mapa (desktop) → aviso flutuante, sem sair da tela |
 | Voltar ao carro | Bloco do registro de vaga no Início (referência Rivian) → mapa com ponto do carro e posição atual |
 
 ## Tema escuro

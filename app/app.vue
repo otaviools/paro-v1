@@ -83,26 +83,29 @@ function aoTeclar(evento: KeyboardEvent) {
   fecharPainel()
 }
 
-/*
- * Aviso flutuante (UToast), embaixo e no centro, acima da barra de abas
- * (64 + 12 px) e da ação principal fixa no rodapé (52 + 12 px), com folga de
- * 12 px. Um aviso por vez: o novo troca o anterior.
- */
 /**
  * Painel de ajustes visuais do F4 (DepuradorVisual): só em desenvolvimento.
  * Em produção, import.meta.dev é false e o componente nem é carregado.
  */
 const emDesenvolvimento = import.meta.dev
 
-const lugarDosAvisos: ToasterProps = {
-  position: 'bottom-center',
+/*
+ * Aviso flutuante (UToast). No celular, embaixo e no centro, 8 px acima da
+ * barra de abas (64 + 12 px), com a largura dela. No desktop, no canto
+ * superior direito, a 24 px das bordas. Um aviso por vez: o novo troca o
+ * anterior.
+ */
+const lugarDosAvisos = computed<ToasterProps>(() => ({
+  position: desktop.value ? 'top-right' : 'bottom-center',
   duration: DURACAO_DO_AVISO,
   max: 1,
   progress: false,
   ui: {
-    viewport: 'bottom-[calc(--spacing(38)+env(safe-area-inset-bottom))] w-[calc(100%-2.5rem)] max-w-150 sm:w-[calc(100%-2.5rem)]',
+    viewport: desktop.value
+      ? 'top-6 right-6 w-88 sm:w-88'
+      : 'bottom-[calc(--spacing(21)+env(safe-area-inset-bottom))] w-[calc(100%-2.5rem)] max-w-150 sm:w-[calc(100%-2.5rem)]',
   },
-}
+}))
 </script>
 
 <template>
