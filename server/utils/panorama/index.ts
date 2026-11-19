@@ -1,6 +1,6 @@
 import type { FaixaHoraria } from '#shared/types/area-coberta'
 import type { Estimativa } from '#shared/types/chance'
-import type { FaixaHorariaPedida, MelhorChance, Panorama, RuaAoLongoDaNoite, RuaNoPanorama } from '#shared/types/panorama'
+import type { FaixaHorariaPedida, MelhorChance, MelhorChegada, Panorama, RuaAoLongoDaNoite, RuaNoPanorama } from '#shared/types/panorama'
 import { areaCoberta as areaCobertaDoApp } from '#shared/utils/area-coberta'
 import type { AreaCoberta } from '#shared/utils/area-coberta'
 import { estimar, estimativaDe } from '../chance'
@@ -30,6 +30,20 @@ export class RuaNaoCoberta extends Error {
   constructor(idDaRua: string) {
     super(`"${idDaRua}" não é uma rua coberta`)
   }
+}
+
+export class HorarioInvalido extends Error {
+  constructor(horario: string) {
+    super(`"${horario}" não é um horário HH:MM`)
+  }
+}
+
+/** Velocidade a pé usada para ver se ainda dá tempo de chegar à aula (ADR 0035). */
+const METROS_POR_MINUTO_A_PE = 80
+
+function emMinutos(horario: string): number {
+  const [h, m] = horario.split(':').map(Number) as [number, number]
+  return h * 60 + m
 }
 
 /** -1 deixa Sem dado depois de qualquer chance, inclusive de 0%. */
@@ -89,6 +103,36 @@ export function criarPanorama({ areaCoberta, observacoes, registrosDeVaga, chanc
 
       // As ruas já estão na ordem da melhor chance; Sem dado fica no fim e não concorre.
       return { faixaHoraria, ruas, melhorChance: ruas.find(temChance) ?? null, demonstracao }
+    },
+
+    /**
+     * Melhor chegada (ADR 0035): entre as faixas horárias e ruas cobertas
+     * que ainda dão tempo de andar até a `primeiraAula` (do início da faixa
+     * horária, a 80 m por minuto), a de maior chance na noite de `agora`. No
+     * empate, a faixa horária mais tarde e depois a rua mais perto. Sem dado
+     * não concorre: null quando nenhuma tem chance a tempo.
+     */
+    async melhorChegada(primeiraAula: string, agora: Date): Promise<MelhorChegada | null> {
+      if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(primeiraAula)) throw new HorarioInvalido(primeiraAula)
+      const estimativas = await estimativasDaNoite(agora)
+      const limite = emMinutos(primeiraAula)
+      let melhor: (MelhorChegada & { distancia: number }) | null = null
+      for (const faixaHoraria of areaCoberta.faixasHorarias()) {
+        for (const rua of areaCoberta.ruasCobertas()) {
+          const distancia = areaCoberta.distanciaAoDestino(rua.id)
+          if (emMinutos(faixaHoraria) + Math.ceil(distancia / METROS_POR_MINUTO_A_PE) > limite) continue
+          const estimativa = estimativaDe(estimativas, rua.id, faixaHoraria)
+          if (estimativa.tipo !== 'chance') continue
+          // As faixas horárias vêm em ordem: no empate, a mais tarde e, na mesma, a rua mais perto.
+          const melhora = melhor === null || estimativa.chance > melhor.estimativa.chance
+            || (estimativa.chance === melhor.estimativa.chance
+              && (faixaHoraria > melhor.faixaHoraria || distancia < melhor.distancia))
+          if (melhora) melhor = { faixaHoraria, rua: { id: rua.id, nome: rua.nome }, estimativa, distancia }
+        }
+      }
+      if (melhor === null) return null
+      const { distancia: _distancia, ...melhorChegada } = melhor
+      return melhorChegada
     },
 
     /** Como está uma rua coberta em cada faixa horária da noite de `agora`. */
