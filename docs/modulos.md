@@ -33,6 +33,7 @@ Toda chamada à API fica num composable de `app/composables/`, um por recurso (A
 | `useObservacoes` | `GET`, `POST` e `DELETE /api/equipe/observacoes` | `lerObservacoes`, `registrarObservacao`, `apagarObservacao`, na tela da equipe `/equipe/observacoes` |
 | `useAjudou` | `POST /api/ajudou` | `responderAjudou` |
 | `useSessao` | `POST /api/sessoes` | `contarVisita`, usado pelo plugin da sessão do mês |
+| `useHojeDaGrade` | `GET /api/melhor-chegada` | `ler()`: aulas de hoje pela grade horária e a melhor chegada, uma consulta por noite |
 
 Os Dados do celular ficam fora dessa regra: não são API (ADRs 0003, 0004 e 0015).
 
@@ -52,8 +53,10 @@ O estado compartilhado entre telas fica em stores do Pinia em `app/stores/`, uma
 - **Interface:**
   - `panorama(faixaHoraria, agora) → { ruas: [{ rua, estimativa, saidasPrevistas, distanciaAoDestino }], melhorChance, demonstracao: boolean }`
   - `ruaAoLongoDaNoite(rua, agora) → { rua, distanciaAoDestino, meioDoTrecho, faixasHorarias: [{ faixaHoraria, estimativa }], melhorFaixaHoraria, saidasPrevistas: [{ faixaHoraria, quantidade }], demonstracao }`, para o Detalhe da rua
+  - `melhorChegada(primeiraAula, agora) → { faixaHoraria, rua, estimativa } | null`, para a grade horária (ADR 0035)
 - **Esconde:**
   - a regra da melhor chance: desempate pela distância até o destino e ruas Sem dado fora da disputa;
+  - a regra da melhor chegada: caminhada a 80 m por minuto até a aula e desempate pela faixa horária mais tarde;
   - a junção de Chance, Registros de vaga e Área coberta;
   - o aviso "Dados de demonstração" (ADR 0012).
 - **Teste de exclusão:** sem esse módulo, cada tela teria que juntar chance, saídas previstas e distâncias por conta própria. A complexidade voltaria multiplicada.
@@ -112,12 +115,19 @@ O estado compartilhado entre telas fica em stores do Pinia em `app/stores/`, uma
 
 ### 7. Dados do celular
 
-- **Responsabilidade:** guardar tudo que nunca sai do aparelho: rotina, ponto do carro, códigos dos registros abertos, histórico e identificador mensal de sessão.
-- **Interface:** `rotina` (ler e definir), `pontoDoCarro` (guardar ao registrar, apagar no "Saí"), `codigoDoRegistroAtual`, `idDeSessaoDoMes(mes)`, `respondeuAjudou(noite)` / `marcarRespostaAjudou(noite)` e `apagarHistorico()`
+- **Responsabilidade:** guardar tudo que nunca sai do aparelho: rotina, grade horária, ponto do carro, códigos dos registros abertos, histórico de vagas e identificador mensal de sessão.
+- **Interface:** `rotina` (ler e definir), `gradeHoraria` / `definirGradeHoraria` (ADR 0035), `pontoDoCarro` (guardar ao registrar, apagar no "Saí"), `registroAtual(noite)`, `encerrarRegistro(saiu)`, `historicoDeVagas(manter)`, `idDeSessaoDoMes(mes)`, `respondeuAjudou(noite)` / `marcarRespostaAjudou(noite)` e `apagarHistorico()`
 - **Garante:** que esses dados nunca vão para o servidor (ADRs 0003, 0004 e 0015). Concentrar isso num módulo só deixa a regra de privacidade verificável num único lugar.
 - **Dependências:** usa `localStorage`, com substituto local. Os testes usam um armazenamento em memória.
 
-### 8. Mapa da área
+### 8. Grade horária
+
+- **Responsabilidade:** montar a grade horária (início da primeira aula e fim da última da noite, por dia da semana) a partir dos textos do PDF do horário de aulas da ESAMC, e calcular a saída prevista sugerida (ADR 0035).
+- **Interface:** `gradeDosTextos(paginas) → { grade, foraDaNoite } | null`, `saidaPrevistaDaAula(fim, faixasHorarias)`, `diaDaSemanaDaNoite(noite)` e, só no navegador, `lerGradeDoPdf(arquivo)`.
+- **Esconde:** o layout do portal (colunas pelos dias do cabeçalho, linhas pelos rótulos "Das HH:MM às HH:MM", aula em cada "Sala") e o pdf.js, baixado só na leitura.
+- **Garante:** que o PDF não sai do celular nem é guardado; só a grade vai para os Dados do celular.
+
+### 9. Mapa da área
 
 - **Responsabilidade:** desenhar as ruas cobertas sobre o mapa, com o padrão da faixa de chance de cada uma, e mostrar o ponto do carro.
 - **Interface:** `<MapaDaArea :ruas :pontoDoCarro :posicaoAtual :etiquetaDoCarro @selecionar-rua>`
