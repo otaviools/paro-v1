@@ -104,6 +104,12 @@ export default defineAppConfig({
         segment: 'rounded-none focus:bg-accented',
       },
     },
+    // O mesmo para o campo de horário (conferência da grade horária, desktop).
+    inputTime: {
+      slots: {
+        segment: 'rounded-none focus:bg-accented',
+      },
+    },
     // O mesmo para o popover (calendário do campo de data, balões).
     popover: {
       slots: {
@@ -133,10 +139,14 @@ export default defineAppConfig({
       ],
     },
 
-    // Seletor liga/desliga (design system, "Linha com seletor"): ligado em bg-inverted, sem sombra.
+    // Seletor liga/desliga (design system, "Linha com seletor"): ligado em bg-inverted, nunca no azul
+    // do primary, e sem sombra. Vale para todo USwitch, sem precisar de color="neutral".
     switch: {
       slots: {
         thumb: 'shadow-none bg-default data-[state=unchecked]:bg-inverted/50',
+      },
+      defaultVariants: {
+        color: 'neutral',
       },
     },
   },

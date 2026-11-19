@@ -6,7 +6,7 @@ import type { Observacao, Observacoes } from '../observacoes'
 import { criarObservacoesFicticias } from '../observacoes/ficticias'
 import { criarBancoDeTeste } from '../../testes/banco-de-teste'
 import { criarRegistrosDeVaga } from '../registros-de-vaga'
-import { criarPanorama, RuaNaoCoberta } from '.'
+import { criarPanorama, HorarioInvalido, RuaNaoCoberta } from '.'
 
 const configuracao: ConfiguracaoDaAreaCoberta = {
   provisoria: true,
@@ -567,3 +567,68 @@ describe('Saídas previstas no Panorama da noite', () => {
 function noites(ruaCoberta: string, vagasOcupadas: number[], faixaHoraria = '19:00'): Observacao[] {
   return vagasOcupadas.map((ocupadas, i) => observacao(ruaCoberta, diasLetivosNormais[i]!, ocupadas, faixaHoraria))
 }
+
+describe('Melhor chegada', () => {
+  /** Observações de 4 noites na rua e faixa horária, com `livres` delas abaixo de 85%. */
+  function noites(ruaCoberta: string, faixaHoraria: string, livres: number): Observacao[] {
+    return ['2027-02-17', '2027-02-24', '2027-03-10', '2027-03-17'].map((data, i) =>
+      observacao(ruaCoberta, data, i < livres ? 10 : 20, faixaHoraria))
+  }
+
+  it('é a faixa horária e a rua de maior chance que ainda dão tempo de andar até a aula', async () => {
+    const { melhorChegada } = criarPanorama({
+      areaCoberta: area,
+      registrosDeVaga: semRegistrosDeVaga,
+      observacoes: fonte([
+        ...noites('rua-a', '18:00', 3),
+        ...noites('rua-b', '18:30', 4),
+        // 100% às 19h, mas a aula começa às 19h: não dá tempo.
+        ...noites('rua-c', '19:00', 4),
+      ]),
+    })
+
+    expect(await melhorChegada('19:00', agora)).toMatchObject({
+      faixaHoraria: '18:30',
+      rua: { id: 'rua-b', nome: 'Rua B' },
+      estimativa: { tipo: 'chance', chance: 100 },
+    })
+  })
+
+  it('desconta a caminhada: a rua longe deixa de valer na faixa horária colada na aula', async () => {
+    // Rua A fica a 300 m: 4 minutos a pé. Faixa das 18:30 + 4 min passa das 18:32.
+    const { melhorChegada } = criarPanorama({
+      areaCoberta: area,
+      registrosDeVaga: semRegistrosDeVaga,
+      observacoes: fonte([...noites('rua-a', '18:30', 4), ...noites('rua-b', '18:00', 2)]),
+    })
+
+    expect(await melhorChegada('18:32', agora)).toMatchObject({ faixaHoraria: '18:00', rua: { id: 'rua-b' } })
+    expect(await melhorChegada('18:34', agora)).toMatchObject({ faixaHoraria: '18:30', rua: { id: 'rua-a' } })
+  })
+
+  it('no empate, fica a faixa horária mais tarde e, nela, a rua mais perto', async () => {
+    const { melhorChegada } = criarPanorama({
+      areaCoberta: area,
+      registrosDeVaga: semRegistrosDeVaga,
+      observacoes: fonte([...noites('rua-a', '17:30', 4), ...noites('rua-a', '18:00', 4), ...noites('rua-c', '18:00', 4)]),
+    })
+
+    expect(await melhorChegada('19:00', agora)).toMatchObject({ faixaHoraria: '18:00', rua: { id: 'rua-c' } })
+  })
+
+  it('não existe quando nenhuma rua tem chance a tempo da aula', async () => {
+    const { melhorChegada } = criarPanorama({
+      areaCoberta: area,
+      registrosDeVaga: semRegistrosDeVaga,
+      observacoes: fonte(noites('rua-a', '20:00', 4)),
+    })
+
+    expect(await melhorChegada('19:00', agora)).toBeNull()
+  })
+
+  it('recusa um horário de aula que não é HH:MM', async () => {
+    const { melhorChegada } = criarPanorama({ areaCoberta: area, registrosDeVaga: semRegistrosDeVaga, observacoes: fonte([]) })
+
+    await expect(melhorChegada('19h', agora)).rejects.toThrow(HorarioInvalido)
+  })
+})

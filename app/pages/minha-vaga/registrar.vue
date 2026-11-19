@@ -13,11 +13,15 @@
   (ADR 0003). No registro manual, o botão não aparece: a rua é escolhida na
   lista, sem ponto do carro. Com a forma "nenhuma", o registro está desligado
   e a tela volta para Minha vaga.
+
+  Com grade horária (ADR 0035), a saída prevista já vem com a faixa horária
+  em que a última aula de hoje acaba, se ela ainda não passou.
 -->
 <script setup lang="ts">
 import { areaCoberta } from '#shared/utils/area-coberta'
 import { dadosDoCelularDoAparelho } from '~/dados-do-celular'
 import type { DadosDoCelular, FormaDeColaborar, Ponto } from '~/dados-do-celular'
+import { diaDaSemanaDaNoite, saidaPrevistaDaAula } from '~/grade-horaria'
 
 // No desktop, abre no painel da direita, como Minha vaga.
 definePageMeta({ semBarraDeAbas: true, painelDesktop: 'direita' })
@@ -54,6 +58,21 @@ const erroDaRua = ref<string | null>(null)
 const erroDaSaida = ref<string | null>(null)
 const erroDoEnvio = ref<string | null>(null)
 const enviando = ref(false)
+
+/** Verdadeiro quando a saída prevista veio da grade horária, até a pessoa escolher outra. */
+const saidaDaGrade = ref(false)
+
+// Saída prevista da grade horária: a faixa horária do fim da última aula de hoje.
+watch([agora, faixasHorarias], ([valor, faixas]) => {
+  if (!valor?.faixaHoraria || !faixas || saidaPrevista.value) return
+  const dia = diaDaSemanaDaNoite(valor.noite)
+  const aulas = dia ? dadosDoCelularDoAparelho().gradeHoraria()?.[dia] : undefined
+  const sugerida = aulas ? saidaPrevistaDaAula(aulas.fim, faixas) : null
+  if (sugerida && sugerida >= valor.faixaHoraria) {
+    saidaPrevista.value = sugerida
+    saidaDaGrade.value = true
+  }
+}, { immediate: true })
 
 const grupos = computed(() =>
   agora.value?.faixaHoraria ? gruposDaSaidaPrevista(faixasHorarias.value ?? [], agora.value.faixaHoraria) : [],
@@ -105,6 +124,7 @@ async function usarMinhaLocalizacao() {
 
 function escolherSaida(faixaHoraria: string) {
   saidaPrevista.value = faixaHoraria
+  saidaDaGrade.value = false
   erroDaSaida.value = null
   gaveta.value?.fechar()
 }
@@ -366,6 +386,17 @@ function voltar() {
             {{ saidaPrevista ? intervaloDaFaixaHoraria(saidaPrevista) : 'Escolher faixa horária' }}
           </span>
         </UButton>
+        <p
+          v-if="saidaDaGrade"
+          class="flex items-center gap-2 text-xs font-medium text-muted"
+        >
+          <UIcon
+            name="i-lucide-graduation-cap"
+            class="size-4 shrink-0"
+            aria-hidden="true"
+          />
+          Da sua grade horária: a última aula de hoje acaba nesta faixa.
+        </p>
         <p
           v-if="erroDaSaida"
           id="erro-saida"

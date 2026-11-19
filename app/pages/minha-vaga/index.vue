@@ -2,14 +2,17 @@
   Minha vaga. Com um registro de vaga aberto nesta noite, mostra Seu registro de vaga
   (referências Waymo e Lime): card com a saída prevista como título, a rua
   coberta e a linha de ações com "Mudar saída" e, no registro com localização
-  ligada, "Voltar até o carro"; "Saí" fixo no rodapé. Sem registro, leva para
+  ligada, "Voltar até o carro"; "Saí" fixo no rodapé. Abaixo do card, o
+  histórico de vagas das noites passadas do semestre, guardado só no celular
+  (HistoricoDeVagas; some quando está vazio). Sem registro, leva para
   Registrar vaga; com a forma de colaborar "nenhuma", o registro de vaga está
   desligado e a tela leva para Ajustes (ADR 0010). Um registro aberto continua
   com "Saí" mesmo depois de desligar a colaboração.
 -->
 <script setup lang="ts">
 import { dadosDoCelularDoAparelho } from '~/dados-do-celular'
-import type { DadosDoCelular, FormaDeColaborar, RegistroNoCelular } from '~/dados-do-celular'
+import type { DadosDoCelular, FormaDeColaborar, RegistroNoCelular, VagaNoHistorico } from '~/dados-do-celular'
+import { areaCoberta } from '#shared/utils/area-coberta'
 
 // No desktop, abre no painel da direita, com o mapa ao lado.
 definePageMeta({ painelDesktop: 'direita' })
@@ -25,6 +28,14 @@ const registro = ref<RegistroNoCelular | null>(null)
 const temPontoDoCarro = ref(false)
 const lido = ref(false)
 const forma = ref<FormaDeColaborar>('nenhuma')
+/** Vagas das noites passadas do semestre de agora; as de outros semestres saem do celular. */
+const historico = ref<VagaNoHistorico[]>([])
+const semestre = ref<string | null>(null)
+
+function lerHistorico(noite: string) {
+  semestre.value = areaCoberta.semestreDe(noite)
+  historico.value = dados?.historicoDeVagas(n => areaCoberta.semestreDe(n) === semestre.value) ?? []
+}
 
 // O registro guardado só vale na noite em que foi feito (ADR 0014).
 watch(agora, (valor) => {
@@ -33,6 +44,7 @@ watch(agora, (valor) => {
   registro.value = dados.registroAtual(valor.noite)
   temPontoDoCarro.value = dados.pontoDoCarro(valor.noite) !== null
   forma.value = dados.formaDeColaborar()
+  lerHistorico(valor.noite)
   lido.value = true
 }, { immediate: true })
 
@@ -47,7 +59,8 @@ const { avisar } = useAvisoFlutuanteStore()
 
 /** O servidor recusou o código: o registro foi encerrado ou é de outra noite. */
 function esquecerRegistro() {
-  dados?.apagarRegistro()
+  dados?.encerrarRegistro(null)
+  if (agora.value) lerHistorico(agora.value.noite)
   registro.value = null
   temPontoDoCarro.value = false
   confirmarRegistro.value = false
@@ -101,7 +114,7 @@ async function sair() {
     avisar('Não foi possível avisar a saída agora. Tente de novo em instantes.', 'erro')
     return
   }
-  dados?.apagarRegistro()
+  dados?.encerrarRegistro(agora.value?.faixaHoraria ?? null)
   avisar('Saída registrada. Obrigado por avisar quem está chegando.')
   await navigateTo('/')
 }
@@ -283,5 +296,11 @@ async function sair() {
         />
       </footer>
     </template>
+
+    <HistoricoDeVagas
+      v-if="lido && !erroDoAgora && historico.length > 0"
+      :vagas="historico"
+      :semestre="semestre"
+    />
   </main>
 </template>

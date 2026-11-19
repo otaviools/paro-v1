@@ -18,7 +18,7 @@ O design system define só **cores e raios** (ADR 0027). As cores ficam nas vari
 
 Os tokens `--paro-*` marcados TEMPORÁRIO no `main.css` são apelidos que as telas ainda não migradas usam. Saem nos tickets de cada tela (#37 a #39). As cores do mapa (`--paro-mapa-*`) ficam, porque o Nuxt UI não tem variável de mapa.
 
-Os ajustes que valem para todo componente do Nuxt UI (raio e vidro dos botões, cards, avisos e gavetas; cores do aviso suave; seletor sem sombra) ficam em `app/app.config.ts`, com a lista de qual componente do Nuxt UI faz cada peça do design system.
+Os ajustes que valem para todo componente do Nuxt UI (raio e vidro dos botões, cards, avisos e gavetas; cores do aviso suave; seletor neutro e sem sombra) ficam em `app/app.config.ts`, com a lista de qual componente do Nuxt UI faz cada peça do design system.
 
 ## Princípios
 
@@ -42,7 +42,7 @@ Os ajustes que valem para todo componente do Nuxt UI (raio e vidro dos botões, 
 | `--ui-border`, `--ui-border-muted`, `--ui-border-accented` | `border-default`, `border-muted`, `border-accented` | `#EAEAEA` | `#2C2C2C` | Contorno de cards, campos e separadores |
 | `--ui-text`, `--ui-text-highlighted`, `--ui-text-toned` | `text-default`, `text-highlighted`, `text-toned` | `#2F3437` | `#E8E7E4` | Texto principal; traço dos padrões de faixa de chance |
 | `--ui-text-muted`, `--ui-text-dimmed` | `text-muted`, `text-dimmed` | `#6F6E6A` | `#9B9A97` | Texto secundário, base, distância |
-| `--ui-bg-inverted`, `--ui-border-inverted` | `bg-inverted`, `border-inverted` | `#111111` | `#E8E7E4` | Seletor liga/desliga ligado, ponto do carro no mapa |
+| `--ui-bg-inverted`, `--ui-border-inverted` | `bg-inverted`, `border-inverted` | `#111111` | `#E8E7E4` | Todo seletor liga/desliga (`USwitch`) ligado, ponto do carro no mapa |
 | `--ui-text-inverted` | `text-inverted` | `#FFFFFF` | `#191919` | Texto sobre `bg-inverted` |
 | `--ui-color-neutral-800` | `bg-neutral-800` | `#333333` | `#D6D5D1` | Sem uso nos componentes desde o vidro |
 | `--ui-primary` | `text-primary`, `ring-primary` | `#1F6C9F` | `#A9D3F2` | Texto sobre o destaque, links, anel de foco |
@@ -212,7 +212,7 @@ Alvo de toque mínimo de 44 × 44 px.
 | Chips de faixa horária | Botão de 56 px de altura, raio `rounded-paro-md`, numa grade de 4 colunas (todas do mesmo tamanho), só com o início da faixa ("21h"); o fim ("até 21h30") fica só para leitores de tela; inativo em `vidro`; ativo em `vidro-escolhido` | Saída prevista no registro e rotina de Ajustes (referência Waymo) |
 | Abas de faixa horária | `UButton` fantasmas num controle segmentado de `vidro`, raio `rounded-paro-md`, largura total, 48 px de altura; a ativa ganha um item `vidro-escolhido` que desliza até ela em 200 ms | Abas Agora, 18h, 19h e 20h no Início, na barra lateral e no Mapa; período das Métricas da equipe |
 | Seletor de opção com ícone | Botões lado a lado, raio `rounded-paro-md`; o selecionado com fundo `bg-primary-100` e borda de 1,5 px na cor `--ui-primary` | Escolha da rua coberta no registro manual (referência Pangea) |
-| Linha com seletor liga/desliga | Título, parágrafo explicativo em `text-muted` e seletor à direita; ligado em `bg-inverted` | Ajustes: usar localização, forma de colaborar (referência Grok) |
+| Linha com seletor liga/desliga | Título, parágrafo explicativo em `text-muted` e seletor à direita (`USwitch`); ligado em `bg-inverted`, nunca no azul do `--ui-primary`, inclusive fora da linha (dias da grade horária) | Ajustes: usar localização, forma de colaborar (referência Grok) |
 | Card de escolha única | Card com título e descrição; o escolhido com borda de 1,5 px na cor `--ui-text` | Primeira visita: forma de colaborar |
 | Campo de texto | 48 px, fundo `bg-elevated`, borda `border-default`, raio `rounded-paro-md`, rótulo sempre visível acima; no celular, texto de 16 px em todo campo, para o iPhone não ampliar a tela ao tocar | Sugestão de rua; telas da equipe |
 
@@ -274,13 +274,14 @@ As Métricas da equipe usam ECharts, uma exceção à ADR 0028:
 | Componente | Regra | Referência |
 |---|---|---|
 | Gaveta sobre o mapa | Raio `rounded-paro-lg` no topo, alça de 32 × 4 px, botão de fechar; dois pontos de parada (resumo e expandida) | Lime: gaveta da rua |
-| Gaveta de escolha | Título à esquerda e botão de fechar à direita, grupos de chips em grade e "Salvar" como ação principal cheia no rodapé, com o horário marcado ("Salvar saída às 21h30"); no desktop, abre embaixo do painel da direita, com a largura dele; pode ter uma escolha vazia em largura total acima dos grupos ("Sem rotina"). Usada na saída prevista e, no celular, na rotina de Ajustes (no desktop, a rotina continua na lista suspensa) | Careem e Airbnb: escolha de horário |
+| Gaveta de escolha | Título à esquerda e botão de fechar à direita, grupos de chips em grade e "Salvar" como ação principal cheia no rodapé, com o horário marcado ("Salvar saída às 21h30"); no desktop, abre embaixo do painel da direita, com a largura dele; pode ter uma escolha vazia em largura total acima dos grupos ("Sem rotina"). Usada na saída prevista | Careem e Airbnb: escolha de horário |
 | Registro sobre o mapa (desktop) | Com um registro de vaga aberto e fora da aba Vaga, card de vidro à esquerda da legenda, com a largura e a altura dela: ponto verde piscando com "Seu registro de vaga", saída prevista, rua, chegada, "Saí" (botão cheio: avisa a saída e encerra o registro, como na aba Vaga) e "Mudar saída" (abre a aba Vaga). Com o painel da direita aberto, fica em cima da legenda. Entra subindo 12 px e aparecendo; sai descendo | Turo: card sobre o mapa |
 | Registro no Início (celular) | Com um registro de vaga aberto, card abaixo do título do Início: ponto verde piscando com "Seu registro de vaga", saída prevista e rua; embaixo, "Saí" (botão cheio, como na aba Vaga), "Voltar até o carro" (com o ponto do carro) e "Ver minha vaga", em largura total, um por linha | Rivian: bloco na tela inicial |
 | Saudação do Início (celular) | O título do Início é a saudação do horário do aparelho ("Bom dia" das 5h às 11h59, "Boa tarde" do meio-dia às 17h59, "Boa noite" no resto) com um apelido engraçado sorteado de quem busca vaga, sem gênero ("Boa noite, Ímã de Vaga"). Os apelidos são curtos (até 14 caracteres, `LIMITE_DO_APELIDO`) para o título nunca quebrar a linha, nem num celular de 320 px. O apelido fica o mesmo ao trocar de tela e muda ao abrir o app de novo | Sem referência |
 | Aviso flutuante | `UToast` num card de vidro que segue o tema, claro no claro e escuro no escuro (classes `aviso-flutuante` e `vidro`; fundo a 94%), raio `rounded-paro-md`, texto `text-highlighted` com uma bolinha de 8 px ao lado: verde (o verde de Tranquilo) para sucesso, vermelha (o vermelho de Difícil) para erro, com halo de 4 px da mesma cor. No celular, 8 px acima da barra de abas, com a largura dela; no desktop, no canto superior direito, a 24 px das bordas, com 352 px de largura. Some em 3 s | Waymo: confirmação |
 | Esqueleto | `USkeleton` em `bg-muted` no formato do conteúdo, com brilho que passa a cada 1,4 s (classe `brilho`) | Google e Finimize: carregamento |
 | Carregamento da Área da equipe | Pílula de `vidro` com o ícone girando e "Carregando…". Aparece enquanto a tela confere a chave guardada na aba e, nas Métricas, por cima dos resultados esmaecidos a cada requisição | Sem referência |
+| Leitura da grade horária | Na janela de importar, enquanto o PDF é lido: uma folha de 76 × 96 px (`rounded-paro-sm`, borda `border-default`, fundo `bg-default`) com cinco linhas em `bg-accented` e uma faixa de 2 px em `bg-primary` que desce e sobe em 1,4 s; embaixo, "O PDF é lido neste celular e não sai dele." em `text-muted`. Com movimento reduzido, a faixa fica parada no meio | Hypelist e GoPay: documento sendo lido |
 | Etiqueta sobre o mapa | Fundo `bg-elevated`, borda, ícone de pegadas e a distância em metros em linha reta ("140 m em linha reta"). Sem minutos, porque o Parô não calcula rota (ADR 0020) | Lime: tempo a pé |
 
 O aviso "Dados de demonstração" (ADR 0012) é um botão de 36 px, raio `rounded-paro-md`, com o ícone de laboratório no sinal `warning` (fundo pastel e ícone na cor do sinal). Fica ao lado do logotipo no Início (barra lateral do desktop e topo do celular) e no topo do Detalhe da rua: no celular, à direita do voltar; no desktop, à esquerda do fechar do painel da direita. O nome acessível diz "Dados de demonstração", e tocar abre um balão com o título e a explicação. No Mapa do celular continua o card Aviso no topo.

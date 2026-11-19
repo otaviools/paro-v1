@@ -15,8 +15,16 @@ Motorista que faz registros de vaga; o papel existe a cada registro, não é um 
 _Avoid_: voluntário, contribuidor, usuário ativo
 
 **Rotina**:
-Horário de chegada habitual que a pessoa escolhe para si, usado como faixa horária inicial do app.
+Horário de chegada habitual, usado como faixa horária inicial do app. É definida pela grade horária; Ajustes não tem mais campo para escolher um horário só, e uma rotina escolhida antes continua valendo até a pessoa salvar uma grade.
 _Avoid_: local padrão, perfil, preferência
+
+**Grade horária**:
+Início da primeira aula e fim da última aula da noite em cada dia da semana, importados do horário de aulas da ESAMC. Define a melhor chegada e a saída prevista sugerida de cada dia.
+_Avoid_: horário de aulas (o documento), agenda, calendário
+
+**Melhor chegada**:
+Faixa horária e rua coberta de maior chance, num dia com aula, entre as que ainda dão tempo de andar até a primeira aula.
+_Avoid_: chegada ideal, sugestão de chegada
 
 ### Lugar
 

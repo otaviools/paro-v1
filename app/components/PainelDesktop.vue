@@ -105,6 +105,9 @@ function abrirRua(id: string) {
       class="mt-8 border-t border-default pt-2"
       aria-label="Faixa horária e ruas cobertas"
     >
+      <!-- Dia com aula na grade horária: a melhor chegada (ADR 0035). -->
+      <CardHojeDaGrade class="mt-4" />
+
       <PanoramaDaFaixaHoraria
         v-model:faixa-horaria="faixaHoraria"
         :abas="abas"

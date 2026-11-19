@@ -72,3 +72,21 @@ export interface RuaAoLongoDaNoite {
   /** Verdadeiro enquanto a chance vier de observações fictícias (ADR 0012). */
   demonstracao: boolean
 }
+
+/** Query de `GET /api/melhor-chegada`: o horário da primeira aula ("HH:MM"). */
+export interface ConsultaDaMelhorChegada {
+  primeiraAula: string
+}
+
+/**
+ * Resposta de `GET /api/melhor-chegada` (ADR 0035): a faixa horária e a rua
+ * coberta de maior chance entre as que ainda dão tempo de andar até a
+ * primeira aula. Null quando nenhuma tem chance a tempo.
+ */
+export interface MelhorChegada {
+  faixaHoraria: FaixaHoraria
+  rua: { id: string, nome: string }
+  estimativa: Extract<Estimativa, { tipo: 'chance' }>
+}
+
+export type RespostaDaMelhorChegada = MelhorChegada | null

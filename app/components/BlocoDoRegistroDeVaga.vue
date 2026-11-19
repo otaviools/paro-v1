@@ -39,7 +39,7 @@ async function sair() {
     avisar('Não foi possível avisar a saída agora. Tente de novo em instantes.', 'erro')
     return
   }
-  dadosDoCelularDoAparelho().apagarRegistro()
+  dadosDoCelularDoAparelho().encerrarRegistro(agora.value?.faixaHoraria ?? null)
   registro.value = null
   temPontoDoCarro.value = false
   avisar('Saída registrada. Obrigado por avisar quem está chegando.')
