@@ -16,6 +16,17 @@ import type { RuaNoMapa } from '~/components/MapaDaArea.vue'
 // No desktop, abre no centro, no lugar do mapa da área.
 definePageMeta({ semBarraDeAbas: true, painelDesktop: 'centro' })
 
+/*
+ * Tela cheia sem rolagem: a tela tem a altura da tela do aparelho (100dvh mais
+ * a barra de status do app instalado no iPhone), maior que a janela. Sem
+ * travar, a página rolava essa diferença, aparecia barra de rolagem e arrastar
+ * o mapa arrastava a página junto. A trava sai ao deixar a tela.
+ */
+useHead({
+  htmlAttrs: { class: 'overflow-hidden overscroll-none' },
+  bodyAttrs: { class: 'overflow-hidden overscroll-none' },
+})
+
 const router = useRouter()
 
 /** Noite de agora; lida no navegador, para saber se o registro ainda vale. */
@@ -75,7 +86,7 @@ function voltar() {
 </script>
 
 <template>
-  <main class="absolute inset-x-0 top-0 h-[calc(100dvh+env(safe-area-inset-top))] overflow-hidden bg-(--paro-mapa-fundo) lg:inset-0 lg:h-auto">
+  <main class="absolute inset-x-0 top-0 h-[calc(100dvh+env(safe-area-inset-top))] touch-none overflow-hidden overscroll-none bg-(--paro-mapa-fundo) lg:inset-0 lg:h-auto lg:touch-auto">
     <!--
       Tela cheia como parte da página (absolute, com a altura da tela), e não
       fixed: no app instalado no iPhone, o que é fixed para antes do fim da tela
