@@ -39,6 +39,20 @@ export interface RegistroNoCelular {
 }
 
 /**
+ * Vaga registrada numa noite passada, no histórico do aparelho (ADR 0004).
+ * Guarda só o que a aba Vaga mostra: sem o código e sem o ponto do carro.
+ * `saida` é a faixa horária em que a pessoa tocou em "Saí" (`saiu`), ou a
+ * última saída prevista, quando a noite acabou sem o "Saí".
+ */
+export interface VagaNoHistorico {
+  noite: Noite
+  ruaCoberta: { id: string, nome: string }
+  chegada: FaixaHoraria
+  saida: FaixaHoraria
+  saiu: boolean
+}
+
+/**
  * Ponto do carro: a posição exata onde o motorista deixou o carro, lida no
  * registro com localização ligada. Nunca sai do aparelho (ADR 0003).
  */
@@ -60,6 +74,7 @@ const CHAVE_DA_FORMA_DE_COLABORAR = 'paro:forma-de-colaborar'
 const CHAVE_DA_PRIMEIRA_VISITA = 'paro:primeira-visita-concluida'
 const CHAVE_DA_SESSAO_DO_MES = 'paro:sessao-do-mes'
 const CHAVE_DA_RESPOSTA_AJUDOU = 'paro:respondeu-ajudou'
+const CHAVE_DO_HISTORICO_DE_VAGAS = 'paro:historico-de-vagas'
 
 /** Mês no formato "AAAA-MM". */
 export type Mes = string
@@ -75,7 +90,7 @@ function sortearId(): string {
  * de histórico entra aqui. A forma de colaborar e a Primeira visita não são
  * histórico, são escolhas da pessoa, e ficam.
  */
-const CHAVES_DO_HISTORICO = [CHAVE_DA_ROTINA, CHAVE_DO_REGISTRO, CHAVE_DO_PONTO_DO_CARRO]
+const CHAVES_DO_HISTORICO = [CHAVE_DA_ROTINA, CHAVE_DO_REGISTRO, CHAVE_DO_PONTO_DO_CARRO, CHAVE_DO_HISTORICO_DE_VAGAS]
 
 /** Tira acento e cedilha: "saídaPrevista" vira "saidaPrevista" (ADR 0026). */
 function semAcento(texto: string): string {
@@ -106,16 +121,47 @@ export function criarDadosDoCelular(armazenamento: Armazenamento) {
     return guardado === null ? null : lerJsonGuardado<RegistroNoCelular>(guardado)
   }
 
+  function historicoGuardado(): VagaNoHistorico[] {
+    const guardado = armazenamento.getItem(CHAVE_DO_HISTORICO_DE_VAGAS)
+    if (guardado === null) return []
+    try {
+      const lido: unknown = JSON.parse(guardado)
+      return Array.isArray(lido) ? lido as VagaNoHistorico[] : []
+    }
+    catch {
+      return []
+    }
+  }
+
+  function guardarHistorico(vagas: VagaNoHistorico[]) {
+    if (vagas.length === 0) armazenamento.removeItem(CHAVE_DO_HISTORICO_DE_VAGAS)
+    else armazenamento.setItem(CHAVE_DO_HISTORICO_DE_VAGAS, JSON.stringify(vagas))
+  }
+
+  /**
+   * Tira o registro aberto do aparelho, com o código e o ponto do carro, e
+   * põe a vaga no histórico: com a faixa horária do "Saí", ou com a saída
+   * prevista quando `saiu` é null.
+   */
+  function encerrarRegistro(saiu: FaixaHoraria | null): void {
+    const registro = registroGuardado()
+    if (registro !== null) {
+      const { noite, ruaCoberta, chegada, saidaPrevista } = registro
+      guardarHistorico([...historicoGuardado(), { noite, ruaCoberta, chegada, saida: saiu ?? saidaPrevista, saiu: saiu !== null }])
+    }
+    armazenamento.removeItem(CHAVE_DO_REGISTRO)
+    armazenamento.removeItem(CHAVE_DO_PONTO_DO_CARRO)
+  }
+
   /**
    * Registro de vaga aberto na `noite`, ou null. O código expira no fim da
-   * noite (ADR 0014): um registro de outra noite é apagado do aparelho, com o
-   * ponto do carro.
+   * noite (ADR 0014): um registro de outra noite sai do aparelho, com o
+   * ponto do carro, e vai para o histórico com a saída prevista.
    */
   function registroAtual(noite: Noite): RegistroNoCelular | null {
     const registro = registroGuardado()
     if (registro === null || registro.noite === noite) return registro
-    armazenamento.removeItem(CHAVE_DO_REGISTRO)
-    armazenamento.removeItem(CHAVE_DO_PONTO_DO_CARRO)
+    encerrarRegistro(null)
     return null
   }
 
@@ -184,12 +230,26 @@ export function criarDadosDoCelular(armazenamento: Armazenamento) {
     },
 
     /**
-     * Apaga o registro, o código e o ponto do carro: depois do "Saí", ou
-     * quando o servidor recusa o código.
+     * Encerra o registro aberto: apaga o código e o ponto do carro e põe a
+     * vaga no histórico. Depois do "Saí", recebe a faixa horária de agora;
+     * quando o servidor recusa o código, ou fora da área coberta, recebe
+     * null, e o histórico fica com a saída prevista.
      */
-    apagarRegistro(): void {
-      armazenamento.removeItem(CHAVE_DO_REGISTRO)
-      armazenamento.removeItem(CHAVE_DO_PONTO_DO_CARRO)
+    encerrarRegistro,
+
+    /**
+     * Vagas das noites passadas que `manter` aceita (a aba Vaga mantém as do
+     * semestre atual), da noite mais recente para a mais antiga. As outras
+     * saem do aparelho nesta leitura.
+     */
+    historicoDeVagas(manter: (noite: Noite) => boolean): VagaNoHistorico[] {
+      const guardadas = historicoGuardado()
+      const mantidas = guardadas.filter(v => manter(v.noite))
+      if (mantidas.length !== guardadas.length) guardarHistorico(mantidas)
+      return mantidas
+        .map((vaga, ordem) => ({ vaga, ordem }))
+        .sort((a, b) => b.vaga.noite.localeCompare(a.vaga.noite) || b.ordem - a.ordem)
+        .map(({ vaga }) => vaga)
     },
 
     /**
@@ -221,7 +281,7 @@ export function criarDadosDoCelular(armazenamento: Armazenamento) {
 
     /**
      * "Apagar histórico" (ADR 0004): limpa a rotina, o registro de vaga com o
-     * código e o ponto do carro. Limpa só o celular; sem o código, o registro
+     * código, o ponto do carro e o histórico de vagas. Limpa só o celular; sem o código, o registro
      * aberto no servidor não pode mais ser alterado e expira no fim da noite
      * (ADR 0014).
      */

@@ -395,7 +395,7 @@ function apagarHistorico() {
     >
       <template #body>
         <p class="max-w-[70ch] text-sm">
-          Apaga deste celular a rotina, o registro de vaga com o código e o ponto do carro. Não dá para desfazer.
+          Apaga deste celular a rotina, o registro de vaga com o código, o ponto do carro e o histórico de vagas. Não dá para desfazer.
           A forma de colaborar continua como está.
         </p>
 

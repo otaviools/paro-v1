@@ -82,7 +82,7 @@ describe('Dados do celular', () => {
       const aparelho = armazenamentoEmMemoria()
       criarDadosDoCelular(aparelho).guardarRegistro(registro)
 
-      criarDadosDoCelular(aparelho).apagarRegistro()
+      criarDadosDoCelular(aparelho).encerrarRegistro('21:00')
 
       expect(criarDadosDoCelular(aparelho).registroAtual('2027-05-05')).toBeNull()
     })
@@ -129,7 +129,7 @@ describe('Dados do celular', () => {
       const aparelho = armazenamentoEmMemoria()
       criarDadosDoCelular(aparelho).guardarRegistro(registro, ponto)
 
-      criarDadosDoCelular(aparelho).apagarRegistro()
+      criarDadosDoCelular(aparelho).encerrarRegistro('21:00')
 
       expect(criarDadosDoCelular(aparelho).pontoDoCarro('2027-05-05')).toBeNull()
     })
@@ -188,6 +188,98 @@ describe('Dados do celular', () => {
     })
   })
 
+  describe('histórico de vagas', () => {
+    const registro = {
+      codigo: 'codigo-do-servidor',
+      noite: '2027-05-05',
+      ruaCoberta: { id: 'rua-a', nome: 'Rua A' },
+      chegada: '19:00',
+      saidaPrevista: '21:30',
+    }
+    const todas = () => true
+
+    it('está vazio antes da primeira vaga', () => {
+      expect(criarDadosDoCelular(armazenamentoEmMemoria()).historicoDeVagas(todas)).toEqual([])
+    })
+
+    it('não mostra o registro aberto da noite', () => {
+      const dados = criarDadosDoCelular(armazenamentoEmMemoria())
+      dados.guardarRegistro(registro)
+
+      expect(dados.historicoDeVagas(todas)).toEqual([])
+    })
+
+    it('guarda a vaga com a faixa horária do "Saí", e continua no aparelho quando o app abre de novo', () => {
+      const aparelho = armazenamentoEmMemoria()
+      const dados = criarDadosDoCelular(aparelho)
+      dados.guardarRegistro(registro)
+
+      dados.encerrarRegistro('21:00')
+
+      expect(criarDadosDoCelular(aparelho).historicoDeVagas(todas)).toEqual([
+        { noite: '2027-05-05', ruaCoberta: { id: 'rua-a', nome: 'Rua A' }, chegada: '19:00', saida: '21:00', saiu: true },
+      ])
+    })
+
+    it('guarda a última saída prevista quando a noite acaba sem o "Saí"', () => {
+      const dados = criarDadosDoCelular(armazenamentoEmMemoria())
+      dados.guardarRegistro(registro)
+      dados.mudarSaidaDoRegistro('22:00')
+
+      dados.registroAtual('2027-05-06')
+
+      expect(dados.historicoDeVagas(todas)).toEqual([
+        { noite: '2027-05-05', ruaCoberta: { id: 'rua-a', nome: 'Rua A' }, chegada: '19:00', saida: '22:00', saiu: false },
+      ])
+    })
+
+    it('guarda a saída prevista quando o servidor recusa o código', () => {
+      const dados = criarDadosDoCelular(armazenamentoEmMemoria())
+      dados.guardarRegistro(registro)
+
+      dados.encerrarRegistro(null)
+
+      expect(dados.historicoDeVagas(todas)[0]).toMatchObject({ saida: '21:30', saiu: false })
+    })
+
+    it('não guarda o código nem o ponto do carro', () => {
+      const aparelho = armazenamentoEmMemoria()
+      const dados = criarDadosDoCelular(aparelho)
+      dados.guardarRegistro(registro, { lat: -18.912858, lon: -48.279568 })
+
+      dados.encerrarRegistro('21:00')
+
+      const guardado = aparelho.getItem('paro:historico-de-vagas') ?? ''
+      expect(guardado).not.toContain('codigo')
+      expect(guardado).not.toContain('-18.912858')
+    })
+
+    it('mostra da noite mais recente para a mais antiga', () => {
+      const dados = criarDadosDoCelular(armazenamentoEmMemoria())
+      dados.guardarRegistro({ ...registro, noite: '2027-05-03' })
+      dados.encerrarRegistro('21:00')
+      dados.guardarRegistro({ ...registro, noite: '2027-05-05', ruaCoberta: { id: 'rua-b', nome: 'Rua B' } })
+      dados.encerrarRegistro('22:00')
+      dados.guardarRegistro({ ...registro, noite: '2027-05-04' })
+      dados.encerrarRegistro('20:00')
+
+      expect(dados.historicoDeVagas(todas).map(v => v.noite)).toEqual(['2027-05-05', '2027-05-04', '2027-05-03'])
+    })
+
+    it('tira do aparelho as vagas que não são mais mantidas (de outro semestre)', () => {
+      const aparelho = armazenamentoEmMemoria()
+      const dados = criarDadosDoCelular(aparelho)
+      dados.guardarRegistro({ ...registro, noite: '2026-12-01' })
+      dados.encerrarRegistro('21:00')
+      dados.guardarRegistro(registro)
+      dados.encerrarRegistro('21:00')
+      const doSemestre = (noite: string) => noite >= '2027-01-01'
+
+      expect(dados.historicoDeVagas(doSemestre).map(v => v.noite)).toEqual(['2027-05-05'])
+      expect(criarDadosDoCelular(aparelho).historicoDeVagas(todas).map(v => v.noite)).toEqual(['2027-05-05'])
+    })
+  })
+
   describe('apagar histórico', () => {
     const registro = {
       codigo: 'codigo-do-servidor',
@@ -209,6 +301,17 @@ describe('Dados do celular', () => {
       expect(reaberto.rotina()).toBeNull()
       expect(reaberto.registroAtual('2027-05-05')).toBeNull()
       expect(reaberto.pontoDoCarro('2027-05-05')).toBeNull()
+    })
+
+    it('limpa o histórico de vagas', () => {
+      const aparelho = armazenamentoEmMemoria()
+      const dados = criarDadosDoCelular(aparelho)
+      dados.guardarRegistro(registro)
+      dados.encerrarRegistro('21:00')
+
+      dados.apagarHistorico()
+
+      expect(criarDadosDoCelular(aparelho).historicoDeVagas(() => true)).toEqual([])
     })
 
     it('mantém a forma de colaborar e não traz de volta a Primeira visita', () => {
