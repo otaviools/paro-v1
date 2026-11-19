@@ -54,8 +54,17 @@ async function sair() {
     aria-labelledby="titulo-registro-de-vaga"
     :ui="{ body: 'grid gap-1' }"
   >
-    <p class="text-xs font-semibold uppercase tracking-wider text-muted">
+    <p class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted">
+      <!-- Ponto verde piscando: o registro está ativo (como no card sobre o mapa do desktop). -->
+      <span
+        class="relative flex size-2.5"
+        aria-hidden="true"
+      >
+        <span class="absolute inline-flex size-full animate-ping rounded-full bg-success opacity-60 motion-reduce:animate-none" />
+        <span class="relative inline-flex size-2.5 rounded-full bg-success" />
+      </span>
       Seu registro de vaga
+      <span class="sr-only">(ativo)</span>
     </p>
     <h2
       id="titulo-registro-de-vaga"
