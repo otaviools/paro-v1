@@ -341,7 +341,7 @@ A partir de 1024 px, o Parô é um painel único de três colunas (referência T
 | Consultar | Início → linha da rua → Detalhe da rua → Como chegar |
 | Pelo mapa | Mapa → toque no trecho → gaveta → Detalhe da rua |
 | Registrar | Minha vaga → Registrar vaga → escolher rua e saída prevista → Seu registro de vaga |
-| Encerrar | Seu registro de vaga → Saí → aviso flutuante → Início |
+| Encerrar | Seu registro de vaga → Saí → aviso flutuante → Início. Também pelo "Saí" do bloco do registro de vaga no Início (celular) e do card sobre o mapa (desktop) → aviso flutuante, sem sair da tela |
 | Voltar ao carro | Bloco do registro de vaga no Início (referência Rivian) → mapa com ponto do carro e posição atual |
 
 ## Tema escuro
