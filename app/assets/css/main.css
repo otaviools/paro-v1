@@ -288,6 +288,7 @@ body {
 
   --vidro-fundo: 248 249 251;
   --vidro-fundo-alfa: 0.6;
+  --vidro-luz: 255 255 255;
   --vidro-luz-alfa: 0.9;
   --vidro-dentro-alfa: 0.35;
   --vidro-contorno: 62 68 82;
@@ -297,6 +298,7 @@ body {
 
   --vidro-escolhido-fundo: 31 108 159;
   --vidro-escolhido-fundo-alfa: 0.1;
+  --vidro-escolhido-luz: 255 255 255;
   --vidro-escolhido-luz-alfa: 0.85;
   --vidro-escolhido-contorno: 31 108 159;
   --vidro-escolhido-contorno-alfa: 0.18;
@@ -304,6 +306,7 @@ body {
 
   --vidro-ativo-fundo: 31 108 159;
   --vidro-ativo-fundo-alfa: 0.9;
+  --vidro-ativo-luz: 255 255 255;
   --vidro-ativo-luz-alfa: 0.3;
   --vidro-ativo-contorno: 0 0 0;
   --vidro-ativo-contorno-alfa: 0.4;
@@ -317,6 +320,7 @@ body {
 
   --vidro-fundo: 48 48 48;
   --vidro-fundo-alfa: 0.46;
+  --vidro-luz: 255 255 255;
   --vidro-luz-alfa: 0.16;
   --vidro-dentro-alfa: 0.04;
   --vidro-contorno: 255 255 255;
@@ -326,6 +330,7 @@ body {
 
   --vidro-escolhido-fundo: 169 211 242;
   --vidro-escolhido-fundo-alfa: 0.12;
+  --vidro-escolhido-luz: 255 255 255;
   --vidro-escolhido-luz-alfa: 0.22;
   --vidro-escolhido-contorno: 169 211 242;
   --vidro-escolhido-contorno-alfa: 0.14;
@@ -333,6 +338,7 @@ body {
 
   --vidro-ativo-fundo: 169 211 242;
   --vidro-ativo-fundo-alfa: 0.9;
+  --vidro-ativo-luz: 255 255 255;
   --vidro-ativo-luz-alfa: 1;
   --vidro-ativo-contorno: 0 0 0;
   --vidro-ativo-contorno-alfa: 0.22;
@@ -355,7 +361,7 @@ body {
   background: rgb(var(--vidro-fundo) / var(--vidro-fundo-alfa)) !important;
   backdrop-filter: blur(var(--vidro-desfoque)) saturate(var(--vidro-saturacao));
   box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / var(--vidro-luz-alfa)),
+    inset 0 1px 0 rgb(var(--vidro-luz) / var(--vidro-luz-alfa)),
     inset 0 0 0 1px rgb(255 255 255 / var(--vidro-dentro-alfa)),
     0 0 0 1px rgb(var(--vidro-contorno) / var(--vidro-contorno-alfa)),
     0 1px 2px rgb(var(--vidro-sombra) / calc(var(--vidro-sombra-alfa) / 4)),
@@ -367,7 +373,7 @@ body {
   background: rgb(var(--vidro-escolhido-fundo) / var(--vidro-escolhido-fundo-alfa)) !important;
   color: var(--vidro-escolhido-texto);
   box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / var(--vidro-escolhido-luz-alfa)),
+    inset 0 1px 0 rgb(var(--vidro-escolhido-luz) / var(--vidro-escolhido-luz-alfa)),
     inset 0 0 0 1px rgb(var(--vidro-escolhido-contorno) / var(--vidro-escolhido-contorno-alfa)) !important;
 }
 
@@ -377,7 +383,7 @@ body {
   backdrop-filter: blur(14px);
   color: var(--vidro-ativo-texto);
   box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / var(--vidro-ativo-luz-alfa)),
+    inset 0 1px 0 rgb(var(--vidro-ativo-luz) / var(--vidro-ativo-luz-alfa)),
     inset 0 -1px 0 rgb(var(--vidro-ativo-contorno) / var(--vidro-ativo-contorno-alfa)),
     0 1px 2px rgb(var(--vidro-sombra) / calc(var(--vidro-ativo-sombra-alfa) / 4)),
     0 8px 18px -9px rgb(var(--vidro-sombra) / var(--vidro-ativo-sombra-alfa)) !important;
