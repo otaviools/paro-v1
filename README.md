@@ -4,7 +4,7 @@ O Parô mostra a chance de encontrar vaga de estacionamento por rua e horário n
 
 O app é um PWA instalável, sem cadastro e sem login. No desktop, as telas ficam numa barra lateral ao lado do mapa.
 
-<img src="docs/imagens/desktop-inicio.png" alt="Desktop: barra lateral com o Início e o mapa da área com a legenda">
+<img src="docs/imagens/desktop-inicio.png" alt="Desktop: barra lateral com o Início, o link do GitHub e o mapa da área com a legenda">
 
 ## Telas
 
@@ -20,7 +20,7 @@ O app é um PWA instalável, sem cadastro e sem login. No desktop, as telas fica
 
 A Área da equipe mostra as métricas de uso em gráficos ECharts.
 
-<img src="docs/imagens/desktop-metricas.png" alt="Métricas da equipe no desktop: aviso de demonstração, números do período, motoristas por semana, registros por noite e registros por dia e horário">
+<img src="docs/imagens/desktop-metricas.png" alt="Métricas da equipe no desktop: abas da Área da equipe, período, aviso de demonstração, números do período, motoristas por semana, registros por noite, registros por dia e horário e ruas com mais registros">
 
 ## Como a chance é calculada
 
