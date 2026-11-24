@@ -1,12 +1,50 @@
-# Parô
+<div align="center">
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/imagens/capa-escuro.svg">
+  <img src="docs/imagens/capa-claro.svg" width="100%" alt="Parô">
+</picture>
+
+<a href="https://paro-v1.vercel.app"><img src="https://img.shields.io/badge/Abrir_o_app-6EA8FF?style=for-the-badge" alt="Abrir o app"></a> <a href="docs"><img src="https://img.shields.io/badge/Documenta%C3%A7%C3%A3o-32312C?style=for-the-badge" alt="Documentação"></a> <a href="#rodar-localmente"><img src="https://img.shields.io/badge/Rodar_localmente-32312C?style=for-the-badge" alt="Rodar localmente"></a>
+
+<table>
+  <tr>
+    <td align="center" width="96"><a href="https://nuxt.com"><img src="https://cdn.simpleicons.org/nuxt" width="40" height="40" alt=""><br><sub>Nuxt</sub></a></td>
+    <td align="center" width="96"><a href="https://vuejs.org"><img src="https://cdn.simpleicons.org/vuedotjs" width="40" height="40" alt=""><br><sub>Vue</sub></a></td>
+    <td align="center" width="96"><a href="https://ui.nuxt.com"><img src="https://cdn.simpleicons.org/nuxt" width="40" height="40" alt=""><br><sub>Nuxt UI</sub></a></td>
+    <td align="center" width="96"><a href="https://tailwindcss.com"><img src="https://cdn.simpleicons.org/tailwindcss" width="40" height="40" alt=""><br><sub>Tailwind CSS</sub></a></td>
+    <td align="center" width="96"><a href="https://www.typescriptlang.org"><img src="https://cdn.simpleicons.org/typescript" width="40" height="40" alt=""><br><sub>TypeScript</sub></a></td>
+    <td align="center" width="96"><a href="https://pinia.vuejs.org"><img src="https://cdn.simpleicons.org/pinia" width="40" height="40" alt=""><br><sub>Pinia</sub></a></td>
+    <td align="center" width="96"><a href="https://vite-pwa-org.netlify.app"><img src="https://cdn.simpleicons.org/pwa" width="40" height="40" alt=""><br><sub>PWA</sub></a></td>
+  </tr>
+  <tr>
+    <td align="center" width="96"><a href="https://maplibre.org"><img src="https://cdn.simpleicons.org/maplibre" width="40" height="40" alt=""><br><sub>MapLibre</sub></a></td>
+    <td align="center" width="96"><a href="https://echarts.apache.org"><img src="https://cdn.simpleicons.org/apacheecharts" width="40" height="40" alt=""><br><sub>ECharts</sub></a></td>
+    <td align="center" width="96"><a href="https://www.postgresql.org"><img src="https://cdn.simpleicons.org/postgresql" width="40" height="40" alt=""><br><sub>PostgreSQL</sub></a></td>
+    <td align="center" width="96"><a href="https://supabase.com"><img src="https://cdn.simpleicons.org/supabase" width="40" height="40" alt=""><br><sub>Supabase</sub></a></td>
+    <td align="center" width="96"><a href="https://vercel.com"><img src="https://cdn.simpleicons.org/vercel/000000/ffffff" width="40" height="40" alt=""><br><sub>Vercel</sub></a></td>
+    <td align="center" width="96"><a href="https://vitest.dev"><img src="https://cdn.simpleicons.org/vitest" width="40" height="40" alt=""><br><sub>Vitest</sub></a></td>
+    <td align="center" width="96"><a href="https://eslint.org"><img src="https://cdn.simpleicons.org/eslint" width="40" height="40" alt=""><br><sub>ESLint</sub></a></td>
+  </tr>
+</table>
+
+</div>
 
 O Parô mostra a chance de encontrar vaga de estacionamento por rua e horário no entorno da ESAMC Uberlândia. É voltado a quem dirige até lá à noite. A chance cobre cinco ruas cobertas, das 17h às 23h, em faixas horárias de 30 minutos.
 
 O app é um PWA instalável, sem cadastro e sem login. No desktop, as telas ficam numa barra lateral ao lado do mapa.
 
-<img src="docs/imagens/desktop-inicio.png" alt="Desktop: barra lateral com o Início, o link do GitHub e o mapa da área com a legenda">
+<picture><source media="(prefers-color-scheme: dark)" srcset="docs/imagens/desktop-inicio.png"><img src="docs/imagens/desktop-inicio-claro.png" alt="Desktop: barra lateral com o Início, o link do GitHub e o mapa da área com a legenda"></picture>
 
 ## Telas
+
+<p align="center">
+  <picture><source media="(prefers-color-scheme: dark)" srcset="docs/imagens/celular-inicio.png"><img src="docs/imagens/celular-inicio-claro.png" width="19%" alt="Celular: Início com a melhor chance e as ruas cobertas"></picture>
+  <picture><source media="(prefers-color-scheme: dark)" srcset="docs/imagens/celular-mapa.png"><img src="docs/imagens/celular-mapa-claro.png" width="19%" alt="Celular: Mapa com as ruas pintadas pela faixa de chance"></picture>
+  <picture><source media="(prefers-color-scheme: dark)" srcset="docs/imagens/celular-detalhe-da-rua.png"><img src="docs/imagens/celular-detalhe-da-rua-claro.png" width="19%" alt="Celular: Detalhe da rua com a chance ao longo da noite"></picture>
+  <picture><source media="(prefers-color-scheme: dark)" srcset="docs/imagens/celular-vaga.png"><img src="docs/imagens/celular-vaga-claro.png" width="19%" alt="Celular: Minha vaga com o registro de vaga desligado"></picture>
+  <picture><source media="(prefers-color-scheme: dark)" srcset="docs/imagens/celular-ajustes.png"><img src="docs/imagens/celular-ajustes-claro.png" width="19%" alt="Celular: Ajustes com tema, grade horária e forma de colaborar"></picture>
+</p>
 
 | Tela | Caminho | O que mostra |
 | --- | --- | --- |
@@ -20,7 +58,7 @@ O app é um PWA instalável, sem cadastro e sem login. No desktop, as telas fica
 
 A Área da equipe mostra as métricas de uso em gráficos ECharts.
 
-<img src="docs/imagens/desktop-metricas.png" alt="Métricas da equipe no desktop: abas da Área da equipe, período, aviso de demonstração, números do período, motoristas por semana, registros por noite, registros por dia e horário e ruas com mais registros">
+<picture><source media="(prefers-color-scheme: dark)" srcset="docs/imagens/desktop-metricas.png"><img src="docs/imagens/desktop-metricas-claro.png" alt="Métricas da equipe no desktop: abas da Área da equipe, período, aviso de demonstração, números do período, motoristas por semana, registros por noite, registros por dia e horário e ruas com mais registros"></picture>
 
 ## Como a chance é calculada
 
