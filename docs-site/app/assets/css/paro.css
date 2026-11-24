@@ -1,0 +1,198 @@
+/*
+ * Tokens do Parô copiados de app/assets/css/main.css (raiz do repositório):
+ * fonte, raios, paleta Papel (--ui-*), raio base do Nuxt UI e vidro.
+ * Ficam de fora os tokens --paro-* temporários, as cores do mapa, o cursor e
+ * as regras dos campos, que são só do app. Se a paleta mudar no app, copie de novo.
+ */
+
+/* Fonte e os três raios do design system. */
+@theme static {
+  --font-sans: 'Figtree', ui-sans-serif, system-ui, sans-serif;
+
+  --radius-paro-sm: 12px; /* raio pequeno */
+  --radius-paro-md: 16px; /* botões, campos, avisos, itens de menu */
+  --radius-paro-lg: 16px; /* cards e painéis */
+}
+
+/*
+ * Paleta Papel nas variáveis de cor do Nuxt UI (docs/design/design-system.md).
+ * Fora de camada, estas regras vencem os valores padrão que o Nuxt UI declara
+ * em @layer theme, inclusive --ui-primary e as cores de sinal.
+ */
+:root {
+  --ui-bg: #F7F6F3;
+  --ui-bg-elevated: #FFFFFF;
+  --ui-bg-muted: #F3F2EE;
+  --ui-bg-accented: #EAEAEA;
+  --ui-bg-inverted: #111111;
+
+  --ui-border: #EAEAEA;
+  --ui-border-muted: #EAEAEA;
+  --ui-border-accented: #EAEAEA;
+  --ui-border-inverted: #111111;
+
+  --ui-text: #2F3437;
+  --ui-text-highlighted: #2F3437;
+  --ui-text-toned: #2F3437;
+  --ui-text-muted: #6F6E6A;
+  --ui-text-dimmed: #6F6E6A;
+  --ui-text-inverted: #FFFFFF;
+
+  /* Cor de destaque: links, foco, item ativo. O fundo pastel é o tom 100. */
+  --ui-primary: #1F6C9F;
+  --ui-color-primary-100: #E1F3FE;
+
+  /* Sinais: a cor é o texto do par; o fundo pastel é o tom 100. */
+  --ui-success: #346538;
+  --ui-color-success-100: #EDF3EC;
+  --ui-warning: #8A5A00;
+  --ui-color-warning-100: #FBF3DB;
+  --ui-error: #9F2F2D;
+  --ui-color-error-100: #FDEBEC;
+
+  /* Botão principal pressionado ou com cursor (fundo inverso mais claro). */
+  --ui-color-neutral-800: #333333;
+}
+
+.dark {
+  --ui-bg: #191919;
+  --ui-bg-elevated: #202020;
+  --ui-bg-muted: #262626;
+  --ui-bg-accented: #2C2C2C;
+  --ui-bg-inverted: #E8E7E4;
+
+  --ui-border: #2C2C2C;
+  --ui-border-muted: #2C2C2C;
+  --ui-border-accented: #2C2C2C;
+  --ui-border-inverted: #E8E7E4;
+
+  --ui-text: #E8E7E4;
+  --ui-text-highlighted: #E8E7E4;
+  --ui-text-toned: #E8E7E4;
+  --ui-text-muted: #9B9A97;
+  --ui-text-dimmed: #9B9A97;
+  --ui-text-inverted: #191919;
+
+  --ui-primary: #A9D3F2;
+  --ui-color-primary-100: #1C3446;
+
+  --ui-success: #B6D7B3;
+  --ui-color-success-100: #1F3321;
+  --ui-warning: #EBCB82;
+  --ui-color-warning-100: #3A2F14;
+  --ui-error: #F2B8B5;
+  --ui-color-error-100: #3B1E1D;
+
+  --ui-color-neutral-800: #D6D5D1;
+}
+
+/*
+ * Raio base do Nuxt UI: 8 px. Assim o rounded-md dos componentes do Nuxt UI
+ * sem ajuste no app.config.ts fica em 12 px, como no app.
+ */
+:root {
+  --ui-radius: 8px;
+}
+
+/*
+ * Vidro (Solid Glass, opção C, com o azul do Parô): fundo translúcido liso com
+ * desfoque, linha de luz no topo, contorno de 1 px e sombra macia. Três variantes:
+ * `vidro` (cards e botões secundários), `vidro-escolhido` (item escolhido) e
+ * `vidro-ativo` (botão principal). As cores ficam em canais "R G B" e alfas separados.
+ */
+:root {
+  --vidro-desfoque: 26px;
+  --vidro-saturacao: 180%;
+
+  --vidro-fundo: 248 249 251;
+  --vidro-fundo-alfa: 0.46;
+  --vidro-luz: 31 158 255;
+  --vidro-luz-alfa: 0.21;
+  --vidro-dentro-alfa: 0.35;
+  --vidro-contorno: 107 107 107;
+  --vidro-contorno-alfa: 0.12;
+  --vidro-sombra: 33 44 74;
+  --vidro-sombra-alfa: 0.2;
+
+  --vidro-escolhido-fundo: 41 169 255;
+  --vidro-escolhido-fundo-alfa: 0.14;
+  --vidro-escolhido-luz: 41 169 255;
+  --vidro-escolhido-luz-alfa: 0.21;
+  --vidro-escolhido-contorno: 115 155 181;
+  --vidro-escolhido-contorno-alfa: 0.12;
+  --vidro-escolhido-texto: #1F6C9F;
+
+  --vidro-ativo-fundo: 123 195 249;
+  --vidro-ativo-fundo-alfa: 0.81;
+  --vidro-ativo-luz: 0 125 214;
+  --vidro-ativo-luz-alfa: 0.2;
+  --vidro-ativo-contorno: 197 220 238;
+  --vidro-ativo-contorno-alfa: 0.12;
+  --vidro-ativo-sombra-alfa: 0.2;
+  --vidro-ativo-texto: #10283A;
+}
+
+.dark {
+  /* No escuro o vidro é cinza neutro e o desfoque não satura a cor de trás. */
+  --vidro-saturacao: 100%;
+
+  --vidro-fundo: 48 48 48;
+  --vidro-fundo-alfa: 0.46;
+  --vidro-luz: 255 255 255;
+  --vidro-luz-alfa: 0.16;
+  --vidro-dentro-alfa: 0.04;
+  --vidro-contorno: 255 255 255;
+  --vidro-contorno-alfa: 0.06;
+  --vidro-sombra: 0 0 0;
+  --vidro-sombra-alfa: 0.6;
+
+  --vidro-escolhido-fundo: 169 211 242;
+  --vidro-escolhido-fundo-alfa: 0.12;
+  --vidro-escolhido-luz: 255 255 255;
+  --vidro-escolhido-luz-alfa: 0.22;
+  --vidro-escolhido-contorno: 169 211 242;
+  --vidro-escolhido-contorno-alfa: 0.14;
+  --vidro-escolhido-texto: #A9D3F2;
+
+  --vidro-ativo-fundo: 169 211 242;
+  --vidro-ativo-fundo-alfa: 0.9;
+  --vidro-ativo-luz: 255 255 255;
+  --vidro-ativo-luz-alfa: 1;
+  --vidro-ativo-contorno: 0 0 0;
+  --vidro-ativo-contorno-alfa: 0.22;
+  --vidro-ativo-sombra-alfa: 0.6;
+  --vidro-ativo-texto: #10283A;
+}
+
+/* O !important vence o ring e o bg dos botões do Nuxt UI, que também usam box-shadow e background-color. */
+@utility vidro {
+  background: rgb(var(--vidro-fundo) / var(--vidro-fundo-alfa)) !important;
+  backdrop-filter: blur(var(--vidro-desfoque)) saturate(var(--vidro-saturacao));
+  box-shadow:
+    inset 0 1px 0 rgb(var(--vidro-luz) / var(--vidro-luz-alfa)),
+    inset 0 0 0 1px rgb(255 255 255 / var(--vidro-dentro-alfa)),
+    0 0 0 1px rgb(var(--vidro-contorno) / var(--vidro-contorno-alfa)),
+    0 1px 2px rgb(var(--vidro-sombra) / calc(var(--vidro-sombra-alfa) / 4)),
+    0 12px 32px -14px rgb(var(--vidro-sombra) / var(--vidro-sombra-alfa)) !important;
+}
+
+/* Item escolhido: vidro claro com tinta azul, linha de luz e contorno por dentro, sem sombra. */
+@utility vidro-escolhido {
+  background: rgb(var(--vidro-escolhido-fundo) / var(--vidro-escolhido-fundo-alfa)) !important;
+  color: var(--vidro-escolhido-texto);
+  box-shadow:
+    inset 0 1px 0 rgb(var(--vidro-escolhido-luz) / var(--vidro-escolhido-luz-alfa)),
+    inset 0 0 0 1px rgb(var(--vidro-escolhido-contorno) / var(--vidro-escolhido-contorno-alfa)) !important;
+}
+
+/* Botão principal: painel azul quase sólido, luz no topo, sombra na base e por baixo. */
+@utility vidro-ativo {
+  background: rgb(var(--vidro-ativo-fundo) / var(--vidro-ativo-fundo-alfa)) !important;
+  backdrop-filter: blur(14px);
+  color: var(--vidro-ativo-texto);
+  box-shadow:
+    inset 0 1px 0 rgb(var(--vidro-ativo-luz) / var(--vidro-ativo-luz-alfa)),
+    inset 0 -1px 0 rgb(var(--vidro-ativo-contorno) / var(--vidro-ativo-contorno-alfa)),
+    0 1px 2px rgb(var(--vidro-sombra) / calc(var(--vidro-ativo-sombra-alfa) / 4)),
+    0 8px 18px -9px rgb(var(--vidro-sombra) / var(--vidro-ativo-sombra-alfa)) !important;
+}

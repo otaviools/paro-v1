@@ -1,0 +1,15 @@
+@import "tailwindcss";
+@import "@nuxt/ui";
+@import "./paro.css";
+@import "./movimento.css";
+
+@source "../../../content/**/*";
+@source "../../../../docs/**/*.md";
+
+@theme static {
+  --container-8xl: 90rem;
+}
+
+:root {
+  --ui-container: var(--container-8xl);
+}
