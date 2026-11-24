@@ -5,7 +5,7 @@
   <img src="docs/imagens/capa-claro.svg" width="100%" alt="Parô">
 </picture>
 
-<a href="https://paro-v1.vercel.app"><img src="https://img.shields.io/badge/Abrir_o_app-6EA8FF?style=for-the-badge" alt="Abrir o app"></a> <a href="docs"><img src="https://img.shields.io/badge/Documenta%C3%A7%C3%A3o-32312C?style=for-the-badge" alt="Documentação"></a> <a href="#rodar-localmente"><img src="https://img.shields.io/badge/Rodar_localmente-32312C?style=for-the-badge" alt="Rodar localmente"></a>
+<a href="https://paro-v1.vercel.app"><img src="https://img.shields.io/badge/Abrir_o_app-6EA8FF?style=for-the-badge" alt="Abrir o app"></a> <a href="https://docs-site-lime.vercel.app/"><img src="https://img.shields.io/badge/Documenta%C3%A7%C3%A3o-32312C?style=for-the-badge" alt="Documentação"></a> <a href="#rodar-localmente"><img src="https://img.shields.io/badge/Rodar_localmente-32312C?style=for-the-badge" alt="Rodar localmente"></a>
 
 <table>
   <tr>
