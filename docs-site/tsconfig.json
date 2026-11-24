@@ -1,4 +1,13 @@
 {
   // https://nuxt.com/docs/guide/concepts/typescript
-  "extends": "./.nuxt/tsconfig.json"
+  // Referências para o .nuxt do próprio docs-site, como no tsconfig da raiz.
+  // Com o "extends" antigo, o Vite subia até o tsconfig da raiz (o do app) e
+  // procurava o .nuxt do app, que não existe num checkout limpo (Vercel).
+  "files": [],
+  "references": [
+    { "path": "./.nuxt/tsconfig.app.json" },
+    { "path": "./.nuxt/tsconfig.server.json" },
+    { "path": "./.nuxt/tsconfig.shared.json" },
+    { "path": "./.nuxt/tsconfig.node.json" }
+  ]
 }
