@@ -1,0 +1,75 @@
+/*
+ * Movimento do site, com o vocabulário do app (app/assets/css/main.css da raiz):
+ * cascata de baixo para cima e esmaecimento curto.
+ * Só opacity, translate e scale. Com movimento reduzido, nada se move.
+ */
+
+/* Cada bloco sobe 12 px e aparece (surgir-bloco do app). */
+@keyframes surgir-bloco {
+  from {
+    opacity: 0;
+    translate: 0 12px;
+  }
+}
+
+/*
+ * Troca de página (app.pageTransition no nuxt.config): a antiga sai na hora e a
+ * nova aparece em 200 ms, só com opacidade, como no app.
+ */
+.pagina-leave-active {
+  display: none;
+}
+
+.pagina-enter-active {
+  transition: opacity 200ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.pagina-enter-from {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pagina-enter-active {
+    transition: none;
+  }
+}
+
+/*
+ * Entrada ao rolar (useSurgirAoRolar): o elemento sobe 16 px e aparece na primeira
+ * vez que entra na tela. Só esconde com a classe js-movimento no <html>, posta por
+ * um script no <head>: sem JavaScript, tudo fica visível. Os filhos com --atraso
+ * (prints do celular) entram um depois do outro.
+ */
+.surgir-ao-rolar,
+.surgir-ao-rolar [style*="--atraso"] {
+  transition:
+    opacity 500ms cubic-bezier(0.16, 1, 0.3, 1),
+    translate 500ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--atraso, 0ms);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Capa: título, texto, botões e janela entram em cascata, 40 ms um depois do outro. */
+  .capa [data-slot="title"],
+  .capa [data-slot="description"],
+  .capa [data-slot="links"],
+  .capa figure {
+    animation: surgir-bloco 360ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .capa [data-slot="description"] { animation-delay: 40ms; }
+  .capa [data-slot="links"] { animation-delay: 80ms; }
+  .capa figure { animation-delay: 120ms; }
+
+  .js-movimento .surgir-ao-rolar:not(.surgiu),
+  .js-movimento .surgir-ao-rolar:not(.surgiu) [style*="--atraso"] {
+    opacity: 0;
+    translate: 0 16px;
+  }
+
+  /* Prints do celular: o fundo já aparece e as prints sobem uma a uma. */
+  .js-movimento .surgir-ao-rolar.com-atraso:not(.surgiu) {
+    opacity: 1;
+    translate: none;
+  }
+}
