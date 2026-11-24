@@ -34,4 +34,7 @@ export default withNuxt({
       message: 'Chamada à API só dentro de app/composables/, num composable do recurso (ADR 0030).',
     }],
   },
+}, {
+  // Biblioteca de terceiros copiada já minificada para o deck da apresentação.
+  ignores: ['docs/apresentacao/deck/vendor/**'],
 })
